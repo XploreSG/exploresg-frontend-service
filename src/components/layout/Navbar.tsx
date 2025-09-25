@@ -1,7 +1,7 @@
 import { APP_CONFIG } from "../../config/constants";
 import { Logo } from "../ui/Logo";
 import { HamburgerMenu } from "../ui/HamburgerMenu";
-import { NavigationList } from "../navigation/NavigationList";
+import NavigationList from "../navigation/NavigationList";
 import { useMobileMenu } from "../../hooks/useMobileMenu";
 
 const Navbar = () => {
@@ -19,16 +19,20 @@ const Navbar = () => {
         <HamburgerMenu isOpen={isOpen} onClick={toggle} />
 
         {/* Desktop Navigation */}
-        <NavigationList onItemClick={close} />
+        <div className="hidden md:block">
+          <NavigationList onItemClick={close} />
+        </div>
       </div>
 
       {/* Mobile Navigation */}
       <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        className={`overflow-hidden transition-all duration-300 ease-in-out md:hidden ${
+          isOpen ? "max-h-96 pt-4 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <NavigationList isMobile onItemClick={close} />
+        <div className="border-t border-gray-700 pt-4">
+          <NavigationList isMobile onItemClick={close} />
+        </div>
       </div>
     </nav>
   );
