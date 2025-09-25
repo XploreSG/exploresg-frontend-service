@@ -5,36 +5,36 @@ import { MapPin, Clock } from "lucide-react";
 const LocationsSection = () => {
   const locations = [
     {
-      name: "Marina Bay Sands",
-      address: "10 Bayfront Ave, Singapore 018956",
+      name: "Changi Airport Terminal 1",
+      address: "80 Airport Blvd, Singapore 819642",
+      image:
+        "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80",
+      available: 18,
+      nextReturn: "2 hours",
+    },
+    {
+      name: "Orchard Road Central",
+      address: "391 Orchard Rd, Singapore 238873",
       image:
         "https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=600&q=80",
       available: 12,
-      nextReturn: "15 min",
+      nextReturn: "45 min",
     },
     {
-      name: "Sentosa Island",
-      address: "Sentosa Island, Singapore",
-      image:
-        "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=600&q=80",
-      available: 8,
-      nextReturn: "25 min",
-    },
-    {
-      name: "Gardens by the Bay",
-      address: "18 Marina Gardens Dr, Singapore 018953",
+      name: "Marina Bay Financial Centre",
+      address: "8 Marina Blvd, Singapore 018981",
       image:
         "https://images.unsplash.com/photo-1508033755347-67bb86c82d95?auto=format&fit=crop&w=600&q=80",
-      available: 15,
-      nextReturn: "10 min",
+      available: 9,
+      nextReturn: "1 hour",
     },
     {
-      name: "Clarke Quay",
-      address: "3 River Valley Rd, Singapore 179024",
+      name: "Sentosa Gateway",
+      address: "33 Allanbrooke Rd, Singapore 099981",
       image:
-        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=600&q=80",
       available: 6,
-      nextReturn: "30 min",
+      nextReturn: "3 hours",
     },
   ];
 
@@ -49,7 +49,8 @@ const LocationsSection = () => {
             Convenient Locations Across Singapore
           </h2>
           <p className="mx-auto max-w-3xl text-xl text-slate-600">
-            Find bikes at Singapore's most popular destinations and attractions
+            Pick up your rental vehicle at Singapore's most popular destinations
+            and business districts
           </p>
         </div>
 

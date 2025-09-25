@@ -9,58 +9,58 @@ import {
   Shield,
   Star,
   ArrowRight,
-  Zap,
-  Mountain,
-  Route,
+  Car,
+  Bike,
+  Truck,
 } from "lucide-react";
 
 import HeroSection from "../components/home/HeroSection";
-import FeaturedBikes from "../components/home/FeaturedBikes";
+import FeaturedVehicles from "../components/home/FeaturedVehicles";
 import LocationsSection from "../components/home/LocationsSection";
 
 export default function LandingPage() {
   const features = [
     {
       icon: MapPin,
-      title: "8+ Pickup Locations",
+      title: "15+ Pickup Locations",
       description:
-        "Convenient pickup points across Singapore's top destinations",
+        "Convenient pickup points across Singapore's key districts and airports",
     },
     {
       icon: Clock,
-      title: "24/7 Availability",
-      description: "Book anytime, pick up anytime with our smart lock system",
+      title: "24/7 Support",
+      description: "Round-the-clock customer service and roadside assistance",
     },
     {
       icon: Shield,
       title: "Fully Insured",
-      description: "All rides covered with comprehensive insurance",
+      description: "Comprehensive coverage for cars, motorcycles, and riders",
     },
     {
       icon: Star,
-      title: "Premium Quality",
-      description: "Well-maintained bikes from top international brands",
+      title: "Premium Fleet",
+      description: "Latest models from BMW, Mercedes, Yamaha, and Honda",
     },
   ];
 
-  const bikeTypes = [
+  const vehicleTypes = [
     {
-      type: "Electric Bikes",
-      icon: Zap,
-      description: "Effortless rides with electric assistance",
-      color: "from-yellow-400 to-orange-500",
+      type: "Luxury Cars",
+      icon: Car,
+      description: "Premium sedans and SUVs for comfort and style",
+      color: "from-blue-500 to-indigo-600",
     },
     {
-      type: "Mountain Bikes",
-      icon: Mountain,
-      description: "Perfect for Singapore's park trails",
-      color: "from-green-400 to-emerald-500",
+      type: "Motorcycles",
+      icon: Bike,
+      description: "Agile bikes perfect for Singapore's traffic",
+      color: "from-red-500 to-pink-600",
     },
     {
-      type: "City Bikes",
-      icon: Route,
-      description: "Comfortable rides through urban areas",
-      color: "from-blue-400 to-cyan-500",
+      type: "Commercial Vehicles",
+      icon: Truck,
+      description: "Vans and trucks for business and moving needs",
+      color: "from-green-500 to-emerald-600",
     },
   ];
 
@@ -76,11 +76,11 @@ export default function LandingPage() {
               Why Choose Us
             </Badge>
             <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
-              Singapore's Premier Bike Rental Experience
+              Singapore's Premier Vehicle Rental Experience
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-slate-600">
-              From Marina Bay to Sentosa, explore Singapore's iconic locations
-              with our premium fleet
+              From business trips to weekend getaways, explore Singapore with
+              our premium cars and motorcycles
             </p>
           </div>
 
@@ -105,7 +105,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Bike Types Section */}
+      {/* Vehicle Types Section */}
       <section className="bg-slate-50 py-20">
         <div className="mx-auto max-w-7xl px-4">
           <div className="mb-16 text-center">
@@ -113,25 +113,25 @@ export default function LandingPage() {
               Our Fleet
             </Badge>
             <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
-              Choose Your Perfect Ride
+              Choose Your Perfect Vehicle
             </h2>
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {bikeTypes.map((bike, index) => (
+            {vehicleTypes.map((vehicle, index) => (
               <div key={index} className="group cursor-pointer">
                 <Card className="overflow-hidden border-0 shadow-lg transition-all duration-500 hover:shadow-2xl">
                   <CardContent className="p-0">
                     <div
-                      className={`h-32 bg-gradient-to-r ${bike.color} flex items-center justify-center transition-transform duration-500 group-hover:scale-105`}
+                      className={`h-32 bg-gradient-to-r ${vehicle.color} flex items-center justify-center transition-transform duration-500 group-hover:scale-105`}
                     >
-                      <bike.icon className="h-16 w-16 text-white" />
+                      <vehicle.icon className="h-16 w-16 text-white" />
                     </div>
                     <div className="p-6">
                       <h3 className="mb-2 text-xl font-bold text-slate-900">
-                        {bike.type}
+                        {vehicle.type}
                       </h3>
-                      <p className="text-slate-600">{bike.description}</p>
+                      <p className="text-slate-600">{vehicle.description}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -141,24 +141,25 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <FeaturedBikes />
+      <FeaturedVehicles />
       <LocationsSection />
 
       {/* CTA Section */}
       <section className="bg-gradient-to-r from-teal-600 to-emerald-600 py-20 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            Ready to Explore Singapore?
+            Ready to Hit the Road?
           </h2>
           <p className="mb-8 text-xl text-teal-100">
-            Book your bike in just a few clicks and start your adventure today
+            Book your perfect vehicle in just a few clicks and start your
+            Singapore journey today
           </p>
           <Link to={createPageUrl("BookBike")}>
             <Button
               size="lg"
               className="group bg-white px-8 py-4 text-lg text-teal-600 shadow-xl hover:bg-slate-50"
             >
-              Book Your Bike Now
+              Book Your Vehicle Now
               <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>

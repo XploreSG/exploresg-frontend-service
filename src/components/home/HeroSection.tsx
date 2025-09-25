@@ -1,6 +1,4 @@
-import React from "react";
 import { Button } from "../ui/Button";
-import { createPageUrl } from "../../utils/helpers";
 import { ArrowRight } from "lucide-react";
 
 const HeroSection = () => {
@@ -22,8 +20,8 @@ const HeroSection = () => {
           </h1>
 
           <p className="mx-auto mb-8 max-w-3xl text-xl text-slate-300 md:text-2xl">
-            Premium bike rentals across Singapore's most iconic locations. From
-            Marina Bay to Sentosa, discover the city at your own pace.
+            Premium car and motorcycle rentals across Singapore. From business
+            trips to weekend adventures, travel in comfort and style.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

@@ -1,34 +1,34 @@
 import { Card, CardContent } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 
-const FeaturedBikes = () => {
-  const bikes = [
+const FeaturedVehicles = () => {
+  const vehicles = [
     {
       id: 1,
-      name: "Trek FX 3 Disc",
-      type: "Hybrid Bike",
-      price: "From $15/hour",
+      name: "BMW 320i",
+      type: "Luxury Sedan",
+      price: "From $80/day",
       image:
-        "https://images.unsplash.com/photo-1558618068-fccb540caa1d?auto=format&fit=crop&w=600&q=80",
-      features: ["21-Speed", "Disc Brakes", "Lightweight Frame"],
+        "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80",
+      features: ["Leather Interior", "GPS Navigation", "Premium Sound"],
     },
     {
       id: 2,
-      name: "Giant Escape 3",
-      type: "City Bike",
-      price: "From $12/hour",
+      name: "Mercedes C-Class",
+      type: "Executive Car",
+      price: "From $90/day",
       image:
-        "https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=600&q=80",
-      features: ["Comfort Riding", "Urban Design", "Easy Handling"],
+        "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80",
+      features: ["Automatic", "Air Conditioning", "Bluetooth"],
     },
     {
       id: 3,
-      name: "Specialized Turbo Vado",
-      type: "Electric Bike",
-      price: "From $25/hour",
+      name: "Yamaha MT-09",
+      type: "Sport Motorcycle",
+      price: "From $45/day",
       image:
-        "https://images.unsplash.com/photo-1544191696-15693072e4d5?auto=format&fit=crop&w=600&q=80",
-      features: ["Electric Assist", "Long Range", "Smart Features"],
+        "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=600&q=80",
+      features: ["847cc Engine", "ABS Brakes", "Digital Display"],
     },
   ];
 
@@ -40,23 +40,24 @@ const FeaturedBikes = () => {
             Featured Fleet
           </Badge>
           <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
-            Premium Bikes for Every Adventure
+            Premium Vehicles for Every Journey
           </h2>
           <p className="mx-auto max-w-3xl text-xl text-slate-600">
-            Choose from our carefully curated selection of top-quality bikes
+            Choose from our carefully curated selection of luxury cars and
+            motorcycles
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {bikes.map((bike) => (
+          {vehicles.map((vehicle) => (
             <Card
-              key={bike.id}
+              key={vehicle.id}
               className="group overflow-hidden transition-all duration-300 hover:shadow-xl"
             >
               <div className="aspect-video overflow-hidden">
                 <img
-                  src={bike.image}
-                  alt={bike.name}
+                  src={vehicle.image}
+                  alt={vehicle.name}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
@@ -64,14 +65,14 @@ const FeaturedBikes = () => {
                 <div className="mb-2 flex items-start justify-between">
                   <div>
                     <h3 className="text-xl font-bold text-slate-900">
-                      {bike.name}
+                      {vehicle.name}
                     </h3>
-                    <p className="text-slate-600">{bike.type}</p>
+                    <p className="text-slate-600">{vehicle.type}</p>
                   </div>
-                  <Badge variant="success">{bike.price}</Badge>
+                  <Badge variant="success">{vehicle.price}</Badge>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {bike.features.map((feature, index) => (
+                  {vehicle.features.map((feature, index) => (
                     <span
                       key={index}
                       className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600"
@@ -89,4 +90,4 @@ const FeaturedBikes = () => {
   );
 };
 
-export default FeaturedBikes;
+export default FeaturedVehicles;
