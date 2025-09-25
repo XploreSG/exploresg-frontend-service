@@ -13,6 +13,16 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     path: ROUTES.home,
   },
   {
+    label: "Login",
+    path: ROUTES.login,
+    requiresAuth: false, // Only show when NOT logged in
+  },
+  {
+    label: "Dashboard",
+    path: ROUTES.dashboard,
+    requiresAuth: true,
+  },
+  {
     label: "Book a Ride",
     path: ROUTES.book,
     requiresAuth: true,
@@ -27,7 +37,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     path: ROUTES.rides,
   },
   {
-    label: "Sree R One", // This should be dynamic based on user
+    label: "Profile", // This should be dynamic based on user
     path: ROUTES.profile,
     variant: "user",
     requiresAuth: true,

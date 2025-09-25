@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
 // Route paths
 export const ROUTES = {
   home: "/",
+  login: "/login",
   book: "/book",
   bookings: "/bookings",
   rides: "/rides",
