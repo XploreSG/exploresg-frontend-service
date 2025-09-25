@@ -3,6 +3,7 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
+import LoginPage from "./pages/LoginPage";
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>

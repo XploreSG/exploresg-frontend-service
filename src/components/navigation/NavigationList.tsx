@@ -1,8 +1,9 @@
 import type { FC } from "react";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../store";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "../../store";
 import { Link } from "react-router-dom";
 import { NAVIGATION_ITEMS } from "../../config/navigation";
+import { logout } from "../../features/auth/store/authSlice";
 
 interface Props {
   isMobile?: boolean;
@@ -11,6 +12,7 @@ interface Props {
 
 const NavigationList: FC<Props> = ({ isMobile, onItemClick }) => {
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const dispatch = useDispatch<AppDispatch>();
 
   // Helper function to get the appropriate CSS classes based on variant
   const getLinkClasses = (variant?: string) => {
@@ -42,13 +44,29 @@ const NavigationList: FC<Props> = ({ isMobile, onItemClick }) => {
     return true;
   });
 
+  const handleClick = (
+    item: (typeof NAVIGATION_ITEMS)[0],
+    event: React.MouseEvent,
+  ) => {
+    // Handle logout click
+    if (item.path === "/logout") {
+      event.preventDefault(); // Prevent navigation
+      dispatch(logout());
+      if (onItemClick) onItemClick();
+      return;
+    }
+
+    // For other items, just call onItemClick if provided
+    if (onItemClick) onItemClick();
+  };
+
   return (
     <div className={`flex ${isMobile ? "flex-col space-y-2" : "space-x-6"}`}>
       {visibleItems.map((item, index) => (
         <Link
           key={`${item.path}-${index}`}
           to={item.path}
-          onClick={onItemClick}
+          onClick={(e) => handleClick(item, e)}
           className={getLinkClasses(item.variant)}
         >
           {item.label}

@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --brand-orange: #ff5f00;
+  --brand-black: #222;
+  --brand-light: #fff;
+}
 /* Custom animations */
 @keyframes slideIn {
   from {
