@@ -42,3 +42,16 @@ export const debounce = <T extends (...args: any[]) => any>(
     timeout = window.setTimeout(() => func(...args), wait);
   };
 };
+
+/**
+ * Creates page URLs for routing
+ */
+export const createPageUrl = (page: string): string => {
+  const routes: Record<string, string> = {
+    Home: "/",
+    BookBike: "/book",
+    Dashboard: "/dashboard",
+    Login: "/login",
+  };
+  return routes[page] || "/";
+};
