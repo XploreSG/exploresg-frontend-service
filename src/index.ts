@@ -13,4 +13,4 @@ export * from "./utils/helpers";
 export { Logo } from "./components/ui/Logo";
 export { NavLink } from "./components/ui/NavLink";
 export { HamburgerMenu } from "./components/ui/HamburgerMenu";
-export { NavigationList } from "./components/navigation/NavigationList";
+export { default as NavigationList } from "./components/navigation/NavigationList";

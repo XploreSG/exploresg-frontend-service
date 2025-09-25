@@ -23,9 +23,14 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     requiresAuth: true,
   },
   {
-    label: "Book a Ride",
+    label: "Book a Bike",
     path: ROUTES.book,
-    requiresAuth: true,
+    requiresAuth: false,
+  },
+  {
+    label: "Vehicles",
+    path: ROUTES.vehicles,
+    requiresAuth: false,
   },
   {
     label: "Log Out",

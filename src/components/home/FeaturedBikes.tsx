@@ -1,34 +1,34 @@
 import { Card, CardContent } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 
-const FeaturedVehicles = () => {
-  const vehicles = [
+const FeaturedBikes = () => {
+  const bikes = [
     {
       id: 1,
-      name: "BMW 320i",
-      type: "Luxury Sedan",
-      price: "From $80/day",
+      name: "Trek Verve+ 2",
+      type: "Electric City Bike",
+      price: "From $25/day",
       image:
-        "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80",
-      features: ["Leather Interior", "GPS Navigation", "Premium Sound"],
+        "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=600&q=80",
+      features: ["Electric Assist", "LED Lights", "Comfort Saddle"],
     },
     {
       id: 2,
-      name: "Mercedes C-Class",
-      type: "Executive Car",
-      price: "From $90/day",
+      name: "Giant Escape 3",
+      type: "Hybrid Bike",
+      price: "From $18/day",
       image:
-        "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80",
-      features: ["Automatic", "Air Conditioning", "Bluetooth"],
+        "https://images.unsplash.com/photo-1544191696-15693986e1d8?auto=format&fit=crop&w=600&q=80",
+      features: ["21-Speed", "Lightweight Frame", "Puncture Resistant"],
     },
     {
       id: 3,
-      name: "Yamaha MT-09",
-      type: "Sport Motorcycle",
-      price: "From $45/day",
+      name: "Specialized Rockhopper",
+      type: "Mountain Bike",
+      price: "From $22/day",
       image:
-        "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=600&q=80",
-      features: ["847cc Engine", "ABS Brakes", "Digital Display"],
+        "https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=600&q=80",
+      features: ["Front Suspension", "27-Speed", "All-Terrain Tires"],
     },
   ];
 
@@ -36,28 +36,28 @@ const FeaturedVehicles = () => {
     <section className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-4">
         <div className="mb-16 text-center">
-          <Badge className="mb-4 border-orange-200 bg-orange-50 text-(--brand-orange)">
+          <Badge className="mb-4 border-orange-200 bg-orange-50 text-orange-600">
             Featured Fleet
           </Badge>
           <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
-            Premium Vehicles for Every Journey
+            Premium Bikes for Every Adventure
           </h2>
           <p className="mx-auto max-w-3xl text-xl text-slate-600">
-            Choose from our carefully curated selection of luxury cars and
-            motorcycles
+            Choose from our carefully maintained selection of bikes perfect for
+            exploring Singapore
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {vehicles.map((vehicle) => (
+          {bikes.map((bike) => (
             <Card
-              key={vehicle.id}
+              key={bike.id}
               className="group overflow-hidden transition-all duration-300 hover:shadow-xl"
             >
               <div className="aspect-video overflow-hidden">
                 <img
-                  src={vehicle.image}
-                  alt={vehicle.name}
+                  src={bike.image}
+                  alt={bike.name}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
@@ -65,14 +65,14 @@ const FeaturedVehicles = () => {
                 <div className="mb-2 flex items-start justify-between">
                   <div>
                     <h3 className="text-xl font-bold text-slate-900">
-                      {vehicle.name}
+                      {bike.name}
                     </h3>
-                    <p className="text-slate-600">{vehicle.type}</p>
+                    <p className="text-slate-600">{bike.type}</p>
                   </div>
-                  <Badge variant="success">{vehicle.price}</Badge>
+                  <Badge variant="success">{bike.price}</Badge>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {vehicle.features.map((feature, index) => (
+                  {bike.features.map((feature, index) => (
                     <span
                       key={index}
                       className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600"
@@ -90,4 +90,4 @@ const FeaturedVehicles = () => {
   );
 };
 
-export default FeaturedVehicles;
+export default FeaturedBikes;

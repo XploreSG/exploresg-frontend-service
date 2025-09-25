@@ -9,14 +9,16 @@ import {
   Shield,
   Star,
   ArrowRight,
-  Bike,
+  Zap,
+  Mountain,
+  Route,
 } from "lucide-react";
 
 import HeroSection from "../components/home/HeroSection";
 import FeaturedBikes from "../components/home/FeaturedBikes";
 import LocationsSection from "../components/home/LocationsSection";
 
-export default function LandingPage() {
+export default function Home() {
   const features = [
     {
       icon: MapPin,
@@ -41,22 +43,22 @@ export default function LandingPage() {
     },
   ];
 
-  const bikeCategories = [
+  const bikeTypes = [
     {
       type: "Electric Bikes",
-      icon: Bike,
+      icon: Zap,
       description: "Effortless rides with electric assistance",
       color: "from-yellow-400 to-orange-500",
     },
     {
       type: "Mountain Bikes",
-      icon: Bike,
+      icon: Mountain,
       description: "Perfect for Singapore's park trails",
       color: "from-green-400 to-emerald-500",
     },
     {
       type: "City Bikes",
-      icon: Bike,
+      icon: Route,
       description: "Comfortable rides through urban areas",
       color: "from-blue-400 to-cyan-500",
     },
@@ -77,7 +79,8 @@ export default function LandingPage() {
               Singapore's Premier Bike Rental Experience
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-slate-600">
-              From Marina Bay to Sentosa, explore Singapore's iconic locations with our premium fleet
+              From Marina Bay to Sentosa, explore Singapore's iconic locations
+              with our premium fleet
             </p>
           </div>
 
@@ -102,20 +105,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Vehicle Types Section */}
+      {/* Bike Types Section */}
       <section className="bg-slate-50 py-20">
         <div className="mx-auto max-w-7xl px-4">
           <div className="mb-16 text-center">
-            <Badge className="mb-4 border-orange-200 bg-orange-50 text-(--brand-orange)">
+            <Badge className="mb-4 border-orange-200 bg-orange-50 text-orange-600">
               Our Fleet
             </Badge>
             <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
-              Choose Your Perfect Bike
+              Choose Your Perfect Ride
             </h2>
           </div>
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {bikeCategories.map((bike, index) => (
+            {bikeTypes.map((bike, index) => (
               <div key={index} className="group cursor-pointer">
                 <Card className="overflow-hidden border-0 shadow-lg transition-all duration-500 hover:shadow-2xl">
                   <CardContent className="p-0">

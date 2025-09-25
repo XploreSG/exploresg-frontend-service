@@ -49,7 +49,8 @@ export const debounce = <T extends (...args: any[]) => any>(
 export const createPageUrl = (page: string): string => {
   const routes: Record<string, string> = {
     Home: "/",
-    BookBike: "/book",
+    BookBike: "/book-bike",
+    Vehicles: "/vehicles", 
     Dashboard: "/dashboard",
     Login: "/login",
   };
