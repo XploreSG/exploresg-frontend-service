@@ -7,6 +7,7 @@ import AttractionsPage from "./pages/AttractionsPage";
 import FoodPage from "./pages/FoodPage";
 import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
+import FleetPage from "./pages/FleetPage";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/rentals" element={<FleetPage />} />
             <Route path="/attractions" element={<AttractionsPage />} />
             <Route path="/food" element={<FoodPage />} />
             <Route path="/events" element={<EventsPage />} />
