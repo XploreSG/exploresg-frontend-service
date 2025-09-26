@@ -52,10 +52,24 @@ class AuthService {
   }
 
   // Start Google OAuth login (redirect to backend)
-  startGoogleLogin(): void {
+  startGoogleLogin(forceAccountSelection: boolean = false): void {
     console.log("🔄 Starting Google OAuth login flow...");
-    console.log("Redirecting to:", `${this.baseURL}/login`);
-    window.location.href = `${this.baseURL}/login`;
+
+    let loginUrl = `${this.baseURL}/login`;
+
+    // Add parameter to force account selection (shows Google picker every time)
+    if (forceAccountSelection) {
+      loginUrl += "?prompt=select_account";
+      console.log("🔄 Forcing Google account selection...");
+    }
+
+    console.log("Redirecting to:", loginUrl);
+    window.location.href = loginUrl;
+  }
+
+  // Start Google OAuth with forced account selection (always shows Google page)
+  startGoogleLoginWithSelection(): void {
+    this.startGoogleLogin(true);
   }
 
   // Get current user info (requires JWT)

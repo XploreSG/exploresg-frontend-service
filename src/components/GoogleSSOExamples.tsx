@@ -133,6 +133,59 @@ const GoogleSSOExamples: React.FC = () => {
         </div>
       </section>
 
+      {/* Google OAuth Account Selection */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-800">
+          Account Selection Options
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg bg-gray-50 p-4">
+            <h3 className="mb-2 text-sm font-medium text-gray-700">
+              Default Behavior
+            </h3>
+            <p className="mb-3 text-xs text-gray-600">
+              Will use existing session if available
+            </p>
+            <GoogleSSOButton />
+          </div>
+          <div className="rounded-lg bg-gray-50 p-4">
+            <h3 className="mb-2 text-sm font-medium text-gray-700">
+              Force Account Selection
+            </h3>
+            <p className="mb-3 text-xs text-gray-600">
+              Always shows Google account selection
+            </p>
+            <GoogleSSOButton forceAccountSelection={true} />
+          </div>
+        </div>
+        <div className="rounded-lg bg-blue-50 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100">
+                <span className="text-xs font-semibold text-blue-600">i</span>
+              </div>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-blue-800">
+                About Account Selection
+              </h3>
+              <div className="mt-1 text-sm text-blue-700">
+                <p>
+                  By default, Google OAuth will use an existing session if the
+                  user is already signed in to Google. Use{" "}
+                  <code className="rounded bg-blue-200 px-1">
+                    forceAccountSelection=true
+                  </code>{" "}
+                  to always show the account selection screen, useful for
+                  testing or when you want users to explicitly choose an
+                  account.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Integration Example */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-800">

@@ -7,6 +7,7 @@ interface GoogleSSOButtonProps {
   className?: string;
   size?: "sm" | "md" | "lg";
   variant?: "filled" | "outlined";
+  forceAccountSelection?: boolean; // New prop to force Google account picker
 }
 
 const GoogleSSOButton: React.FC<GoogleSSOButtonProps> = ({
@@ -16,13 +17,21 @@ const GoogleSSOButton: React.FC<GoogleSSOButtonProps> = ({
   className = "",
   size = "md",
   variant = "filled",
+  forceAccountSelection = false,
 }) => {
   const handleClick = () => {
     if (!loading && !disabled && onClick) {
       onClick();
     } else {
       // Direct redirect to your Spring Boot auth endpoint
-      window.location.href = "http://localhost:8080/api/v1/auth/login";
+      let loginUrl = "http://localhost:8080/api/v1/auth/login";
+
+      // Add parameter to force Google account selection if requested
+      if (forceAccountSelection) {
+        loginUrl += "?prompt=select_account";
+      }
+
+      window.location.href = loginUrl;
     }
   };
 
