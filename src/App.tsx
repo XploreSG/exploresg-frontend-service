@@ -8,7 +8,7 @@ import FoodPage from "./pages/FoodPage";
 import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
 import FleetPage from "./pages/FleetPage";
-import RentalAddOn from "./components/Rentals/RentalAddOn";
+import RentalAddOnPage from "./components/Rentals/RentalAddOn";
 
 const App = () => {
   return (
@@ -21,9 +21,24 @@ const App = () => {
             <Route path="/rentals" element={<FleetPage />} />
             <Route path="/attractions" element={<AttractionsPage />} />
             <Route path="/food" element={<FoodPage />} />
-            <Route path="/addon" element={<RentalAddOn />} />
+            <Route path="/addon" element={<RentalAddOnPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route
+              path="/booking/:carId/addons"
+              element={<RentalAddOnPage />}
+            />
+            {/* Booking Flow Routes */}
+            {/* 
+            <Route
+              path="/booking/:carId/addons"
+              element={<RentalAddOnPage />}
+            />
+            <Route
+              path="/booking/:carId/driver-details"
+              element={<DriverDetailsPage />}
+            />
+            <Route path="/booking/:carId/payment" element={<PaymentPage />} /> */}
           </Routes>
         </main>
         <Footer />

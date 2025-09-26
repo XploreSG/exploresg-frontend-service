@@ -71,7 +71,7 @@ const CDW_OPTIONS: CDWOption[] = [
   { key: "max", label: "CDW Max", price: 40, priceDisplay: "+S$40/night" },
 ];
 
-const RentalAddOn: React.FC = () => {
+const RentalAddOnPage: React.FC = () => {
   // Booking details (normally passed as props or from context/state)
   const bookingDetails: BookingDetails = {
     car: "Toyota Alphard or similar",
@@ -387,4 +387,4 @@ const RentalAddOn: React.FC = () => {
   );
 };
 
-export default RentalAddOn;
+export default RentalAddOnPage;
