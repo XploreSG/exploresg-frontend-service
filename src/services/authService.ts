@@ -34,6 +34,13 @@ class AuthService {
     localStorage.removeItem("jwt");
   }
 
+  // Clear all localStorage (complete cleanup)
+  clearAllStorage(): void {
+    console.log("🧹 Clearing ALL localStorage...");
+    localStorage.clear();
+    console.log("✅ All localStorage cleared");
+  }
+
   // Check service health
   async checkHealth(): Promise<{
     status: string;
@@ -109,10 +116,23 @@ class AuthService {
       console.warn("⚠️ Backend logout failed (this is OK):", error);
       // Continue with local logout even if backend fails
     } finally {
-      // Always remove token from localStorage
-      console.log("🧹 Clearing local storage...");
-      this.removeToken();
-      console.log("✅ Logout completed");
+      // Clear ALL localStorage data (complete cleanup)
+      console.log("🧹 Clearing ALL local storage data...");
+      this.removeToken(); // Remove JWT token specifically
+
+      // Clear any other auth-related data that might exist
+      localStorage.removeItem("user");
+      localStorage.removeItem("authState");
+      localStorage.removeItem("exploresg_jwt");
+      localStorage.removeItem("exploresg_user");
+
+      // Option 1: Clear all localStorage (uncomment next line for complete cleanup)
+      // this.clearAllStorage();
+
+      // Option 2: Or manually clear everything with:
+      // localStorage.clear();
+
+      console.log("✅ Local storage cleared - Logout completed");
     }
   }
 }
