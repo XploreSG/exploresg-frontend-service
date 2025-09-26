@@ -47,7 +47,7 @@ const FleetPage: React.FC = () => {
                 luggage={2}
                 originalPrice={100}
                 price={95}
-                promoText="FREE Entry to Malaysia Min. 3 nights"
+                promoText="FREE Entry to Malaysia Min. 4 nights"
                 // Fixed image path - use absolute path from public folder
                 imageUrl="/assets/prius.png"
                 operator="Sixt"
@@ -59,7 +59,7 @@ const FleetPage: React.FC = () => {
                 luggage={2}
                 originalPrice={100}
                 price={95}
-                promoText="FREE Entry to Malaysia Min. 3 nights"
+                promoText="FREE Entry to Malaysia Min. 5 nights"
                 // Fixed image path - use absolute path from public folder
                 imageUrl="/assets/prius.png"
                 operator="Hertz"
