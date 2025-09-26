@@ -9,6 +9,8 @@ import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
 import FleetPage from "./pages/FleetPage";
 import RentalAddOnPage from "./components/Rentals/RentalAddOn";
+import DriverDetailsPage from "./components/Rentals/DriverDetailsPage";
+import PaymentPage from "./pages/PaymentPage";
 
 const App = () => {
   return (
@@ -22,6 +24,8 @@ const App = () => {
             <Route path="/attractions" element={<AttractionsPage />} />
             <Route path="/food" element={<FoodPage />} />
             <Route path="/addon" element={<RentalAddOnPage />} />
+            <Route path="/driver" element={<DriverDetailsPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route
