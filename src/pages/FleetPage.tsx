@@ -1,5 +1,5 @@
 import React from "react";
-import CarRentalCard from "../components/CarRentalCard/CardRentalCard";
+import RentalCard from "../components/Rentals/RentalCard";
 
 const FleetPage: React.FC = () => {
   return (
@@ -17,7 +17,7 @@ const FleetPage: React.FC = () => {
         <div className="mt-16 rounded-lg bg-white p-12 shadow-lg">
           <div className="text-center">
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <CarRentalCard
+              <RentalCard
                 model="Toyota Alphard or similar"
                 seats={7}
                 luggage={2}
@@ -29,7 +29,7 @@ const FleetPage: React.FC = () => {
                 operator="Hertz"
                 operatorStyling="text-yellow-400"
               />
-              <CarRentalCard
+              <RentalCard
                 model="Toyota Alphard or similar"
                 seats={7}
                 luggage={2}
@@ -41,7 +41,7 @@ const FleetPage: React.FC = () => {
                 operator="Sixt"
                 operatorStyling="text-orange-400"
               />
-              <CarRentalCard
+              <RentalCard
                 model="Toyota Prius or similar"
                 seats={5}
                 luggage={2}
@@ -53,7 +53,7 @@ const FleetPage: React.FC = () => {
                 operator="Sixt"
                 operatorStyling="text-orange-400"
               />
-              <CarRentalCard
+              <RentalCard
                 model="Toyota Prius or similar"
                 seats={5}
                 luggage={2}

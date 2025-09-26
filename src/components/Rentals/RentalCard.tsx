@@ -1,7 +1,7 @@
 import React from "react";
 import { FaUsers, FaSuitcase, FaPaw } from "react-icons/fa";
 
-interface CarRentalCardProps {
+interface RentalCardProps {
   model: string;
   seats: number;
   luggage: number;
@@ -13,7 +13,7 @@ interface CarRentalCardProps {
   operatorStyling: string;
 }
 
-const CarRentalCard: React.FC<CarRentalCardProps> = ({
+const RentalCard: React.FC<RentalCardProps> = ({
   model,
   seats,
   luggage,
@@ -120,4 +120,4 @@ const CarRentalCard: React.FC<CarRentalCardProps> = ({
   );
 };
 
-export default CarRentalCard;
+export default RentalCard;
