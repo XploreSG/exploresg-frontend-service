@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import GoogleSSOButton from "./GoogleSSOButton";
 
 const LoginButton: React.FC = () => {
   const { user, login, logout, isLoading } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   if (isLoading) {
     return (
@@ -51,10 +52,25 @@ const LoginButton: React.FC = () => {
             </div>
           </div>
           <button
-            onClick={logout}
-            className="w-full rounded-md bg-red-500 px-4 py-2 font-semibold text-white transition duration-200 hover:bg-red-600"
+            onClick={async () => {
+              setIsLoggingOut(true);
+              try {
+                await logout();
+              } finally {
+                setIsLoggingOut(false);
+              }
+            }}
+            disabled={isLoggingOut}
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-red-500 px-4 py-2 font-semibold text-white transition duration-200 hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Logout
+            {isLoggingOut ? (
+              <>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>Logging out...</span>
+              </>
+            ) : (
+              "Logout"
+            )}
           </button>
         </div>
       </div>

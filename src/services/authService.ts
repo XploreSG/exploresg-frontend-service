@@ -90,8 +90,30 @@ class AuthService {
 
   // Logout
   async logout(): Promise<void> {
-    await fetch(`${this.baseURL}/logout`, { method: "POST" });
-    this.removeToken();
+    try {
+      const token = this.getToken();
+
+      // Only call backend logout if we have a token
+      if (token) {
+        console.log("🔄 Calling backend logout...");
+        await fetch(`${this.baseURL}/logout`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        console.log("✅ Backend logout successful");
+      }
+    } catch (error) {
+      console.warn("⚠️ Backend logout failed (this is OK):", error);
+      // Continue with local logout even if backend fails
+    } finally {
+      // Always remove token from localStorage
+      console.log("🧹 Clearing local storage...");
+      this.removeToken();
+      console.log("✅ Logout completed");
+    }
   }
 }
 

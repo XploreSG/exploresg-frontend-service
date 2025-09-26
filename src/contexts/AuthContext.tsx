@@ -58,9 +58,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
-    await authService.logout();
-    setUser(null);
-    setToken(null);
+    try {
+      console.log("🔄 Starting logout process...");
+      await authService.logout();
+      console.log("✅ Logout service completed");
+    } catch (error) {
+      console.warn("⚠️ Logout error (continuing anyway):", error);
+    } finally {
+      // Always clear the local state
+      console.log("🧹 Clearing auth state...");
+      setUser(null);
+      setToken(null);
+      console.log("✅ Auth state cleared");
+    }
   };
 
   return (
