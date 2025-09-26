@@ -9,6 +9,8 @@ interface CarRentalCardProps {
   originalPrice?: number;
   promoText?: string;
   imageUrl: string;
+  operator: string;
+  operatorStyling: string;
 }
 
 const CarRentalCard: React.FC<CarRentalCardProps> = ({
@@ -19,6 +21,8 @@ const CarRentalCard: React.FC<CarRentalCardProps> = ({
   originalPrice,
   promoText,
   imageUrl,
+  operator,
+  operatorStyling,
 }) => {
   return (
     <div className="relative max-w-sm overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
@@ -50,6 +54,10 @@ const CarRentalCard: React.FC<CarRentalCardProps> = ({
           </div>
           <div className="flex items-center space-x-2">
             <FaPaw className="text-sm" />
+          </div>
+          <div className="flex items-center space-x-2">
+            {/* <FaPaw className="text-sm" /> */}
+            <p className={`font-bold ${operatorStyling}`}>{operator}</p>
           </div>
         </div>
       </div>

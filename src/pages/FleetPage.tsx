@@ -26,6 +26,44 @@ const FleetPage: React.FC = () => {
                 promoText="FREE Entry to Malaysia Min. 3 nights"
                 // Fixed image path - use absolute path from public folder
                 imageUrl="/assets/alphard.png"
+                operator="Hertz"
+                operatorStyling="text-yellow-400"
+              />
+              <CarRentalCard
+                model="Toyota Alphard or similar"
+                seats={7}
+                luggage={2}
+                originalPrice={290}
+                price={250}
+                promoText="FREE Entry to Malaysia Min. 3 nights"
+                // Fixed image path - use absolute path from public folder
+                imageUrl="/assets/alphard.png"
+                operator="Sixt"
+                operatorStyling="text-orange-400"
+              />
+              <CarRentalCard
+                model="Toyota Prius or similar"
+                seats={5}
+                luggage={2}
+                originalPrice={100}
+                price={95}
+                promoText="FREE Entry to Malaysia Min. 3 nights"
+                // Fixed image path - use absolute path from public folder
+                imageUrl="/assets/prius.png"
+                operator="Sixt"
+                operatorStyling="text-orange-400"
+              />
+              <CarRentalCard
+                model="Toyota Prius or similar"
+                seats={5}
+                luggage={2}
+                originalPrice={100}
+                price={95}
+                promoText="FREE Entry to Malaysia Min. 3 nights"
+                // Fixed image path - use absolute path from public folder
+                imageUrl="/assets/prius.png"
+                operator="Hertz"
+                operatorStyling="text-yellow-400"
               />
             </div>
 
