@@ -1,19 +1,3 @@
-export interface RentalCarData {
-  id: string;
-  model: string;
-  seats: number;
-  luggage: number;
-  transmission: "automatic" | "manual"; // Add transmission field
-  originalPrice?: number;
-  price: number;
-  promoText?: string;
-  imageUrl: string;
-  operator: string;
-  operatorStyling: string;
-  category: string;
-}
-
-// Category constants
 export const CAR_CATEGORIES = {
   ECONOMY: "economy",
   COMPACT: "compact",
@@ -35,18 +19,68 @@ export const TRANSMISSIONS = {
   MANUAL: "manual",
 } as const;
 
+export const MANUFACTURERS = {
+  MASERATI: "Maserati",
+  SKODA: "Skoda",
+  NISSAN: "Nissan",
+  BMW: "BMW",
+  PORSCHE: "Porsche",
+  MERCEDES: "Mercedes-AMG",
+  PEUGEOT: "Peugeot",
+  TOYOTA: "Toyota",
+  VOLKSWAGEN: "Volkswagen",
+} as const;
+
+export const SEAT_CAPACITIES = {
+  TWO_SEATER: 2,
+  FOUR_SEATER: 4,
+  FIVE_SEATER: 5,
+  SEVEN_SEATER: 7,
+} as const;
+
+export const LUGGAGE_CAPACITIES = {
+  SMALL: 2,
+  MEDIUM: 4,
+} as const;
+
+export type CarCategory = (typeof CAR_CATEGORIES)[keyof typeof CAR_CATEGORIES];
+export type Operator = (typeof OPERATORS)[keyof typeof OPERATORS];
+export type Transmission = (typeof TRANSMISSIONS)[keyof typeof TRANSMISSIONS];
+export type Manufacturer = (typeof MANUFACTURERS)[keyof typeof MANUFACTURERS];
+export type SeatCapacity =
+  (typeof SEAT_CAPACITIES)[keyof typeof SEAT_CAPACITIES];
+export type LuggageCapacity =
+  (typeof LUGGAGE_CAPACITIES)[keyof typeof LUGGAGE_CAPACITIES];
+
+export interface RentalCarData {
+  id: string;
+  model: string;
+  manufacturer: Manufacturer;
+  seats: SeatCapacity;
+  luggage: LuggageCapacity;
+  transmission: Transmission;
+  originalPrice?: number;
+  price: number;
+  promoText?: string;
+  imageUrl: string;
+  operator: Operator;
+  operatorStyling: string;
+  category: CarCategory;
+}
+
 export const RENTAL_CARS: RentalCarData[] = [
   {
     id: "maserati-grecale-1",
     model: "Maserati Grecale or similar",
-    seats: 5,
-    luggage: 4,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.MASERATI,
+    seats: SEAT_CAPACITIES.FIVE_SEATER,
+    luggage: LUGGAGE_CAPACITIES.MEDIUM,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 600,
     price: 550,
     promoText: "Hot",
     imageUrl: "/assets/maserati-grecale.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
     category: CAR_CATEGORIES.LUXURY_SUV,
   },
@@ -54,168 +88,206 @@ export const RENTAL_CARS: RentalCarData[] = [
   {
     id: "skoda-octavia-1",
     model: "Skoda Octavia or similar",
-    seats: 5,
-    luggage: 4,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.SKODA,
+    seats: SEAT_CAPACITIES.FIVE_SEATER,
+    luggage: LUGGAGE_CAPACITIES.MEDIUM,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 120,
     price: 100,
     promoText: "Hot",
     imageUrl: "/assets/skoda-octavia.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
-    category: "compact",
+    category: CAR_CATEGORIES.COMPACT,
   },
   {
     id: "nissan-sentra-1",
     model: "Nissan Sentra or similar",
-    seats: 4,
-    luggage: 2,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.NISSAN,
+    seats: SEAT_CAPACITIES.FOUR_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 90,
     price: 50,
     promoText: "Hot",
     imageUrl: "/assets/nissan-sentra.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
-    category: "economy",
+    category: CAR_CATEGORIES.ECONOMY,
   },
   {
     id: "bmw-z4-1",
     model: "BMW Z4 or similar",
-    seats: 2,
-    luggage: 2,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.BMW,
+    seats: SEAT_CAPACITIES.TWO_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 490,
     price: 450,
     promoText: "Hot",
     imageUrl: "/assets/bmw-z4.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
-    category: "luxury-sports",
+    category: CAR_CATEGORIES.LUXURY_SPORTS,
   },
   {
     id: "bmw-x3-1",
     model: "BMW X3 or similar",
-    seats: 5,
-    luggage: 4,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.BMW,
+    seats: SEAT_CAPACITIES.FIVE_SEATER,
+    luggage: LUGGAGE_CAPACITIES.MEDIUM,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 500,
     price: 450,
     promoText: "Hot",
     imageUrl: "/assets/bmw-x3.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
     category: CAR_CATEGORIES.LUXURY_SUV,
   },
   {
     id: "bmw-m440i-1",
     model: "BMW M440i or similar",
-    seats: 4,
-    luggage: 2,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.BMW,
+    seats: SEAT_CAPACITIES.FOUR_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 490,
     price: 450,
     promoText: "Hot",
     imageUrl: "/assets/bmw-440i.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
-    category: "luxury",
+    category: CAR_CATEGORIES.LUXURY,
   },
   {
     id: "porsche-911-1",
     model: "Porsche 911 Carrera or similar",
-    seats: 2,
-    luggage: 2,
-    transmission: "manual", // Some sports cars have manual
+    manufacturer: MANUFACTURERS.PORSCHE,
+    seats: SEAT_CAPACITIES.TWO_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.MANUAL,
     originalPrice: 490,
     price: 450,
     promoText: "Hot",
     imageUrl: "/assets/porsche-911-c.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
-    category: "luxury-sports",
+    category: CAR_CATEGORIES.LUXURY_SPORTS,
   },
   {
     id: "amg-sl63-1",
     model: "AMG SL63 or similar",
-    seats: 2,
-    luggage: 2,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.MERCEDES,
+    seats: SEAT_CAPACITIES.TWO_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 490,
     price: 450,
     promoText: "Hot",
     imageUrl: "/assets/merc-sl63.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
-    category: "luxury-sports",
+    category: CAR_CATEGORIES.LUXURY_SPORTS,
   },
   {
     id: "peugeot-5008-1",
     model: "Peugeot 5006 or similar",
-    seats: 5,
-    luggage: 2,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.PEUGEOT,
+    seats: SEAT_CAPACITIES.FIVE_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 190,
     price: 150,
     promoText: "Hot",
     imageUrl: "/assets/peugeot-5008.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
-    category: "luxury-sports",
+    category: CAR_CATEGORIES.COMPACT,
   },
   {
     id: "alphard-hertz-1",
     model: "Toyota Alphard or similar",
-    seats: 7,
-    luggage: 2,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.TOYOTA,
+    seats: SEAT_CAPACITIES.SEVEN_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 290,
     price: 250,
     promoText: "Hot",
     imageUrl: "/assets/alphard.png",
-    operator: "Hertz",
+    operator: OPERATORS.HERTZ,
     operatorStyling: "text-yellow-400",
-    category: "van",
+    category: CAR_CATEGORIES.VAN,
   },
   {
     id: "alphard-sixt-1",
     model: "Toyota Alphard or similar",
-    seats: 7,
-    luggage: 2,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.TOYOTA,
+    seats: SEAT_CAPACITIES.SEVEN_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 290,
     price: 250,
     promoText: "Hot",
     imageUrl: "/assets/alphard.png",
-    operator: "Sixt",
+    operator: OPERATORS.SIXT,
     operatorStyling: "text-orange-400",
-    category: "van",
+    category: CAR_CATEGORIES.VAN,
   },
   {
     id: "prius-1",
     model: "Toyota Prius or similar",
-    seats: 5,
-    luggage: 2,
-    transmission: "automatic",
+    manufacturer: MANUFACTURERS.TOYOTA,
+    seats: SEAT_CAPACITIES.FIVE_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
     originalPrice: 100,
     price: 95,
     promoText: "Hot",
     imageUrl: "/assets/prius.png",
-    operator: "Sixt",
+    operator: OPERATORS.SIXT,
     operatorStyling: "text-orange-400",
-    category: "hybrid",
+    category: CAR_CATEGORIES.HYBRID,
+  },
+  {
+    id: "vw-golf-1",
+    model: "VW Golf or similar",
+    manufacturer: MANUFACTURERS.VOLKSWAGEN,
+    seats: SEAT_CAPACITIES.FIVE_SEATER,
+    luggage: LUGGAGE_CAPACITIES.SMALL,
+    transmission: TRANSMISSIONS.AUTOMATIC,
+    originalPrice: 200,
+    price: 160,
+    promoText: "Hot",
+    imageUrl: "/assets/vw-golf.png",
+    operator: OPERATORS.SIXT,
+    operatorStyling: "text-orange-400",
+    category: CAR_CATEGORIES.COMPACT,
   },
 ];
 
-// Helper functions for filtering and sorting
-export const getCarsByCategory = (category: string): RentalCarData[] =>
+export const getCarsByCategory = (category: CarCategory): RentalCarData[] =>
   RENTAL_CARS.filter((car) => car.category === category);
 
-export const getCarsByOperator = (operator: string): RentalCarData[] =>
+export const getCarsByOperator = (operator: Operator): RentalCarData[] =>
   RENTAL_CARS.filter((car) => car.operator === operator);
 
-export const getCarsByTransmission = (transmission: string): RentalCarData[] =>
+export const getCarsByTransmission = (
+  transmission: Transmission,
+): RentalCarData[] =>
   RENTAL_CARS.filter((car) => car.transmission === transmission);
+
+export const getCarsByManufacturer = (
+  manufacturer: Manufacturer,
+): RentalCarData[] =>
+  RENTAL_CARS.filter((car) => car.manufacturer === manufacturer);
+
+export const getCarsBySeats = (seats: SeatCapacity): RentalCarData[] =>
+  RENTAL_CARS.filter((car) => car.seats === seats);
+
+export const getCarsByLuggage = (luggage: LuggageCapacity): RentalCarData[] =>
+  RENTAL_CARS.filter((car) => car.luggage === luggage);
 
 export const getCarsUnderPrice = (maxPrice: number): RentalCarData[] =>
   RENTAL_CARS.filter((car) => car.price <= maxPrice);
