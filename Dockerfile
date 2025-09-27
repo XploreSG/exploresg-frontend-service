@@ -1,0 +1,8 @@
+# Stage 1: Build
+FROM node:20-alpine3.20
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --frozen-lockfile || npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "run", "dev", "--", "--host", "--port", "3000"]
