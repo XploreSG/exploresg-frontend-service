@@ -6,8 +6,8 @@ import {
   FaUser,
   FaIdCard,
   FaPhone,
-  FaEnvelope,
-  FaCalendar,
+  //   FaEnvelope,
+  //   FaCalendar,
   FaMapMarkerAlt,
 } from "react-icons/fa";
 
@@ -103,9 +103,30 @@ const DriverDetailsPage: React.FC = () => {
       newErrors.email = "Please enter a valid email address";
     }
 
-    // Phone validation (basic)
-    if (driverDetails.phone && !/^[\d\s\-\+\(\)]+$/.test(driverDetails.phone)) {
-      newErrors.phone = "Please enter a valid phone number";
+    // Phone validation with specific formats
+    if (driverDetails.phone) {
+      const phone = driverDetails.phone.trim();
+
+      // Singapore: +65 followed by 8 digits, or just 8 digits
+      // Malaysia: +60 followed by 9-10 digits, or just 10-11 digits
+      // International: + followed by country code and number
+      const phonePatterns = [
+        /^\+65[689]\d{7}$/, // Singapore mobile with country code
+        /^[689]\d{7}$/, // Singapore mobile without country code
+        /^\+60\d{9,10}$/, // Malaysia with country code
+        /^0\d{9,10}$/, // Malaysia without country code (starts with 0)
+        /^\+\d{1,3}\d{7,14}$/, // International format
+        /^\d{8,15}$/, // General format (8-15 digits)
+      ];
+
+      const isValidPhone = phonePatterns.some((pattern) =>
+        pattern.test(phone.replace(/[\s\-()]/g, "")),
+      );
+
+      if (!isValidPhone) {
+        newErrors.phone =
+          "Please enter a valid phone number (e.g., +65 9123 4567, 91234567, or +60 12 345 6789)";
+      }
     }
 
     // Age validation (must be 21+)
