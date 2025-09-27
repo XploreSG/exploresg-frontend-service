@@ -3,6 +3,7 @@ export interface RentalCarData {
   model: string;
   seats: number;
   luggage: number;
+  transmission: "automatic" | "manual"; // Add transmission field
   originalPrice?: number;
   price: number;
   promoText?: string;
@@ -18,6 +19,7 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "Skoda Octavia or similar",
     seats: 5,
     luggage: 4,
+    transmission: "automatic",
     originalPrice: 120,
     price: 100,
     promoText: "Hot",
@@ -31,6 +33,7 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "Nissan Sentra or similar",
     seats: 4,
     luggage: 2,
+    transmission: "automatic",
     originalPrice: 90,
     price: 50,
     promoText: "Hot",
@@ -44,6 +47,7 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "BMW Z4 or similar",
     seats: 2,
     luggage: 2,
+    transmission: "automatic",
     originalPrice: 490,
     price: 450,
     promoText: "Hot",
@@ -57,6 +61,7 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "BMW M440i or similar",
     seats: 4,
     luggage: 2,
+    transmission: "automatic",
     originalPrice: 490,
     price: 450,
     promoText: "Hot",
@@ -70,6 +75,7 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "Porsche 911 Carrera or similar",
     seats: 2,
     luggage: 2,
+    transmission: "manual", // Some sports cars have manual
     originalPrice: 490,
     price: 450,
     promoText: "Hot",
@@ -83,10 +89,10 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "AMG SL63 or similar",
     seats: 2,
     luggage: 2,
+    transmission: "automatic",
     originalPrice: 490,
     price: 450,
     promoText: "Hot",
-    // promoText: "Hot",
     imageUrl: "/assets/merc-sl63.png",
     operator: "Hertz",
     operatorStyling: "text-yellow-400",
@@ -97,6 +103,7 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "Toyota Alphard or similar",
     seats: 7,
     luggage: 2,
+    transmission: "automatic",
     originalPrice: 290,
     price: 250,
     promoText: "Hot",
@@ -110,6 +117,7 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "Toyota Alphard or similar",
     seats: 7,
     luggage: 2,
+    transmission: "automatic",
     originalPrice: 290,
     price: 250,
     promoText: "Hot",
@@ -123,6 +131,7 @@ export const RENTAL_CARS: RentalCarData[] = [
     model: "Toyota Prius or similar",
     seats: 5,
     luggage: 2,
+    transmission: "automatic",
     originalPrice: 100,
     price: 95,
     promoText: "Hot",
@@ -139,6 +148,9 @@ export const getCarsByCategory = (category: string): RentalCarData[] =>
 
 export const getCarsByOperator = (operator: string): RentalCarData[] =>
   RENTAL_CARS.filter((car) => car.operator === operator);
+
+export const getCarsByTransmission = (transmission: string): RentalCarData[] =>
+  RENTAL_CARS.filter((car) => car.transmission === transmission);
 
 export const getCarsUnderPrice = (maxPrice: number): RentalCarData[] =>
   RENTAL_CARS.filter((car) => car.price <= maxPrice);
@@ -164,4 +176,9 @@ export const CAR_CATEGORIES = {
 export const OPERATORS = {
   HERTZ: "Hertz",
   SIXT: "Sixt",
+} as const;
+
+export const TRANSMISSIONS = {
+  AUTOMATIC: "automatic",
+  MANUAL: "manual",
 } as const;

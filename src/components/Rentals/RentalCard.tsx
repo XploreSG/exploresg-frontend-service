@@ -1,11 +1,12 @@
 import React from "react";
-import { FaUsers, FaSuitcase, FaPaw } from "react-icons/fa";
+import { FaUsers, FaSuitcase, FaPaw, FaCogs } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 interface RentalCardProps {
   model: string;
   seats: number;
   luggage: number;
+  transmission: "automatic" | "manual";
   price: number;
   originalPrice?: number;
   promoText?: string;
@@ -19,6 +20,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
   model,
   seats,
   luggage,
+  transmission,
   price,
   originalPrice,
   promoText,
@@ -36,6 +38,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
           model,
           seats,
           luggage,
+          transmission,
           price,
           originalPrice,
           promoText,
@@ -59,14 +62,10 @@ const RentalCard: React.FC<RentalCardProps> = ({
 
       {/* Content */}
       <div className="relative z-10 p-8">
-        {/* FREE Badge */}
+        {/* Promo Badge */}
         {promoText && (
           <div className="absolute top-0 -right-5 rotate-12 rounded-2xl bg-gradient-to-r from-violet-600 to-violet-700 px-4 py-2 text-xs font-bold text-white shadow-lg drop-shadow-2xl transition-all duration-300 group-hover:rotate-0 group-hover:from-red-600 group-hover:to-red-700">
-            <div className="mr-3 text-center">
-              {promoText}
-              {/* <div className="text-xs">FREE</div>
-              <div className="text-[10px] leading-tight">Malaysia Entry</div> */}
-            </div>
+            <div className="mr-3 text-center">{promoText}</div>
           </div>
         )}
 
@@ -81,21 +80,34 @@ const RentalCard: React.FC<RentalCardProps> = ({
             </span>
           </div>
 
-          {/* Icons */}
-          <div className="mt-4 flex items-center gap-6 text-gray-300 group-hover:text-white">
-            <div className="flex items-center gap-2 transition-transform group-hover:scale-110">
+          {/* Icons Row */}
+          <div className="mt-4 flex items-center gap-4 text-gray-300 group-hover:text-white">
+            {/* Seats */}
+            <div className="flex items-center gap-1 transition-transform group-hover:scale-110">
               <FaUsers className="text-sm" />
-              <span className="text-base font-medium">{seats}</span>
+              <span className="text-sm font-medium">{seats}</span>
             </div>
-            <div className="flex items-center gap-2 transition-transform group-hover:scale-110">
+
+            {/* Luggage */}
+            <div className="flex items-center gap-1 transition-transform group-hover:scale-110">
               <FaSuitcase className="text-sm" />
-              <span className="text-base font-medium">{luggage}</span>
+              <span className="text-sm font-medium">{luggage}</span>
             </div>
+
+            {/* Transmission */}
+            <div className="flex items-center gap-1 transition-transform group-hover:scale-110">
+              <FaCogs className="text-sm" />
+              <span className="text-xs font-medium uppercase">
+                {transmission === "automatic" ? "Auto" : "Manual"}
+              </span>
+            </div>
+
+            {/* Pet Friendly */}
             <FaPaw className="text-sm transition-transform group-hover:scale-110" />
           </div>
         </div>
 
-        {/* Car Image - Larger */}
+        {/* Car Image */}
         <div className="relative mb-6">
           <img
             src={imageUrl}
