@@ -14,6 +14,18 @@ export const OPERATORS = {
   SIXT: "Sixt",
 } as const;
 
+// Utility function to get operator styling based on the operator
+export const getOperatorStyling = (operator: string): string => {
+  switch (operator) {
+    case OPERATORS.HERTZ:
+      return "text-yellow-400";
+    case OPERATORS.SIXT:
+      return "text-orange-400";
+    default:
+      return "text-gray-400";
+  }
+};
+
 export const TRANSMISSIONS = {
   AUTOMATIC: "automatic",
   MANUAL: "manual",
