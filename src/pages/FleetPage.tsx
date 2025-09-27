@@ -192,14 +192,20 @@ const FleetPage: React.FC = () => {
 
         {/* Mobile Filter Popup */}
         {showMobileFilters && (
-          <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-xs md:hidden">
-            <div className="absolute right-0 bottom-0 left-0 max-h-[80vh] overflow-y-auto rounded-t-xl bg-white">
+          <div
+            className="fixed inset-0 z-50 bg-black/20 backdrop-blur-xs md:hidden"
+            onClick={() => setShowMobileFilters(false)} // Close when clicking backdrop
+          >
+            <div
+              className="absolute right-0 bottom-0 left-0 max-h-[80vh] overflow-y-auto rounded-t-xl bg-white"
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+            >
               {/* Header */}
               <div className="flex items-center justify-between border-b p-4">
                 <h2 className="text-lg font-semibold">Filters</h2>
                 <button
                   onClick={() => setShowMobileFilters(false)}
-                  className="p-2 text-gray-500"
+                  className="p-2 text-gray-500 transition-colors hover:text-gray-700"
                 >
                   <FaTimes />
                 </button>
@@ -209,30 +215,30 @@ const FleetPage: React.FC = () => {
               <div className="flex border-b">
                 <button
                   onClick={() => setActiveFilterTab("price")}
-                  className={`flex-1 py-3 text-sm font-medium ${
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     activeFilterTab === "price"
                       ? "border-b-2 border-blue-600 text-blue-600"
-                      : "text-gray-500"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   Price range
                 </button>
                 <button
                   onClick={() => setActiveFilterTab("seats")}
-                  className={`flex-1 py-3 text-sm font-medium ${
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     activeFilterTab === "seats"
                       ? "border-b-2 border-blue-600 text-blue-600"
-                      : "text-gray-500"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   Seats
                 </button>
                 <button
                   onClick={() => setActiveFilterTab("type")}
-                  className={`flex-1 py-3 text-sm font-medium ${
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     activeFilterTab === "type"
                       ? "border-b-2 border-blue-600 text-blue-600"
-                      : "text-gray-500"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   Vehicle type
@@ -257,7 +263,7 @@ const FleetPage: React.FC = () => {
                       ].map((option) => (
                         <label
                           key={option.value}
-                          className="flex items-center gap-3 p-2"
+                          className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50"
                         >
                           <input
                             type="radio"
@@ -286,7 +292,7 @@ const FleetPage: React.FC = () => {
                 {activeFilterTab === "seats" && (
                   <div className="space-y-3">
                     <div className="space-y-2">
-                      <label className="flex items-center gap-3 p-2">
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
                         <input
                           type="checkbox"
                           checked={minSeats === "4"}
@@ -297,7 +303,7 @@ const FleetPage: React.FC = () => {
                         />
                         <span className="text-gray-700">4 Seater</span>
                       </label>
-                      <label className="flex items-center gap-3 p-2">
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
                         <input
                           type="checkbox"
                           checked={minSeats === "5"}
@@ -308,7 +314,7 @@ const FleetPage: React.FC = () => {
                         />
                         <span className="text-gray-700">5 Seater</span>
                       </label>
-                      <label className="flex items-center gap-3 p-2">
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
                         <input
                           type="checkbox"
                           checked={minSeats === "7"}
@@ -327,7 +333,7 @@ const FleetPage: React.FC = () => {
                 {activeFilterTab === "type" && (
                   <div className="space-y-3">
                     <div className="space-y-2">
-                      <label className="flex items-center gap-3 p-2">
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
                         <input
                           type="checkbox"
                           checked={vehicleType === "hybrid"}
@@ -341,7 +347,7 @@ const FleetPage: React.FC = () => {
                       {uniqueCategories.map((category) => (
                         <label
                           key={category}
-                          className="flex items-center gap-3 p-2"
+                          className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50"
                         >
                           <input
                             type="checkbox"
@@ -373,13 +379,13 @@ const FleetPage: React.FC = () => {
               <div className="flex gap-3 border-t bg-gray-50 p-4">
                 <button
                   onClick={resetFilters}
-                  className="flex-1 rounded-lg border border-gray-300 bg-white py-3 text-gray-700 hover:bg-gray-50"
+                  className="flex-1 rounded-lg border border-gray-300 bg-white py-3 text-gray-700 transition-colors hover:bg-gray-50"
                 >
                   Reset
                 </button>
                 <button
                   onClick={applyMobileFilters}
-                  className="flex-1 rounded-lg bg-blue-600 py-3 text-white hover:bg-blue-700"
+                  className="flex-1 rounded-lg bg-blue-600 py-3 text-white transition-colors hover:bg-blue-700"
                 >
                   Apply
                 </button>
