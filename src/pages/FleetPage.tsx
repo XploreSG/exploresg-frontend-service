@@ -5,7 +5,7 @@ import { RENTAL_CARS } from "../data/rentalCars";
 const FleetPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900">
@@ -19,7 +19,7 @@ const FleetPage: React.FC = () => {
         {/* Rental Cars Grid */}
         <div className="mt-16 rounded-lg bg-white p-12 shadow-lg">
           <div className="text-center">
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {RENTAL_CARS.map((car) => (
                 <RentalCard
                   key={car.id}
