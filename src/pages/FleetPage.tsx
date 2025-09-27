@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import RentalCard from "../components/Rentals/RentalCard";
-import { RENTAL_CARS, CAR_CATEGORIES, OPERATORS } from "../data/rentalCars";
-import { FaFilter, FaTimes, FaCheck } from "react-icons/fa";
+import { RENTAL_CARS } from "../data/rentalCars";
+import { FaFilter, FaTimes } from "react-icons/fa";
 
 const FleetPage: React.FC = () => {
   // Filter states
@@ -9,7 +9,6 @@ const FleetPage: React.FC = () => {
   const [vehicleType, setVehicleType] = useState<string>("all");
   const [transmission, setTransmission] = useState<string>("all");
   const [minSeats, setMinSeats] = useState<string>("all");
-  const [driverAge, setDriverAge] = useState<string>("all");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
   // Mobile filter popup state
@@ -59,6 +58,12 @@ const FleetPage: React.FC = () => {
       case "price-high":
         filtered.sort((a, b) => b.price - a.price);
         break;
+      case "name-az":
+        filtered.sort((a, b) => a.model.localeCompare(b.model));
+        break;
+      case "name-za":
+        filtered.sort((a, b) => b.model.localeCompare(a.model));
+        break;
       case "seats-high":
         filtered.sort((a, b) => b.seats - a.seats);
         break;
@@ -77,7 +82,6 @@ const FleetPage: React.FC = () => {
     setVehicleType("all");
     setTransmission("all");
     setMinSeats("all");
-    setDriverAge("all");
     setPriceRange([0, 1000]);
   };
 
@@ -113,6 +117,23 @@ const FleetPage: React.FC = () => {
         {/* Desktop Filter Section - Hidden on mobile */}
         <div className="mb-8 hidden rounded-lg bg-white p-6 shadow-lg md:block">
           <div className="flex flex-wrap items-center gap-4 lg:gap-6">
+            {/* Sort By */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium whitespace-nowrap text-gray-700">
+                Sort by
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="min-w-36 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="name-az">Brand: A-Z</option>
+                <option value="name-za">Brand: Z-A</option>
+              </select>
+            </div>
+
             {/* Price Range */}
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium whitespace-nowrap text-gray-700">
@@ -246,6 +267,16 @@ const FleetPage: React.FC = () => {
               {/* Filter Tabs */}
               <div className="flex border-b">
                 <button
+                  onClick={() => setActiveFilterTab("sort")}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                    activeFilterTab === "sort"
+                      ? "border-b-2 border-blue-600 text-blue-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Sort
+                </button>
+                <button
                   onClick={() => setActiveFilterTab("price")}
                   className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     activeFilterTab === "price"
@@ -253,7 +284,7 @@ const FleetPage: React.FC = () => {
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  Price range
+                  Price
                 </button>
                 <button
                   onClick={() => setActiveFilterTab("seats")}
@@ -273,12 +304,44 @@ const FleetPage: React.FC = () => {
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  Vehicle type
+                  Type
                 </button>
               </div>
 
               {/* Filter Content */}
               <div className="p-4">
+                {/* Sort Tab */}
+                {activeFilterTab === "sort" && (
+                  <div className="space-y-3">
+                    <h3 className="mb-4 font-medium text-gray-900">
+                      Sort vehicles by
+                    </h3>
+                    <div className="space-y-2">
+                      {[
+                        { label: "Price: Low to High", value: "price-low" },
+                        { label: "Price: High to Low", value: "price-high" },
+                        { label: "Brand: A-Z", value: "name-az" },
+                        { label: "Brand: Z-A", value: "name-za" },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50"
+                        >
+                          <input
+                            type="radio"
+                            name="sortBy"
+                            value={option.value}
+                            checked={sortBy === option.value}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="h-4 w-4 text-blue-600"
+                          />
+                          <span className="text-gray-700">{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Price Range Tab */}
                 {activeFilterTab === "price" && (
                   <div className="space-y-3">
