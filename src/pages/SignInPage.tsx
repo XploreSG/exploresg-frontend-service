@@ -3,16 +3,21 @@ import React from "react";
 const SignInPage: React.FC = () => {
   return (
     <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
-      {/* Blurred, animated background image */}
+      {/* Animated background image (no blur) */}
       <div
-        className="bg-zoom-animate absolute inset-0 -z-10 bg-cover bg-center blur-sm brightness-90"
+        className="bg-zoom-animate absolute inset-0 -z-20 bg-cover bg-center brightness-90 transition-all duration-1000"
         style={{
           backgroundImage: "url('/assets/exploresg-backdrop-jewel.jpg')",
         }}
         aria-hidden="true"
       />
-      {/* Foreground: Sign-in form */}
-      <div className="bg-opacity-90 w-full max-w-md rounded-xl bg-white p-8 shadow-lg backdrop-blur-md">
+      {/* Glass-like blue overlay */}
+      <div
+        className="absolute inset-0 -z-10 bg-blue-300/10"
+        aria-hidden="true"
+      />
+      {/* Foreground: Glassmorphic Sign-in form */}
+      <div className="w-full max-w-md rounded-xl border border-white/30 bg-white/60 p-8 shadow-lg backdrop-blur-2xl">
         <div className="flex flex-col items-center">
           <h1 className="text-4xl font-bold text-red-600">ExploreSG</h1>
           <h2 className="mt-4 mb-2 text-center text-xl font-extrabold text-gray-900">
