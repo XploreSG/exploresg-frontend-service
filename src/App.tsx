@@ -11,9 +11,11 @@ import FleetPage from "./pages/FleetPage";
 import RentalAddOnPage from "./components/Rentals/RentalAddOn";
 import DriverDetailsPage from "./components/Rentals/DriverDetailsPage";
 import PaymentPage from "./pages/PaymentPage";
+// import { BookingProvider } from "./contexts/BookingContext";
 
 const App = () => {
   return (
+    // <BookingProvider>
     <Router>
       <div className="flex min-h-screen flex-col">
         <Navbar />
@@ -40,6 +42,7 @@ const App = () => {
         <Footer />
       </div>
     </Router>
+    // </BookingProvider>
   );
 };
 

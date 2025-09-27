@@ -1,11 +1,40 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import BookingProgress from "../components/Rentals/BookingProgress";
 import { FaCreditCard, FaLock, FaShieldAlt, FaCheck } from "react-icons/fa";
+
+interface AddOnSelection {
+  id: string;
+  name: string;
+  price: number | string;
+  selected: boolean;
+}
+
+interface CarDetails {
+  model: string;
+  price: number;
+  imageUrl: string;
+  carId: string;
+}
 
 const PaymentPage: React.FC = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get booking data from location state
+  const bookingData = location.state || {};
+  const {
+    carDetails,
+    selectedAddOns,
+    selectedCDW,
+    total,
+  }: {
+    carDetails?: CarDetails;
+    selectedAddOns?: AddOnSelection[];
+    selectedCDW?: string;
+    total?: number;
+  } = bookingData;
 
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [cardDetails, setCardDetails] = useState({
@@ -261,27 +290,62 @@ const PaymentPage: React.FC = () => {
 
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span>Toyota Alphard (5 nights)</span>
-                    <span>S$ 1,250.00</span>
+                    <span>
+                      {carDetails?.model || "Toyota Alphard"} (5 nights)
+                    </span>
+                    <span>
+                      S$ {((carDetails?.price || 250) * 5).toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Insurance (CDW Basic)</span>
-                    <span>Included</span>
+                    <span>
+                      Insurance (CDW{" "}
+                      {selectedCDW === "basic"
+                        ? "Basic"
+                        : selectedCDW === "plus"
+                          ? "Plus"
+                          : "Max"}
+                      )
+                    </span>
+                    <span>
+                      {selectedCDW === "basic"
+                        ? "Included"
+                        : selectedCDW === "plus"
+                          ? "S$ 90.00"
+                          : "S$ 200.00"}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Malaysia Entry (FREE)</span>
-                    <span>S$ 0.00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Windscreen Protection</span>
-                    <span>S$ 20.00</span>
-                  </div>
+                  {selectedAddOns && selectedAddOns.length > 0 ? (
+                    selectedAddOns.map((addon: AddOnSelection) =>
+                      addon.selected ? (
+                        <div key={addon.id} className="flex justify-between">
+                          <span>{addon.name}</span>
+                          <span>
+                            {typeof addon.price === "string"
+                              ? addon.price
+                              : `S$ ${addon.price.toFixed(2)}`}
+                          </span>
+                        </div>
+                      ) : null,
+                    )
+                  ) : (
+                    <>
+                      <div className="flex justify-between">
+                        <span>Malaysia Entry (FREE)</span>
+                        <span>S$ 0.00</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Windscreen Protection</span>
+                        <span>S$ 20.00</span>
+                      </div>
+                    </>
+                  )}
 
                   <hr className="my-4" />
 
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span>S$ 1,270.00</span>
+                    <span>S$ {(total || 1270).toFixed(2)}</span>
                   </div>
                 </div>
 

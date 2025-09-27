@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 // import BookingProgress from "../components/Rentals/BookingProgress";
 import BookingProgress from "./BookingProgress";
 import {
@@ -33,6 +33,7 @@ interface DriverDetails {
 const DriverDetailsPage: React.FC = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [driverDetails, setDriverDetails] = useState<DriverDetails>({
     firstName: "",
@@ -160,8 +161,16 @@ const DriverDetailsPage: React.FC = () => {
       // Save driver details (in real app, save to context/state)
       console.log("Driver details:", driverDetails);
 
-      // Navigate to payment page
-      navigate(`/booking/${carId}/payment`);
+      // Get booking data from location state
+      const bookingData = location.state || {};
+
+      // Navigate to payment page with all booking data
+      navigate(`/booking/${carId}/payment`, {
+        state: {
+          ...bookingData,
+          driverDetails,
+        },
+      });
     }
   };
 
