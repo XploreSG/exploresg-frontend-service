@@ -18,14 +18,74 @@ const FleetPage: React.FC = () => {
           <div className="text-center">
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <RentalCard
-                model="Toyota Alphard or similar"
-                seats={7}
+                model="Skoda Ovtavia or similar"
+                seats={5}
+                luggage={4}
+                originalPrice={120}
+                price={100}
+                promoText="FREE Entry to Malaysia Min. 5 nights"
+                // Fixed image path - use absolute path from public folder
+                imageUrl="/assets/skoda-octavia.png"
+                operator="Hertz"
+                operatorStyling="text-yellow-400"
+              />
+              <RentalCard
+                model="Nissan Sentra or similar"
+                seats={4}
                 luggage={2}
-                originalPrice={290}
-                price={250}
+                originalPrice={90}
+                price={50}
+                promoText="FREE Entry to Malaysia Min. 3 nights"
+                // Fixed image path - use absolute path from public folder
+                imageUrl="/assets/nissan-sentra.png"
+                operator="Hertz"
+                operatorStyling="text-yellow-400"
+              />
+              <RentalCard
+                model="BMW Z4 or similar"
+                seats={2}
+                luggage={2}
+                originalPrice={490}
+                price={450}
                 promoText="FREE Entry to Malaysia Min. 3 nights"
                 // Fixed image path - use absolute path from public folder
                 imageUrl="/assets/bmw-z4.png"
+                operator="Hertz"
+                operatorStyling="text-yellow-400"
+              />
+              <RentalCard
+                model="BMW M440i or similar"
+                seats={4}
+                luggage={2}
+                originalPrice={490}
+                price={450}
+                promoText="FREE Entry to Malaysia Min. 3 nights"
+                // Fixed image path - use absolute path from public folder
+                imageUrl="/assets/bmw-440i.png"
+                operator="Hertz"
+                operatorStyling="text-yellow-400"
+              />
+              <RentalCard
+                model="Porsche 911 Carrera or similar"
+                seats={2}
+                luggage={2}
+                originalPrice={490}
+                price={450}
+                promoText="FREE Entry to Malaysia Min. 3 nights"
+                // Fixed image path - use absolute path from public folder
+                imageUrl="/assets/porsche-911-c.png"
+                operator="Hertz"
+                operatorStyling="text-yellow-400"
+              />
+              <RentalCard
+                model="AMG SL63 or similar"
+                seats={2}
+                luggage={2}
+                originalPrice={490}
+                price={450}
+                promoText="FREE Entry to Malaysia Min. 3 nights"
+                // Fixed image path - use absolute path from public folder
+                imageUrl="/assets/merc-sl63.png"
                 operator="Hertz"
                 operatorStyling="text-yellow-400"
               />
@@ -64,18 +124,6 @@ const FleetPage: React.FC = () => {
                 imageUrl="/assets/prius.png"
                 operator="Sixt"
                 operatorStyling="text-orange-400"
-              />
-              <RentalCard
-                model="Toyota Prius or similar"
-                seats={5}
-                luggage={2}
-                originalPrice={100}
-                price={95}
-                promoText="FREE Entry to Malaysia Min. 5 nights"
-                // Fixed image path - use absolute path from public folder
-                imageUrl="/assets/prius.png"
-                operator="Hertz"
-                operatorStyling="text-yellow-400"
               />
             </div>
 
