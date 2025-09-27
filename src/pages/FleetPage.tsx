@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import RentalCard from "../components/Rentals/RentalCard";
-import { RENTAL_CARS } from "../data/rentalCars";
+import { RENTAL_VEHICLES } from "../data/rentalCars";
 import { FaFilter, FaTimes } from "react-icons/fa";
 
 const FleetPage: React.FC = () => {
@@ -17,40 +17,48 @@ const FleetPage: React.FC = () => {
 
   // Get unique values from our data for dynamic filters
   const uniqueCategories = useMemo(() => {
-    const categories = [...new Set(RENTAL_CARS.map((car) => car.category))];
+    const categories = [...new Set(RENTAL_VEHICLES.map((v) => v.category))];
     return categories.sort();
   }, []);
 
   const uniqueSeats = useMemo(() => {
-    const seats = [...new Set(RENTAL_CARS.map((car) => car.seats))];
-    return seats.sort((a, b) => a - b);
+    const seats = [
+      ...new Set(
+        RENTAL_VEHICLES.map((v) => v.seats).filter(
+          (s): s is number => typeof s === "number",
+        ),
+      ),
+    ];
+    return seats.sort((a, b) => (a ?? 0) - (b ?? 0));
   }, []);
 
   // Filter and sort the cars
-  const filteredCars = useMemo(() => {
-    let filtered = [...RENTAL_CARS];
+  const filteredVehicles = useMemo(() => {
+    let filtered = [...RENTAL_VEHICLES];
 
     // Filter by price range
     filtered = filtered.filter(
-      (car) => car.price >= priceRange[0] && car.price <= priceRange[1],
+      (v) => v.price >= priceRange[0] && v.price <= priceRange[1],
     );
 
     // Filter by vehicle type/category
     if (vehicleType !== "all") {
-      filtered = filtered.filter((car) => car.category === vehicleType);
+      filtered = filtered.filter((v) => v.category === vehicleType);
     }
 
-    // Filter by minimum seats
+    // Filter by minimum seats (only for vehicles with seats)
     if (minSeats !== "all") {
-      filtered = filtered.filter((car) => car.seats >= parseInt(minSeats));
+      filtered = filtered.filter(
+        (v) => v.seats && v.seats >= parseInt(minSeats),
+      );
     }
 
-    // Filter by transmission
+    // Filter by transmission (only for vehicles with transmission)
     if (transmission !== "all") {
-      filtered = filtered.filter((car) => car.transmission === transmission);
+      filtered = filtered.filter((v) => v.transmission === transmission);
     }
 
-    // Sort cars
+    // Sort vehicles
     switch (sortBy) {
       case "price-low":
         filtered.sort((a, b) => a.price - b.price);
@@ -65,10 +73,10 @@ const FleetPage: React.FC = () => {
         filtered.sort((a, b) => b.model.localeCompare(a.model));
         break;
       case "seats-high":
-        filtered.sort((a, b) => b.seats - a.seats);
+        filtered.sort((a, b) => (b.seats || 0) - (a.seats || 0));
         break;
       case "seats-low":
-        filtered.sort((a, b) => a.seats - b.seats);
+        filtered.sort((a, b) => (a.seats || 0) - (b.seats || 0));
         break;
       default:
         break;
@@ -166,11 +174,13 @@ const FleetPage: React.FC = () => {
                 className="min-w-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">Any</option>
-                {uniqueSeats.map((seats) => (
-                  <option key={seats} value={seats.toString()}>
-                    {seats} Seater
-                  </option>
-                ))}
+                {uniqueSeats.map((seats) =>
+                  typeof seats === "number" ? (
+                    <option key={seats} value={seats.toString()}>
+                      {seats} Seater
+                    </option>
+                  ) : null,
+                )}
               </select>
             </div>
 
@@ -202,7 +212,7 @@ const FleetPage: React.FC = () => {
           {/* Results Count and Clear Button */}
           <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
             <p className="text-sm font-medium text-blue-600">
-              {filteredCars.length} models found
+              {filteredVehicles.length} models found
             </p>
             {hasActiveFilters() && (
               <button
@@ -221,7 +231,7 @@ const FleetPage: React.FC = () => {
           <div className="flex items-center justify-between rounded-lg bg-white p-4 shadow-lg">
             <div className="flex items-center gap-3">
               <p className="text-sm font-medium text-blue-600">
-                {filteredCars.length} models found
+                {filteredVehicles.length} models found
               </p>
               {hasActiveFilters() && (
                 <button
@@ -492,22 +502,22 @@ const FleetPage: React.FC = () => {
         {/* Rental Cars Grid */}
         <div className="rounded-lg bg-white p-6 shadow-lg md:p-12">
           <div className="text-center">
-            {filteredCars.length > 0 ? (
+            {filteredVehicles.length > 0 ? (
               <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] justify-items-center gap-8">
-                {filteredCars.map((car) => (
+                {filteredVehicles.map((vehicle) => (
                   <RentalCard
-                    key={car.id}
-                    carId={car.id}
-                    model={car.model}
-                    seats={car.seats}
-                    luggage={car.luggage}
-                    transmission={car.transmission}
-                    originalPrice={car.originalPrice}
-                    price={car.price}
-                    promoText={car.promoText}
-                    imageUrl={car.imageUrl}
-                    operator={car.operator}
-                    operatorStyling={car.operatorStyling}
+                    key={vehicle.id}
+                    carId={vehicle.id}
+                    model={vehicle.model}
+                    seats={vehicle.seats ?? 0}
+                    luggage={vehicle.luggage ?? 0}
+                    transmission={vehicle.transmission ?? "automatic"}
+                    originalPrice={vehicle.originalPrice}
+                    price={vehicle.price}
+                    promoText={vehicle.promoText}
+                    imageUrl={vehicle.imageUrl}
+                    operator={vehicle.operator}
+                    operatorStyling={vehicle.operatorStyling}
                   />
                 ))}
               </div>
@@ -532,7 +542,7 @@ const FleetPage: React.FC = () => {
             )}
 
             {/* Coming Soon Section - Only show if we have results */}
-            {filteredCars.length > 0 && (
+            {filteredVehicles.length > 0 && (
               <div className="mt-16">
                 <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
                   <span className="text-4xl">🚗</span>

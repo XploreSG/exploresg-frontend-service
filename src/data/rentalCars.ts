@@ -7,6 +7,7 @@ export const CAR_CATEGORIES = {
   LUXURY: "luxury",
   LUXURY_SPORTS: "luxury-sports",
   LUXURY_SUV: "luxury-suv",
+  MOTORCYCLE: "motorcycle",
 } as const;
 
 export const OPERATORS = {
@@ -40,6 +41,7 @@ export const MANUFACTURERS = {
   MERCEDES: "Mercedes-AMG",
   MINI: "Mini",
   PEUGEOT: "Peugeot",
+  KAWSAKI: "Kawasaki",
   TOYOTA: "Toyota",
   VOLKSWAGEN: "Volkswagen",
 } as const;
@@ -65,25 +67,41 @@ export type SeatCapacity =
 export type LuggageCapacity =
   (typeof LUGGAGE_CAPACITIES)[keyof typeof LUGGAGE_CAPACITIES];
 
-export interface RentalCarData {
+export type VehicleType = "car" | "bike";
+
+export interface RentalVehicleData {
   id: string;
+  type: VehicleType;
   model: string;
   manufacturer: Manufacturer;
-  seats: SeatCapacity;
-  luggage: LuggageCapacity;
-  transmission: Transmission;
+  seats?: SeatCapacity; // Optional for bikes
+  luggage?: LuggageCapacity; // Optional for bikes
+  transmission?: Transmission; // Optional for bikes
   originalPrice?: number;
   price: number;
   promoText?: string;
   imageUrl: string;
   operator: Operator;
   operatorStyling: string;
-  category: CarCategory;
+  category: CarCategory | BikeCategory;
 }
 
-export const RENTAL_CARS: RentalCarData[] = [
+// Extend categories for bikes
+export const BIKE_CATEGORIES = {
+  SPORT: "sport",
+  CRUISER: "cruiser",
+  TOURING: "touring",
+  STANDARD: "standard",
+  SCOOTER: "scooter",
+} as const;
+
+export type BikeCategory =
+  (typeof BIKE_CATEGORIES)[keyof typeof BIKE_CATEGORIES];
+
+export const RENTAL_VEHICLES: RentalVehicleData[] = [
   {
     id: "maserati-grecale-1",
+    type: "car",
     model: "Maserati Grecale",
     manufacturer: MANUFACTURERS.MASERATI,
     seats: SEAT_CAPACITIES.FIVE_SEATER,
@@ -100,6 +118,7 @@ export const RENTAL_CARS: RentalCarData[] = [
 
   {
     id: "skoda-octavia-1",
+    type: "car",
     model: "Skoda Octavia",
     manufacturer: MANUFACTURERS.SKODA,
     seats: SEAT_CAPACITIES.FIVE_SEATER,
@@ -115,6 +134,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "nissan-sentra-1",
+    type: "car",
     model: "Nissan Sentra",
     manufacturer: MANUFACTURERS.NISSAN,
     seats: SEAT_CAPACITIES.FOUR_SEATER,
@@ -130,6 +150,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "bmw-z4-1",
+    type: "car",
     model: "BMW Z4",
     manufacturer: MANUFACTURERS.BMW,
     seats: SEAT_CAPACITIES.TWO_SEATER,
@@ -145,6 +166,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "bmw-x3-1",
+    type: "car",
     model: "BMW X3",
     manufacturer: MANUFACTURERS.BMW,
     seats: SEAT_CAPACITIES.FIVE_SEATER,
@@ -160,6 +182,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "bmw-5-1",
+    type: "car",
     model: "BMW 5 Touring",
     manufacturer: MANUFACTURERS.BMW,
     seats: SEAT_CAPACITIES.FIVE_SEATER,
@@ -175,6 +198,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "bmw-m2-1",
+    type: "car",
     model: "BMW M240i",
     manufacturer: MANUFACTURERS.BMW,
     seats: SEAT_CAPACITIES.FOUR_SEATER,
@@ -190,6 +214,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "bmw-m440i-1",
+    type: "car",
     model: "BMW M440i",
     manufacturer: MANUFACTURERS.BMW,
     seats: SEAT_CAPACITIES.FOUR_SEATER,
@@ -205,6 +230,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "porsche-911-1",
+    type: "car",
     model: "Porsche 911",
     manufacturer: MANUFACTURERS.PORSCHE,
     seats: SEAT_CAPACITIES.TWO_SEATER,
@@ -220,6 +246,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "amg-sl63-1",
+    type: "car",
     model: "AMG SL63",
     manufacturer: MANUFACTURERS.MERCEDES,
     seats: SEAT_CAPACITIES.TWO_SEATER,
@@ -235,6 +262,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "merc-v-1",
+    type: "car",
     model: "Mercedes V Class",
     manufacturer: MANUFACTURERS.MERCEDES,
     seats: SEAT_CAPACITIES.TWO_SEATER,
@@ -250,6 +278,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "peugeot-5008-1",
+    type: "car",
     model: "Peugeot 5006",
     manufacturer: MANUFACTURERS.PEUGEOT,
     seats: SEAT_CAPACITIES.FIVE_SEATER,
@@ -310,6 +339,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   // },
   {
     id: "vw-golf-1",
+    type: "car",
     model: "VW Golf",
     manufacturer: MANUFACTURERS.VOLKSWAGEN,
     seats: SEAT_CAPACITIES.FIVE_SEATER,
@@ -325,6 +355,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "vw-polo-1",
+    type: "car",
     model: "VW Polo",
     manufacturer: MANUFACTURERS.VOLKSWAGEN,
     seats: SEAT_CAPACITIES.FIVE_SEATER,
@@ -340,6 +371,7 @@ export const RENTAL_CARS: RentalCarData[] = [
   },
   {
     id: "vw-mini-1",
+    type: "car",
     model: "Mini Cooper",
     manufacturer: MANUFACTURERS.MINI,
     seats: SEAT_CAPACITIES.FIVE_SEATER,
@@ -353,37 +385,60 @@ export const RENTAL_CARS: RentalCarData[] = [
     operatorStyling: "text-orange-400",
     category: CAR_CATEGORIES.COMPACT,
   },
+  {
+    id: "kawasaki-ninja-1",
+    type: "bike",
+    model: "Kawasaki N600",
+    manufacturer: MANUFACTURERS.KAWSAKI,
+    seats: SEAT_CAPACITIES.TWO_SEATER,
+    transmission: TRANSMISSIONS.MANUAL,
+    originalPrice: 280,
+    price: 240,
+    promoText: "Hot",
+    imageUrl: "/assets/kawasaki-ninja-600.png",
+    operator: OPERATORS.SIXT,
+    operatorStyling: "text-orange-400",
+    category: CAR_CATEGORIES.MOTORCYCLE,
+  },
 ];
 
-export const getCarsByCategory = (category: CarCategory): RentalCarData[] =>
-  RENTAL_CARS.filter((car) => car.category === category);
+// Generic vehicle queries
+export const getVehiclesByCategory = (
+  category: CarCategory | BikeCategory,
+): RentalVehicleData[] =>
+  RENTAL_VEHICLES.filter((v) => v.category === category);
 
-export const getCarsByOperator = (operator: Operator): RentalCarData[] =>
-  RENTAL_CARS.filter((car) => car.operator === operator);
+export const getVehiclesByOperator = (
+  operator: Operator,
+): RentalVehicleData[] =>
+  RENTAL_VEHICLES.filter((v) => v.operator === operator);
 
-export const getCarsByTransmission = (
+export const getVehiclesByTransmission = (
   transmission: Transmission,
-): RentalCarData[] =>
-  RENTAL_CARS.filter((car) => car.transmission === transmission);
+): RentalVehicleData[] =>
+  RENTAL_VEHICLES.filter((v) => v.transmission === transmission);
 
-export const getCarsByManufacturer = (
+export const getVehiclesByManufacturer = (
   manufacturer: Manufacturer,
-): RentalCarData[] =>
-  RENTAL_CARS.filter((car) => car.manufacturer === manufacturer);
+): RentalVehicleData[] =>
+  RENTAL_VEHICLES.filter((v) => v.manufacturer === manufacturer);
 
-export const getCarsBySeats = (seats: SeatCapacity): RentalCarData[] =>
-  RENTAL_CARS.filter((car) => car.seats === seats);
+export const getVehiclesBySeats = (seats: SeatCapacity): RentalVehicleData[] =>
+  RENTAL_VEHICLES.filter((v) => v.seats === seats);
 
-export const getCarsByLuggage = (luggage: LuggageCapacity): RentalCarData[] =>
-  RENTAL_CARS.filter((car) => car.luggage === luggage);
+export const getVehiclesByLuggage = (
+  luggage: LuggageCapacity,
+): RentalVehicleData[] => RENTAL_VEHICLES.filter((v) => v.luggage === luggage);
 
-export const getCarsUnderPrice = (maxPrice: number): RentalCarData[] =>
-  RENTAL_CARS.filter((car) => car.price <= maxPrice);
+export const getVehiclesUnderPrice = (maxPrice: number): RentalVehicleData[] =>
+  RENTAL_VEHICLES.filter((v) => v.price <= maxPrice);
 
-export const getCarById = (id: string): RentalCarData | undefined =>
-  RENTAL_CARS.find((car) => car.id === id);
+export const getVehicleById = (id: string): RentalVehicleData | undefined =>
+  RENTAL_VEHICLES.find((v) => v.id === id);
 
-export const sortCarsByPrice = (ascending: boolean = true): RentalCarData[] =>
-  [...RENTAL_CARS].sort((a, b) =>
+export const sortVehiclesByPrice = (
+  ascending: boolean = true,
+): RentalVehicleData[] =>
+  [...RENTAL_VEHICLES].sort((a, b) =>
     ascending ? a.price - b.price : b.price - a.price,
   );
