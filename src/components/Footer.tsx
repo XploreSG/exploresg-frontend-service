@@ -7,7 +7,8 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <h2 className="text-2xl font-bold text-white">ExploreSG</h2>
+            <h1 className="pb-4 text-4xl font-bold text-red-600">ExploreSG</h1>
+
             <p className="mt-2 text-gray-300">
               Discover the best of Singapore - from iconic attractions to hidden
               gems, delicious food, and exciting events.
