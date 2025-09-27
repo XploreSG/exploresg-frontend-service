@@ -11,6 +11,7 @@ import FleetPage from "./pages/FleetPage";
 import RentalAddOnPage from "./components/Rentals/RentalAddOn";
 import DriverDetailsPage from "./components/Rentals/DriverDetailsPage";
 import PaymentPage from "./pages/PaymentPage";
+import SignInPage from "./pages/SignInPage";
 // import { BookingProvider } from "./contexts/BookingContext";
 
 const App = () => {
@@ -27,6 +28,7 @@ const App = () => {
             <Route path="/food" element={<FoodPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/login" element={<SignInPage />} />
             {/* Booking Flow Routes */}
             <Route
               path="/booking/:carId/addons"
