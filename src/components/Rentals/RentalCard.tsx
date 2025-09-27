@@ -73,17 +73,20 @@ const RentalCard: React.FC<RentalCardProps> = ({
 
         {/* Header - Fixed Height */}
         <div className="mb-4 h-20">
-          <div className="flex items-start justify-between">
-            <h2 className="line-clamp-2 flex-1 pr-2 text-lg leading-tight font-semibold text-white transition-colors group-hover:text-blue-200">
-              {model}
-            </h2>
-            <span className="text-xs font-bold whitespace-nowrap text-white/80 group-hover:text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <h2 className="line-clamp-2 text-lg leading-tight font-semibold text-white transition-colors group-hover:text-blue-200">
+                {model}
+              </h2>{" "}
+              <p className="px-2 text-xs font-thin text-white">or similar</p>
+            </div>
+            <span className="pl-4 text-xs font-bold whitespace-nowrap text-white/80 group-hover:text-white">
               {operator}
             </span>
           </div>
 
           {/* Icons Row - Fixed Position */}
-          <div className="mt-3 flex items-center justify-between text-gray-300 group-hover:text-white">
+          <div className="mt-3 flex gap-4 text-gray-300 group-hover:text-white">
             <div className="flex items-center gap-1 transition-transform group-hover:scale-110">
               <FaUsers className="text-xs" />
               <span className="text-xs font-medium">{seats}</span>
@@ -107,7 +110,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
 
         {/* Car Image - Fixed Height and Centered */}
         <div className="relative mb-4 flex flex-1 items-center justify-center">
-          <div className="relative h-32 w-full">
+          <div className="relative h-50 w-full">
             <img
               src={imageUrl}
               alt={model}
