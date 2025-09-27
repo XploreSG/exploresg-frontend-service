@@ -42,6 +42,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
           promoText,
           imageUrl,
           operator,
+          operatorStyling,
         },
       },
     });
@@ -52,18 +53,18 @@ const RentalCard: React.FC<RentalCardProps> = ({
       onClick={handleCardClick}
       className="group relative max-w-sm cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300 ease-in-out hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"
     >
-      {/* Beautiful Gradient Background - More Prominent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-orange-600 to-blue-800">
-        {/* Secondary gradient overlay for depth */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-800/30 via-slate-600/20 to-purple-800/30"></div>
-        {/* Animated hover gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 via-purple-600/0 to-indigo-600/0 transition-all duration-500 group-hover:from-blue-600/20 group-hover:via-purple-600/10 group-hover:to-indigo-600/20"></div>
-        {/* Subtle radial highlight */}
-        <div className="bg-radial-gradient absolute inset-0 from-white/5 via-transparent to-transparent opacity-50"></div>
+      {/* Beautiful Horizontal Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900">
+        {/* Secondary horizontal gradient overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-l from-blue-800/30 via-purple-600/20 to-indigo-800/30"></div>
+        {/* Animated hover gradient - horizontal */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-purple-600/0 to-indigo-600/0 transition-all duration-500 group-hover:from-blue-600/20 group-hover:via-purple-600/15 group-hover:to-indigo-600/20"></div>
+        {/* Subtle horizontal highlight */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 opacity-50"></div>
       </div>
 
-      {/* Gradient Border Effect */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 p-0.5">
+      {/* Horizontal Gradient Border Effect */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 via-purple-500/30 to-pink-500/20 p-0.5">
         <div className="h-full w-full rounded-xl bg-transparent"></div>
       </div>
 
@@ -110,10 +111,10 @@ const RentalCard: React.FC<RentalCardProps> = ({
 
         {/* Car image with backdrop */}
         <div className="relative px-6 pb-6">
-          {/* Image backdrop for better contrast */}
-          <div className="absolute inset-6 rounded-lg bg-gradient-to-b from-white/10 to-white/5 blur-xl"></div>
+          {/* Image backdrop for better contrast - horizontal gradient */}
+          <div className="absolute inset-6 rounded-lg bg-gradient-to-r from-transparent via-white/15 to-transparent blur-xl"></div>
 
-          <div className="relative overflow-hidden rounded-lg bg-gradient-to-b from-white/5 to-transparent p-2">
+          <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-white/5 via-transparent to-white/5 p-2">
             <img
               src={imageUrl}
               alt={model}
@@ -149,7 +150,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
             </div>
           </div>
 
-          {/* Enhanced animated bottom border with gradient */}
+          {/* Enhanced animated bottom border with horizontal gradient */}
           <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 shadow-lg transition-all duration-500 group-hover:w-full"></div>
         </div>
       </div>
