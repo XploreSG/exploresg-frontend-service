@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BookingProgress from "./BookingProgress";
+import RentalCardSummary from "./RentalCardSummary";
 import { FaPlus } from "react-icons/fa";
 
 // Types (keeping existing types)
@@ -43,6 +44,12 @@ type BookingDetails = {
   petFriendly: boolean;
   nights: number;
   basePrice: number;
+};
+
+type BookingDates = {
+  pickup: string;
+  return: string;
+  nights: number;
 };
 
 const ADDONS: AddOn[] = [
@@ -116,6 +123,13 @@ const RentalAddOnPage: React.FC = () => {
     basePrice: carDetails.price,
   };
 
+  // Create booking dates object for RentalCardSummary
+  const bookingDates: BookingDates = {
+    pickup: bookingDetails.pickup,
+    return: bookingDetails.return,
+    nights: bookingDetails.nights,
+  };
+
   const [selectedCDW, setSelectedCDW] = useState<string>("basic");
   const [selectedAddOns, setSelectedAddOns] = useState<Record<string, boolean>>(
     {
@@ -175,51 +189,26 @@ const RentalAddOnPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Full-Width Car Summary */}
+          <div className="mb-8">
+            <RentalCardSummary
+              model={carDetails.model}
+              seats={carDetails.seats}
+              luggage={carDetails.luggage}
+              transmission={carDetails.transmission}
+              price={carDetails.price}
+              originalPrice={carDetails.originalPrice}
+              promoText={carDetails.promoText}
+              imageUrl={carDetails.imageUrl}
+              operator={carDetails.operator}
+              operatorStyling={carDetails.operatorStyling}
+              nights={bookingDates.nights}
+              showPricing={false}
+              className="mb-0"
+            />
+          </div>
+
           <div className="rounded-xl bg-white p-6 shadow-lg">
-            {/* Car Information + Booking Details */}
-            <div className="mb-6 flex items-start space-x-4 rounded-lg bg-gray-50 p-4">
-              {/* Car Image */}
-              <div className="flex-shrink-0">
-                <img
-                  src={carDetails.imageUrl}
-                  alt={bookingDetails.car}
-                  className="h-20 w-32 rounded-lg bg-white object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='80' viewBox='0 0 128 80'%3E%3Crect width='128' height='80' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%236b7280'%3ECar Image%3C/text%3E%3C/svg%3E";
-                  }}
-                />
-              </div>
-
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {bookingDetails.car}
-                </h2>
-                <div className="mt-1 flex items-center space-x-2 text-sm text-green-600">
-                  <span>✓ Unlimited mileage</span>
-                  <span>✓ 24/7 assistance</span>
-                  <span>✓ Free cancel 72h prior</span>
-                </div>
-
-                <div className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
-                  <div>
-                    <span className="text-gray-500">Pickup:</span>
-                    <div className="font-medium">{bookingDetails.pickup}</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Return:</span>
-                    <div className="font-medium">{bookingDetails.return}</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Duration:</span>
-                    <div className="font-medium">
-                      {bookingDetails.nights} nights
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* CDW Selection */}
             <div className="mb-6">
               <div className="mb-3 flex items-center justify-between">
