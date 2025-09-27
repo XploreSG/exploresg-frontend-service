@@ -1,0 +1,11 @@
+/* Add this to your existing CSS file */
+
+@layer utilities {
+  .bg-radial-gradient {
+    background: radial-gradient(
+      circle at center,
+      var(--tw-gradient-from),
+      var(--tw-gradient-to)
+    );
+  }
+}

@@ -7,24 +7,42 @@ import AttractionsPage from "./pages/AttractionsPage";
 import FoodPage from "./pages/FoodPage";
 import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
+import FleetPage from "./pages/FleetPage";
+import RentalAddOnPage from "./components/Rentals/RentalAddOn";
+import DriverDetailsPage from "./components/Rentals/DriverDetailsPage";
+import PaymentPage from "./pages/PaymentPage";
+// import { BookingProvider } from "./contexts/BookingContext";
 
 const App = () => {
   return (
+    // <BookingProvider>
     <Router>
       <div className="flex min-h-screen flex-col">
         <Navbar />
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/rentals" element={<FleetPage />} />
             <Route path="/attractions" element={<AttractionsPage />} />
             <Route path="/food" element={<FoodPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/about" element={<AboutPage />} />
+            {/* Booking Flow Routes */}
+            <Route
+              path="/booking/:carId/addons"
+              element={<RentalAddOnPage />}
+            />
+            <Route
+              path="/booking/:carId/driver-details"
+              element={<DriverDetailsPage />}
+            />
+            <Route path="/booking/:carId/payment" element={<PaymentPage />} />
           </Routes>
         </main>
         <Footer />
       </div>
     </Router>
+    // </BookingProvider>
   );
 };
 
