@@ -2,24 +2,19 @@ import React from "react";
 
 const SignInPage: React.FC = () => {
   return (
-    <div
-      className="flex min-h-screen w-screen items-center justify-center bg-gray-50"
-      style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+    <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
+      {/* Blurred, animated background image */}
+      <div
+        className="bg-zoom-animate absolute inset-0 -z-10 bg-cover bg-center blur-sm brightness-90"
+        style={{
+          backgroundImage: "url('/assets/exploresg-backdrop-jewel.jpg')",
+        }}
+        aria-hidden="true"
+      />
+      {/* Foreground: Sign-in form */}
+      <div className="bg-opacity-90 w-full max-w-md rounded-xl bg-white p-8 shadow-lg backdrop-blur-md">
         <div className="flex flex-col items-center">
-          {/* <img
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-            alt="Logo"
-            className="mb-6 h-10"
-          /> */}
           <h1 className="text-4xl font-bold text-red-600">ExploreSG</h1>
-
           <h2 className="mt-4 mb-2 text-center text-xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
