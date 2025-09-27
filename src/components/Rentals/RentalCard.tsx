@@ -50,7 +50,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
   return (
     <div
       onClick={handleCardClick}
-      className="group relative mx-auto max-w-md cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"
+      className="group relative mx-auto max-w-md min-w-80 cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"
     >
       {/* Main Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-violet-900 from-15% via-violet-300 via-50% to-gray-900 to-85%">
@@ -60,19 +60,23 @@ const RentalCard: React.FC<RentalCardProps> = ({
       {/* Content */}
       <div className="relative z-10 p-8">
         {/* FREE Badge */}
-        {/* {promoText && (
-          <div className="absolute top-12 -right-8 bg-blue-500 px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors group-hover:bg-blue-600">
-            FREE Malaysia Entry
+        {promoText && (
+          <div className="absolute top-0 -right-5 rotate-12 rounded-2xl bg-gradient-to-r from-violet-600 to-violet-700 px-4 py-2 text-xs font-bold text-white shadow-lg drop-shadow-2xl transition-all duration-300 group-hover:rotate-0 group-hover:from-red-600 group-hover:to-red-700">
+            <div className="mr-3 text-center">
+              {promoText}
+              {/* <div className="text-xs">FREE</div>
+              <div className="text-[10px] leading-tight">Malaysia Entry</div> */}
+            </div>
           </div>
-        )} */}
+        )}
 
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-start justify-between">
-            <h2 className="text-xl leading-tight font-semibold text-white transition-colors group-hover:text-blue-200">
+            <h2 className="flex-1 pr-2 text-xl leading-tight font-semibold text-white transition-colors group-hover:text-blue-200">
               {model}
             </h2>
-            <span className="ml-2 text-sm font-bold text-white/80 group-hover:text-white">
+            <span className="text-sm font-bold whitespace-nowrap text-white/80 group-hover:text-white">
               {operator}
             </span>
           </div>
