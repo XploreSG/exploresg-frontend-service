@@ -16,10 +16,10 @@ const FleetPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Rental Cars Grid */}
+        {/* Rental Cars Grid - Auto-fit grid that respects card minimum width */}
         <div className="mt-16 rounded-lg bg-white p-12 shadow-lg">
           <div className="text-center">
-            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <div className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] justify-items-center gap-8">
               {RENTAL_CARS.map((car) => (
                 <RentalCard
                   key={car.id}
