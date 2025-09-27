@@ -85,6 +85,18 @@ const FleetPage: React.FC = () => {
     setShowMobileFilters(false);
   };
 
+  // Check if any filters are active
+  const hasActiveFilters = () => {
+    return (
+      sortBy !== "price-low" ||
+      vehicleType !== "all" ||
+      minSeats !== "all" ||
+      transmission !== "all" ||
+      priceRange[0] !== 0 ||
+      priceRange[1] !== 1000
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -166,20 +178,40 @@ const FleetPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Results Count */}
-          <div className="mt-4 border-t border-gray-200 pt-4 text-left">
+          {/* Results Count and Clear Button */}
+          <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
             <p className="text-sm font-medium text-blue-600">
               {filteredCars.length} models found
             </p>
+            {hasActiveFilters() && (
+              <button
+                onClick={resetFilters}
+                className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                <FaTimes className="text-xs" />
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
 
         {/* Mobile Filter Button - Only visible on mobile */}
         <div className="mb-6 md:hidden">
           <div className="flex items-center justify-between rounded-lg bg-white p-4 shadow-lg">
-            <p className="text-sm font-medium text-blue-600">
-              {filteredCars.length} models found
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-sm font-medium text-blue-600">
+                {filteredCars.length} models found
+              </p>
+              {hasActiveFilters() && (
+                <button
+                  onClick={resetFilters}
+                  className="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  <FaTimes className="text-xs" />
+                  Clear
+                </button>
+              )}
+            </div>
             <button
               onClick={() => setShowMobileFilters(true)}
               className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
