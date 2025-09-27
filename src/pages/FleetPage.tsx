@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import RentalCard from "../components/Rentals/RentalCard";
-import { RENTAL_CARS, CAR_CATEGORIES, OPERATORS } from "../data/rentalCars";
+import { RENTAL_CARS } from "../data/rentalCars";
 
 const FleetPage: React.FC = () => {
   // Filter states
