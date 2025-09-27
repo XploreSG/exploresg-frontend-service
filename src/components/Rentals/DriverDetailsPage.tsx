@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 // import BookingProgress from "../components/Rentals/BookingProgress";
 import BookingProgress from "./BookingProgress";
+import RentalCardSummary from "./RentalCardSummary";
 import {
   FaUser,
   FaIdCard,
@@ -30,10 +31,51 @@ interface DriverDetails {
   drivingExperience: string;
 }
 
+interface CarDetails {
+  model: string;
+  seats: number;
+  luggage: number;
+  transmission: "automatic" | "manual";
+  price: number;
+  originalPrice?: number;
+  promoText?: string;
+  imageUrl: string;
+  operator: string;
+  operatorStyling: string;
+  carId: string;
+}
+
+interface BookingDates {
+  pickup: string;
+  return: string;
+  nights: number;
+}
+
+interface AddOnSelection {
+  id: string;
+  name: string;
+  price: number | string;
+  selected: boolean;
+}
+
 const DriverDetailsPage: React.FC = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Get car details and booking data from location state
+  const bookingData = location.state || {};
+  const {
+    carDetails,
+    // selectedAddOns,
+    // selectedCDW,
+    bookingDates,
+  }: {
+    carDetails?: CarDetails;
+    selectedAddOns?: AddOnSelection[];
+    selectedCDW?: string;
+    bookingDates?: BookingDates;
+  } = bookingData;
 
   const [driverDetails, setDriverDetails] = useState<DriverDetails>({
     firstName: "",
@@ -190,6 +232,27 @@ const DriverDetailsPage: React.FC = () => {
               </span>
             </div>
           </div>
+
+          {/* Full-Width Car Summary */}
+          {carDetails && (
+            <div className="mb-8">
+              <RentalCardSummary
+                model={carDetails.model}
+                seats={carDetails.seats}
+                luggage={carDetails.luggage}
+                transmission={carDetails.transmission}
+                price={carDetails.price}
+                originalPrice={carDetails.originalPrice}
+                promoText={carDetails.promoText}
+                imageUrl={carDetails.imageUrl}
+                operator={carDetails.operator}
+                operatorStyling={carDetails.operatorStyling}
+                nights={bookingDates?.nights || 5}
+                showPricing={true}
+                className="mb-0"
+              />
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Personal Information */}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import BookingProgress from "../components/Rentals/BookingProgress";
+import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 import { FaCreditCard, FaLock, FaShieldAlt, FaCheck } from "react-icons/fa";
 
 interface AddOnSelection {
@@ -12,9 +13,22 @@ interface AddOnSelection {
 
 interface CarDetails {
   model: string;
+  seats: number;
+  luggage: number;
+  transmission: "automatic" | "manual";
   price: number;
+  originalPrice?: number;
+  promoText?: string;
   imageUrl: string;
+  operator: string;
+  operatorStyling: string;
   carId: string;
+}
+
+interface BookingDates {
+  pickup: string;
+  return: string;
+  nights: number;
 }
 
 const PaymentPage: React.FC = () => {
@@ -29,11 +43,13 @@ const PaymentPage: React.FC = () => {
     selectedAddOns,
     selectedCDW,
     total,
+    bookingDates,
   }: {
     carDetails?: CarDetails;
     selectedAddOns?: AddOnSelection[];
     selectedCDW?: string;
     total?: number;
+    bookingDates?: BookingDates;
   } = bookingData;
 
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -76,6 +92,27 @@ const PaymentPage: React.FC = () => {
               </span>
             </div>
           </div>
+
+          {/* Full-Width Car Summary */}
+          {carDetails && (
+            <div className="mb-8">
+              <RentalCardSummary
+                model={carDetails.model}
+                seats={carDetails.seats}
+                luggage={carDetails.luggage}
+                transmission={carDetails.transmission}
+                price={carDetails.price}
+                originalPrice={carDetails.originalPrice}
+                promoText={carDetails.promoText}
+                imageUrl={carDetails.imageUrl}
+                operator={carDetails.operator}
+                operatorStyling={carDetails.operatorStyling}
+                nights={bookingDates?.nights || 5}
+                showPricing={true}
+                className="mb-0"
+              />
+            </div>
+          )}
 
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Payment Form */}
