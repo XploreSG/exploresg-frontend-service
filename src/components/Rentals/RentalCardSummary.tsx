@@ -34,10 +34,10 @@ const RentalCardSummary: React.FC<RentalCardSummaryProps> = ({
 }) => {
   return (
     <div
-      className={`relative overflow-hidden rounded-xl bg-gradient-to-r from-gray-500 via-gray-400 to-gray-600 p-6 text-white shadow-xl ${className}`}
+      className={`relative z-0 overflow-hidden rounded-xl bg-gradient-to-r from-gray-500 via-gray-400 to-gray-600 p-6 text-white shadow-xl ${className}`}
     >
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-slate-600/10 to-indigo-600/10" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-blue-600/10 via-slate-600/10 to-indigo-600/10" />
 
       {/* Promo Badge */}
       {/* {promoText && (
@@ -81,65 +81,31 @@ const RentalCardSummary: React.FC<RentalCardSummaryProps> = ({
           </div>
         </div>
 
-        {/* Main Content - Car Image + Rental Period */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-          {/* Car Section - Takes up most space */}
-          <div className="lg:col-span-3">
-            {/* Car Image - Maximum Size */}
-            <div className="flex items-center justify-center">
-              <div className="relative">
-                <img
-                  src={imageUrl}
-                  alt={model}
-                  className="h-64 w-full max-w-lg object-contain drop-shadow-2xl transition-transform duration-300 hover:scale-105"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='256' viewBox='0 0 320 256'%3E%3Crect width='320' height='256' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%236b7280'%3ECar Image%3C/text%3E%3C/svg%3E";
-                  }}
-                />
+        {/* Main Content - Car Image Takes Maximum Space */}
+        <div className="relative z-10 mb-8">
+          {/* Car Image - Maximum Size Centered */}
+          <div className="relative z-10 flex items-center justify-center py-8">
+            <div className="relative z-10 w-full max-w-4xl">
+              <img
+                src={imageUrl}
+                alt={model}
+                className="relative z-10 h-80 w-full object-contain drop-shadow-2xl transition-transform duration-300 hover:scale-105"
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='256' viewBox='0 0 320 256'%3E%3Crect width='320' height='256' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%236b7280'%3ECar Image%3C/text%3E%3C/svg%3E";
+                }}
+              />
 
-                {/* Shimmer Effect on Hover */}
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 hover:translate-x-full" />
-              </div>
-            </div>
-          </div>
-
-          {/* Rental Period - Right Side */}
-          <div className="flex flex-col justify-center lg:col-span-1">
-            <h3 className="mb-4 text-center text-xl font-semibold text-white/90">
-              Rental Period
-            </h3>
-            <div className="space-y-4">
-              <div className="rounded-xl bg-black/30 p-6 backdrop-blur-sm">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-white">{nights}</div>
-                  <div className="text-sm tracking-wide text-white/70 uppercase">
-                    nights
-                  </div>
-                </div>
-              </div>
-
-              {showPricing && (
-                <div className="space-y-3 rounded-xl bg-black/20 p-4 backdrop-blur-sm">
-                  <div className="flex justify-between text-sm text-white/80">
-                    <span>Subtotal</span>
-                    <span>S$ {(price * nights).toFixed(2)}</span>
-                  </div>
-                  <hr className="border-white/20" />
-                  <div className="flex justify-between text-lg font-bold text-white">
-                    <span>Total</span>
-                    <span>S$ {(price * nights).toFixed(2)}</span>
-                  </div>
-                </div>
-              )}
+              {/* Shimmer Effect on Hover */}
+              <div className="pointer-events-none absolute inset-0 z-20 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 hover:translate-x-full" />
             </div>
           </div>
         </div>
 
         {/* Car Details + Features Bar */}
-        <div className="mt-6 space-y-4">
+        <div className="relative z-10 mt-6 space-y-4">
           {/* Car Specifications - Left Aligned */}
-          <div className="flex items-center justify-start gap-8">
+          <div className="relative z-10 flex items-center justify-start gap-8">
             <div className="flex items-center gap-2 text-white/90">
               <FaUsers className="h-5 w-5 text-blue-300" />
               <span className="text-lg font-bold text-white">{seats}</span>
@@ -159,7 +125,7 @@ const RentalCardSummary: React.FC<RentalCardSummaryProps> = ({
           </div>
 
           {/* Features Bar */}
-          <div className="flex flex-wrap items-center justify-center gap-6 rounded-xl bg-black/20 p-4 text-sm text-white/80 backdrop-blur-sm">
+          <div className="relative z-10 flex flex-wrap items-center justify-center gap-6 rounded-xl bg-black/20 p-4 text-sm text-white/80 backdrop-blur-sm">
             <div className="flex items-center gap-2">
               <FaCheck className="h-4 w-4 text-green-400" />
               <span>Unlimited mileage</span>
@@ -180,7 +146,7 @@ const RentalCardSummary: React.FC<RentalCardSummaryProps> = ({
         </div>
 
         {/* Animated Border */}
-        <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-1000 group-hover:w-full" />
+        <div className="absolute bottom-0 left-0 z-5 h-1 w-0 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-1000 group-hover:w-full" />
       </div>
     </div>
   );
