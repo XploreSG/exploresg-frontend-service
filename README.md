@@ -111,6 +111,56 @@ Ensure you have the following installed:
 - **npm**: Version 8.0.0 or higher (comes with Node.js)
 - **Git**: For version control
 
+### 🐳 Running with Docker (Development & Production)
+
+You can run the app in a container for both development (Vite dev server) and production (Nginx serving built files), both on port 3000.
+
+#### 1. Development (Vite, hot reload)
+
+**Option A: Using Docker Compose (recommended for local dev)**
+
+Uses `Dockerfile.dev` and the `frontend-dev` service:
+
+```powershell
+docker-compose up --build frontend-dev
+```
+
+Visit: [http://localhost:3000](http://localhost:3000)
+
+Any code changes will be reflected live in the browser.
+
+**Option B: Using Docker directly**
+
+```powershell
+docker build -f Dockerfile.dev -t exploresg-frontend:dev .
+docker run -it --rm -p 3000:3000 -v %cd%:/app -v /app/node_modules exploresg-frontend:dev
+```
+
+#### 2. Production (Nginx, static build)
+
+**Option A: Using Docker Compose**
+
+Uses `Dockerfile.prod` and the `frontend-prod` service:
+
+```powershell
+docker-compose up --build frontend-prod
+```
+
+Visit: [http://localhost:3000](http://localhost:3000)
+
+**Option B: Using Docker directly**
+
+```powershell
+docker build -f Dockerfile.prod -t exploresg-frontend:prod .
+docker run -it --rm -p 3000:3000 exploresg-frontend:prod
+```
+
+This serves the optimized static build using Nginx.
+
+To stop any service, press `Ctrl+C` in the terminal.
+
+---
+
 ### Installation
 
 1. **Clone the Repository**
