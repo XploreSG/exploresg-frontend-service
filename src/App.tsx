@@ -23,17 +23,9 @@ const App = () => {
             <Route path="/rentals" element={<FleetPage />} />
             <Route path="/attractions" element={<AttractionsPage />} />
             <Route path="/food" element={<FoodPage />} />
-            <Route path="/addon" element={<RentalAddOnPage />} />
-            <Route path="/driver" element={<DriverDetailsPage />} />
-            <Route path="/payment" element={<PaymentPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route
-              path="/booking/:carId/addons"
-              element={<RentalAddOnPage />}
-            />
             {/* Booking Flow Routes */}
-            {/* 
             <Route
               path="/booking/:carId/addons"
               element={<RentalAddOnPage />}
@@ -42,7 +34,7 @@ const App = () => {
               path="/booking/:carId/driver-details"
               element={<DriverDetailsPage />}
             />
-            <Route path="/booking/:carId/payment" element={<PaymentPage />} /> */}
+            <Route path="/booking/:carId/payment" element={<PaymentPage />} />
           </Routes>
         </main>
         <Footer />

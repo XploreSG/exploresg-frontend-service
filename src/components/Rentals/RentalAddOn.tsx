@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import BookingProgress from "./BookingProgress";
 import { FaPlus } from "react-icons/fa";
 
@@ -16,6 +17,20 @@ type CDWOption = {
   label: string;
   price: number;
   priceDisplay: string;
+};
+
+type CarDetails = {
+  model: string;
+  seats: number;
+  luggage: number;
+  transmission: "automatic" | "manual";
+  price: number;
+  originalPrice?: number;
+  promoText?: string;
+  imageUrl: string;
+  operator: string;
+  operatorStyling: string;
+  carId: string;
 };
 
 type BookingDetails = {
@@ -72,17 +87,33 @@ const CDW_OPTIONS: CDWOption[] = [
 ];
 
 const RentalAddOnPage: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get car details from navigation state
+  const carDetails: CarDetails = location.state?.carDetails || {
+    model: "Toyota Alphard or similar",
+    seats: 7,
+    luggage: 2,
+    transmission: "automatic" as const,
+    price: 250,
+    imageUrl: "/assets/alphard.png",
+    operator: "Default Operator",
+    operatorStyling: "",
+    carId: "default-1",
+  };
+
   // Booking details (normally passed as props or from context/state)
   const bookingDetails: BookingDetails = {
-    car: "Toyota Alphard or similar",
+    car: carDetails.model,
     location: "McIver City, 28 Sin Ming Lane",
     pickup: "Sat, 27 Sep, 11:00",
     return: "Thu, 2 Oct, 10:00",
-    passengers: 7,
-    luggage: 2,
+    passengers: carDetails.seats,
+    luggage: carDetails.luggage,
     petFriendly: true,
     nights: 5,
-    basePrice: 250,
+    basePrice: carDetails.price,
   };
 
   const [selectedCDW, setSelectedCDW] = useState<string>("basic");
@@ -150,7 +181,7 @@ const RentalAddOnPage: React.FC = () => {
               {/* Car Image */}
               <div className="flex-shrink-0">
                 <img
-                  src="/assets/alphard.png"
+                  src={carDetails.imageUrl}
                   alt={bookingDetails.car}
                   className="h-20 w-32 rounded-lg bg-white object-contain"
                   onError={(e) => {
@@ -337,7 +368,20 @@ const RentalAddOnPage: React.FC = () => {
             </div>
 
             {/* Continue Button */}
-            <button className="w-full rounded-lg bg-blue-600 py-4 text-lg font-semibold text-white shadow-lg transition-colors hover:bg-blue-700">
+            <button
+              type="button"
+              onClick={() =>
+                navigate(`/booking/${carDetails.carId}/driver-details`, {
+                  state: {
+                    carDetails,
+                    selectedAddOns,
+                    selectedCDW,
+                    total,
+                  },
+                })
+              }
+              className="w-full rounded-lg bg-blue-600 py-4 text-lg font-semibold text-white shadow-lg transition-colors hover:bg-blue-700"
+            >
               Continue to Driver Info
             </button>
 

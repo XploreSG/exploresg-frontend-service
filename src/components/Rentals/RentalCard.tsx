@@ -32,6 +32,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
   const navigate = useNavigate();
 
   const handleCardClick = () => {
+    // Navigate to add-ons page with car details in state
     navigate(`/booking/${carId}/addons`, {
       state: {
         carDetails: {
@@ -45,6 +46,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
           imageUrl,
           operator,
           operatorStyling,
+          carId,
         },
       },
     });
