@@ -13,7 +13,44 @@ export interface RentalCarData {
   category: string;
 }
 
+// Category constants
+export const CAR_CATEGORIES = {
+  ECONOMY: "economy",
+  COMPACT: "compact",
+  HYBRID: "hybrid",
+  VAN: "van",
+  SUV: "suv",
+  LUXURY: "luxury",
+  LUXURY_SPORTS: "luxury-sports",
+  LUXURY_SUV: "luxury-suv",
+} as const;
+
+export const OPERATORS = {
+  HERTZ: "Hertz",
+  SIXT: "Sixt",
+} as const;
+
+export const TRANSMISSIONS = {
+  AUTOMATIC: "automatic",
+  MANUAL: "manual",
+} as const;
+
 export const RENTAL_CARS: RentalCarData[] = [
+  {
+    id: "maserati-grecale-1",
+    model: "Maserati Grecale or similar",
+    seats: 5,
+    luggage: 4,
+    transmission: "automatic",
+    originalPrice: 600,
+    price: 550,
+    promoText: "Hot",
+    imageUrl: "/assets/maserati-grecale.png",
+    operator: "Hertz",
+    operatorStyling: "text-yellow-400",
+    category: CAR_CATEGORIES.LUXURY_SUV,
+  },
+
   {
     id: "skoda-octavia-1",
     model: "Skoda Octavia or similar",
@@ -57,6 +94,20 @@ export const RENTAL_CARS: RentalCarData[] = [
     category: "luxury-sports",
   },
   {
+    id: "bmw-x3-1",
+    model: "BMW X3 or similar",
+    seats: 5,
+    luggage: 4,
+    transmission: "automatic",
+    originalPrice: 500,
+    price: 450,
+    promoText: "Hot",
+    imageUrl: "/assets/bmw-x3.png",
+    operator: "Hertz",
+    operatorStyling: "text-yellow-400",
+    category: CAR_CATEGORIES.LUXURY_SUV,
+  },
+  {
     id: "bmw-m440i-1",
     model: "BMW M440i or similar",
     seats: 4,
@@ -94,6 +145,20 @@ export const RENTAL_CARS: RentalCarData[] = [
     price: 450,
     promoText: "Hot",
     imageUrl: "/assets/merc-sl63.png",
+    operator: "Hertz",
+    operatorStyling: "text-yellow-400",
+    category: "luxury-sports",
+  },
+  {
+    id: "peugeot-5008-1",
+    model: "Peugeot 5006 or similar",
+    seats: 5,
+    luggage: 2,
+    transmission: "automatic",
+    originalPrice: 190,
+    price: 150,
+    promoText: "Hot",
+    imageUrl: "/assets/peugeot-5008.png",
     operator: "Hertz",
     operatorStyling: "text-yellow-400",
     category: "luxury-sports",
@@ -162,23 +227,3 @@ export const sortCarsByPrice = (ascending: boolean = true): RentalCarData[] =>
   [...RENTAL_CARS].sort((a, b) =>
     ascending ? a.price - b.price : b.price - a.price,
   );
-
-// Category constants
-export const CAR_CATEGORIES = {
-  ECONOMY: "economy",
-  COMPACT: "compact",
-  HYBRID: "hybrid",
-  VAN: "van",
-  LUXURY: "luxury",
-  LUXURY_SPORTS: "luxury-sports",
-} as const;
-
-export const OPERATORS = {
-  HERTZ: "Hertz",
-  SIXT: "Sixt",
-} as const;
-
-export const TRANSMISSIONS = {
-  AUTOMATIC: "automatic",
-  MANUAL: "manual",
-} as const;
