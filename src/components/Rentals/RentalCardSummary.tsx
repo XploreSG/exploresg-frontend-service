@@ -22,14 +22,14 @@ const RentalCardSummary: React.FC<RentalCardSummaryProps> = ({
   seats,
   luggage,
   transmission,
-  price,
+  //   price,
   //   originalPrice,
   //   promoText,
   imageUrl,
   operator,
   operatorStyling,
-  nights = 5,
-  showPricing = true,
+  //   nights = 5,
+  //   showPricing = true,
   className = "",
 }) => {
   return (
