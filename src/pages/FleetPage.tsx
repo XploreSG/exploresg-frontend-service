@@ -192,7 +192,7 @@ const FleetPage: React.FC = () => {
 
         {/* Mobile Filter Popup */}
         {showMobileFilters && (
-          <div className="bg-opacity-50 fixed inset-0 z-50 bg-black md:hidden">
+          <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-xs md:hidden">
             <div className="absolute right-0 bottom-0 left-0 max-h-[80vh] overflow-y-auto rounded-t-xl bg-white">
               {/* Header */}
               <div className="flex items-center justify-between border-b p-4">
@@ -248,43 +248,36 @@ const FleetPage: React.FC = () => {
                       S$0 - S$1000 /night
                     </h3>
                     <div className="space-y-2">
-                      {/*
-                      { label: "All Prices", value: "0-1000" },
-                      { label: "$0 - $100", value: "0-100" },
-                      { label: "$100 - $300", value: "100-300" },
-                      { label: "$300 - $500", value: "300-500" },
-                      { label: "$500+", value: "500-1000" },
-                      */}
-                      {Array.from({ length: 5 }, (_, i) => {
-                        const min = i * 100;
-                        const max = i === 4 ? 1000 : min + 100;
-                        return (
-                          <label
-                            key={`${min}-${max}`}
-                            className="flex items-center gap-3 p-2"
-                          >
-                            <input
-                              type="radio"
-                              name="priceRange"
-                              value={`${min}-${max}`}
-                              checked={
-                                `${priceRange[0]}-${priceRange[1]}` ===
-                                `${min}-${max}`
-                              }
-                              onChange={(e) => {
-                                const [min, max] = e.target.value
-                                  .split("-")
-                                  .map(Number);
-                                setPriceRange([min, max]);
-                              }}
-                              className="h-4 w-4 text-blue-600"
-                            />
-                            <span className="text-gray-700">
-                              ${min} - ${max}
-                            </span>
-                          </label>
-                        );
-                      })}
+                      {[
+                        { label: "All Prices", value: "0-1000" },
+                        { label: "$0 - $100", value: "0-100" },
+                        { label: "$100 - $300", value: "100-300" },
+                        { label: "$300 - $500", value: "300-500" },
+                        { label: "$500+", value: "500-1000" },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex items-center gap-3 p-2"
+                        >
+                          <input
+                            type="radio"
+                            name="priceRange"
+                            value={option.value}
+                            checked={
+                              `${priceRange[0]}-${priceRange[1]}` ===
+                              option.value
+                            }
+                            onChange={(e) => {
+                              const [min, max] = e.target.value
+                                .split("-")
+                                .map(Number);
+                              setPriceRange([min, max]);
+                            }}
+                            className="h-4 w-4 text-blue-600"
+                          />
+                          <span className="text-gray-700">{option.label}</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
                 )}
