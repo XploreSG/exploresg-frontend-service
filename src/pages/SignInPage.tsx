@@ -1,11 +1,72 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../contexts/useAuth";
 import { useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import SignInForm from "../components/Auth/SignInForm";
+import type { SignInFormData } from "../components/Auth/SignInForm";
+import SocialLoginButtons from "../components/Auth/SocialLoginButtons";
+import axios from "axios";
 
 const SignInPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const handleFormSubmit = (data: SignInFormData) => {
+    // Placeholder: replace with real auth call
+    console.debug("Form submit", data);
+    login(data.email, undefined);
+    navigate("/yourday");
+  };
+
+  const handleGoogleSuccess = (idToken: string | undefined) => {
+    console.debug("Google ID Token:", idToken);
+    if (!idToken) {
+      console.warn("No ID token received from Google");
+      return;
+    }
+
+    // POST the ID token to backend for verification / session creation
+    setLoading(true);
+    setError(null);
+
+    axios
+      .post(
+        "http://localhost:8080/api/auth/log-token",
+        // no body needed, token sent in Authorization header
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+            "Content-Type": "application/json",
+          },
+          // include credentials only when your backend uses cookies/sessions
+          // withCredentials: true,
+        },
+      )
+      .then((resp) => {
+        // assume backend returns user info or success
+        console.debug("Backend response", resp.data);
+        // update client auth state with the idToken (or backend token if provided)
+        const serverToken = resp.data?.token || idToken;
+        login(resp.data?.user || "google-user", serverToken);
+        navigate("/yourday");
+      })
+      .catch((err) => {
+        console.error("Failed to send token to backend", err?.response || err);
+        setError(
+          err?.response?.data?.message ||
+            err.message ||
+            "Failed to authenticate",
+        );
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const handleGoogleError = () => {
+    console.warn("Google login failed");
+  };
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
@@ -22,6 +83,7 @@ const SignInPage: React.FC = () => {
         className="absolute inset-0 -z-10 bg-blue-300/10"
         aria-hidden="true"
       />
+
       {/* Foreground: Glassmorphic Sign-in form */}
       <div className="w-full max-w-md rounded-xl border border-white/30 bg-white/60 p-8 shadow-lg backdrop-blur-2xl">
         <div className="flex flex-col items-center">
@@ -31,97 +93,37 @@ const SignInPage: React.FC = () => {
           </h2>
           <p className="mb-8 text-center text-sm text-gray-500">
             Not a member?{" "}
-            <a href="#" className="font-medium text-[#6366f1] hover:underline">
+            <a
+              href="#"
+              className="font-medium text-[#6366f1] hover:underline"
+              onClick={(e) => e.preventDefault()}
+            >
               Start a 14-day free trial
             </a>
           </p>
         </div>
 
-        {/* Email + Password form (optional for later) */}
-        <form className="space-y-5">
-          <div>
-            <input
-              type="email"
-              placeholder="Email address"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 shadow-sm focus:border-[#6366f1] focus:ring-[#6366f1] focus:outline-none"
-              autoComplete="email"
-            />
+        <SignInForm onSubmit={handleFormSubmit} />
+
+        {error && (
+          <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {error}
           </div>
-          <div>
-            <input
-              type="password"
-              placeholder="Password"
-              className="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2 text-gray-900 shadow-sm focus:border-[#6366f1] focus:ring-[#6366f1] focus:outline-none"
-              autoComplete="current-password"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-[#6366f1] focus:ring-[#6366f1]"
-              />
-              <span className="ml-2 text-sm text-gray-700">Remember me</span>
-            </label>
-            <a
-              href="#"
-              className="text-sm font-medium text-[#6366f1] hover:underline"
-            >
-              Forgot password?
-            </a>
-          </div>
-          <button
-            type="submit"
-            className="w-full rounded-md bg-[#6366f1] px-4 py-2 font-semibold text-white transition hover:bg-[#4f46e5] focus:ring-2 focus:ring-[#6366f1] focus:outline-none"
-          >
-            Sign in
-          </button>
-        </form>
+        )}
 
         <div className="my-8 flex items-center">
-          <div className="flex-grow border-t border-gray-200"></div>
+          <div className="flex-grow border-t border-gray-200" />
           <span className="mx-4 text-sm text-gray-400">Or continue with</span>
-          <div className="flex-grow border-t border-gray-200"></div>
+          <div className="flex-grow border-t border-gray-200" />
         </div>
 
-        {/* Social logins */}
-        <div className="flex justify-center gap-4">
-          {/* ✅ Google button (from @react-oauth/google) */}
-          <div className="flex items-center justify-center rounded-md border border-gray-300 bg-white px-6 py-2">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                const idToken = credentialResponse.credential;
-                console.log("Google ID Token:", idToken);
+        <div className="flex flex-col items-center gap-4">
+          {loading && <div className="text-sm text-gray-600">Signing in…</div>}
 
-                // 🚀 Send token to backend here
-                login("google-user", idToken ?? undefined);
-                navigate("/yourday");
-              }}
-              onError={() => {
-                console.log("Google Login Failed");
-              }}
-            />
-          </div>
-
-          {/* GitHub button placeholder */}
-          <button
-            className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:bg-gray-50"
-            disabled
-          >
-            <svg
-              className="h-5 w-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.091-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.987 1.029-2.687-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.397.1 2.65.64.7 1.028 1.594 1.028 2.687 0 3.847-2.338 4.695-4.566 4.944.359.309.678.919.678 1.853 0 1.338-.012 2.419-.012 2.749 0 .267.18.577.688.48C19.138 20.203 22 16.447 22 12.021 22 6.484 17.523 2 12 2z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="font-medium">GitHub</span>
-          </button>
+          <SocialLoginButtons
+            onGoogleSuccess={handleGoogleSuccess}
+            onGoogleError={handleGoogleError}
+          />
         </div>
       </div>
     </div>
