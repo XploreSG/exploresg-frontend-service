@@ -94,7 +94,7 @@ const SignInPage: React.FC = () => {
                 console.log("Google ID Token:", idToken);
 
                 // 🚀 Send token to backend here
-                login("google-user");
+                login("google-user", idToken ?? undefined);
                 navigate("/yourday");
               }}
               onError={() => {
