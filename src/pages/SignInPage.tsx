@@ -1,16 +1,11 @@
 import React from "react";
 import { useAuth } from "../contexts/useAuth";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 const SignInPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const handleGoogleLogin = (e: React.MouseEvent) => {
-    e.preventDefault();
-    login("demo-user"); // Simulate Google SSO
-    navigate("/yourday");
-  };
 
   return (
     <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
@@ -41,6 +36,8 @@ const SignInPage: React.FC = () => {
             </a>
           </p>
         </div>
+
+        {/* Email + Password form (optional for later) */}
         <form className="space-y-5">
           <div>
             <input
@@ -80,23 +77,33 @@ const SignInPage: React.FC = () => {
             Sign in
           </button>
         </form>
+
         <div className="my-8 flex items-center">
           <div className="flex-grow border-t border-gray-200"></div>
           <span className="mx-4 text-sm text-gray-400">Or continue with</span>
           <div className="flex-grow border-t border-gray-200"></div>
         </div>
+
+        {/* Social logins */}
         <div className="flex justify-center gap-4">
-          <button
-            className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:bg-gray-50"
-            onClick={handleGoogleLogin}
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google"
-              className="h-5 w-5"
+          {/* ✅ Google button (from @react-oauth/google) */}
+          <div className="flex items-center justify-center rounded-md border border-gray-300 bg-white px-6 py-2">
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                const idToken = credentialResponse.credential;
+                console.log("Google ID Token:", idToken);
+
+                // 🚀 Send token to backend here
+                login("google-user");
+                navigate("/yourday");
+              }}
+              onError={() => {
+                console.log("Google Login Failed");
+              }}
             />
-            <span className="font-medium">Google</span>
-          </button>
+          </div>
+
+          {/* GitHub button placeholder */}
           <button
             className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:bg-gray-50"
             disabled
