@@ -1,6 +1,17 @@
 import React from "react";
+import { useAuth } from "../contexts/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const SignInPage: React.FC = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGoogleLogin = (e: React.MouseEvent) => {
+    e.preventDefault();
+    login("demo-user"); // Simulate Google SSO
+    navigate("/");
+  };
+
   return (
     <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
       {/* Animated background image (no blur) */}
@@ -75,7 +86,10 @@ const SignInPage: React.FC = () => {
           <div className="flex-grow border-t border-gray-200"></div>
         </div>
         <div className="flex justify-center gap-4">
-          <button className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:bg-gray-50">
+          <button
+            className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:bg-gray-50"
+            onClick={handleGoogleLogin}
+          >
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
               alt="Google"
@@ -83,7 +97,10 @@ const SignInPage: React.FC = () => {
             />
             <span className="font-medium">Google</span>
           </button>
-          <button className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:bg-gray-50">
+          <button
+            className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:bg-gray-50"
+            disabled
+          >
             <svg
               className="h-5 w-5"
               fill="currentColor"

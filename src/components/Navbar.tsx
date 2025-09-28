@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
 
 const navigation = [
-  { name: "Dashboard", href: "/" },
+  { name: "Home", href: "/" },
   { name: "Rentals", href: "/rentals" },
   { name: "Projects", href: "/projects" },
   { name: "Calendar", href: "/calendar" },
@@ -12,8 +13,20 @@ const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const isActive = (href: string) => location.pathname === href;
+
+  const handleSignIn = () => {
+    navigate("/login");
+  };
+
+  const handleSignOut = () => {
+    logout();
+    setProfileOpen(false);
+    navigate("/");
+  };
 
   return (
     <nav className="relative bg-white text-gray-900 shadow-md">
@@ -103,68 +116,78 @@ const Navbar: React.FC = () => {
           </div>
           {/* Right side: notification and profile */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <button
-              type="button"
-              className="relative rounded-full p-1 text-gray-500 transition hover:text-indigo-600 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
-            >
-              <span className="sr-only">View notifications</span>
-              <svg
-                className="h-6 w-6"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-                />
-              </svg>
-            </button>
-            {/* Profile dropdown */}
-            <div className="relative ml-3">
+            {user && (
               <button
-                className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-                onClick={() => setProfileOpen((open) => !open)}
-                aria-haspopup="true"
-                aria-expanded={profileOpen}
+                type="button"
+                className="relative rounded-full p-1 text-gray-500 transition hover:text-indigo-600 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
               >
-                <span className="sr-only">Open user menu</span>
-                <img
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  alt=""
-                  className="h-8 w-8 rounded-full bg-gray-200 outline outline-1 outline-indigo-100"
-                />
+                <span className="sr-only">View notifications</span>
+                <svg
+                  className="h-6 w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
+                  />
+                </svg>
               </button>
-              {/* Dropdown */}
-              {profileOpen && (
-                <div className="absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    Your profile
-                  </Link>
-                  <Link
-                    to="/settings"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    Settings
-                  </Link>
-                  <Link
-                    to="/logout"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
-                    onClick={() => setProfileOpen(false)}
-                  >
-                    Sign out
-                  </Link>
-                </div>
-              )}
-            </div>
+            )}
+            {/* Auth logic: show Sign In or Profile */}
+            {user ? (
+              <div className="relative ml-3">
+                <button
+                  className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                  onClick={() => setProfileOpen((open) => !open)}
+                  aria-haspopup="true"
+                  aria-expanded={profileOpen}
+                >
+                  <span className="sr-only">Open user menu</span>
+                  <img
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    alt=""
+                    className="h-8 w-8 rounded-full bg-gray-200 outline-1 outline-indigo-100"
+                  />
+                </button>
+                {/* Dropdown */}
+                {profileOpen && (
+                  <div className="absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      Your profile
+                    </Link>
+                    <Link
+                      to="/settings"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      Settings
+                    </Link>
+                    <button
+                      className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
+                      onClick={handleSignOut}
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                className="ml-4 rounded-md px-4 py-2 text-sm font-semibold text-gray-700 hover:scale-105 hover:bg-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                onClick={handleSignIn}
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </div>
