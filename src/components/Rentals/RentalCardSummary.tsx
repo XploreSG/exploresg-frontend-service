@@ -47,13 +47,13 @@ const RentalCardSummary: React.FC<RentalCardSummaryProps> = ({
         </div>
 
         {/* Car Image */}
-        <div className="relative z-10 mb-8 py-8">
+        <div className="relative z-10">
           <div className="absolute inset-x-0 top-0 h-full w-full" />
           <div className="relative z-10 w-full">
             <img
               src={imageUrl}
               alt={model}
-              className="relative z-10 h-80 w-full object-contain drop-shadow-2xl transition-transform duration-300 hover:scale-105"
+              className="relative z-10 h-40 w-full object-contain drop-shadow-2xl transition-transform duration-300 hover:scale-105 sm:h-80"
               onError={(e) => {
                 e.currentTarget.src =
                   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='256' viewBox='0 0 320 256'%3E%3Crect width='320' height='256' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='20' fill='%236b7280'%3ECar Image%3C/text%3E%3C/svg%3E";
