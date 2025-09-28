@@ -9,7 +9,7 @@ const SignInPage: React.FC = () => {
   const handleGoogleLogin = (e: React.MouseEvent) => {
     e.preventDefault();
     login("demo-user"); // Simulate Google SSO
-    navigate("/");
+    navigate("/yourday");
   };
 
   return (
