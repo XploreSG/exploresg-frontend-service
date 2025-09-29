@@ -9,6 +9,11 @@ interface RentalCardSummaryProps {
   imageUrl: string;
   operator: string;
   operatorStyling: string;
+  price?: number;
+  originalPrice?: number;
+  promoText?: string;
+  nights?: number;
+  showPricing?: boolean;
   className?: string;
 }
 

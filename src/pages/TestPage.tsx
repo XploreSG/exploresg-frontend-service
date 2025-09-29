@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const TestPage = () => {
   const [data, setData] = useState<unknown>(null);
