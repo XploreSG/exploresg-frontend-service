@@ -1,23 +1,15 @@
-version: "3.8"
 services:
   frontend-dev:
     build:
       context: .
       dockerfile: Dockerfile.dev
     image: exploresg-frontend:dev
+    container_name: dev-exploresg-frontend-service
     ports:
       - "3000:3000"
     volumes:
       - .:/app
-      - /app/node_modules
+      - /app/node_modules # Ensures host node_modules don't interfere with container
     environment:
       - NODE_ENV=development
     command: npm run dev -- --host --port 3000
-
-  # frontend-prod:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.prod
-  #   image: exploresg-frontend:prod
-  #   ports:
-  #     - "3000:3000"
