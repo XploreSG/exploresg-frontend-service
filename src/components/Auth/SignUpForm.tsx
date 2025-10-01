@@ -17,14 +17,13 @@ const SignupForm: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get Google idToken and email from navigation state
   const googleIdToken: string | undefined = location.state?.idToken;
   const googleEmail: string | undefined = location.state?.email;
 
   const [formData, setFormData] = useState<SignupDetails>({
     firstName: "",
     lastName: "",
-    email: googleEmail || "", // prefill email if available
+    email: googleEmail || "",
     phone: "",
     dateOfBirth: "",
     drivingLicenseNumber: "",
@@ -42,13 +41,8 @@ const SignupForm: React.FC = () => {
   }, [googleEmail]);
 
   const handleInputChange = (field: keyof SignupDetails, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const validateForm = (): boolean => {
@@ -62,50 +56,44 @@ const SignupForm: React.FC = () => {
       newErrors.dateOfBirth = "Date of birth is required";
     if (!formData.drivingLicenseNumber.trim())
       newErrors.drivingLicenseNumber = "Driving license number is required";
-
-    // Email format check
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      const payload = {
-        givenName: formData.firstName,
-        familyName: formData.lastName,
-        phone: formData.phone,
-        dateOfBirth: formData.dateOfBirth,
-        drivingLicenseNumber: formData.drivingLicenseNumber,
-        passportNumber: formData.passportNumber,
-        preferredLanguage: formData.preferredLanguage,
-        countryOfResidence: formData.countryOfResidence,
-      };
+    if (!validateForm()) return;
 
-      try {
-        const response = await fetch("http://localhost:8080/api/v1/signup", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(googleIdToken && { Authorization: `Bearer ${googleIdToken}` }),
-          },
-          body: JSON.stringify(payload),
-        });
+    const payload = {
+      givenName: formData.firstName,
+      familyName: formData.lastName,
+      phone: formData.phone,
+      dateOfBirth: formData.dateOfBirth,
+      drivingLicenseNumber: formData.drivingLicenseNumber,
+      passportNumber: formData.passportNumber,
+      preferredLanguage: formData.preferredLanguage,
+      countryOfResidence: formData.countryOfResidence,
+    };
 
-        if (response.ok) {
-          navigate("/yourday");
-        } else {
-          const error = await response.json();
-          alert(error.message || "Signup error.");
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Network error during signup.");
+    try {
+      const response = await fetch("http://localhost:8080/api/v1/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(googleIdToken && { Authorization: `Bearer ${googleIdToken}` }),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        navigate("/yourday");
+      } else {
+        const error = await response.json();
+        alert(error.message || "Signup error.");
       }
+    } catch (err) {
+      console.error(err);
+      alert("Network error during signup.");
     }
   };
 
@@ -127,7 +115,7 @@ const SignupForm: React.FC = () => {
                 type="text"
                 value={formData.firstName}
                 onChange={(e) => handleInputChange("firstName", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-4 py-3"
               />
               {errors.firstName && (
                 <p className="text-sm text-red-500">{errors.firstName}</p>
@@ -141,7 +129,7 @@ const SignupForm: React.FC = () => {
                 type="text"
                 value={formData.lastName}
                 onChange={(e) => handleInputChange("lastName", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-4 py-3"
               />
               {errors.lastName && (
                 <p className="text-sm text-red-500">{errors.lastName}</p>
@@ -152,13 +140,13 @@ const SignupForm: React.FC = () => {
           {/* Email (read-only) */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Email (from Google)
+              Email (Google)
             </label>
             <input
               type="email"
               value={formData.email}
               readOnly
-              className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 text-gray-600"
+              className="w-full cursor-not-allowed rounded-lg border bg-gray-100 px-4 py-3"
             />
           </div>
 
@@ -172,7 +160,7 @@ const SignupForm: React.FC = () => {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-4 py-3"
               />
               {errors.phone && (
                 <p className="text-sm text-red-500">{errors.phone}</p>
@@ -188,7 +176,7 @@ const SignupForm: React.FC = () => {
                 onChange={(e) =>
                   handleInputChange("dateOfBirth", e.target.value)
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-4 py-3"
               />
               {errors.dateOfBirth && (
                 <p className="text-sm text-red-500">{errors.dateOfBirth}</p>
@@ -208,7 +196,7 @@ const SignupForm: React.FC = () => {
                 onChange={(e) =>
                   handleInputChange("drivingLicenseNumber", e.target.value)
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-4 py-3"
               />
               {errors.drivingLicenseNumber && (
                 <p className="text-sm text-red-500">
@@ -226,7 +214,7 @@ const SignupForm: React.FC = () => {
                 onChange={(e) =>
                   handleInputChange("passportNumber", e.target.value)
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-4 py-3"
               />
             </div>
           </div>
@@ -242,7 +230,7 @@ const SignupForm: React.FC = () => {
                 onChange={(e) =>
                   handleInputChange("preferredLanguage", e.target.value)
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-4 py-3"
               >
                 <option value="English">English</option>
                 <option value="Chinese">Chinese</option>
@@ -259,7 +247,7 @@ const SignupForm: React.FC = () => {
                 onChange={(e) =>
                   handleInputChange("countryOfResidence", e.target.value)
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border px-4 py-3"
               >
                 <option value="Singapore">Singapore</option>
                 <option value="Malaysia">Malaysia</option>
@@ -271,7 +259,7 @@ const SignupForm: React.FC = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow transition hover:bg-blue-700"
+            className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
           >
             Complete Signup
           </button>

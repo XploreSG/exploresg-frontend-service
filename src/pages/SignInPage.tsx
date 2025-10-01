@@ -1,77 +1,75 @@
 import React, { useState } from "react";
-import { useAuth } from "../contexts/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
 import SignInForm from "../components/Auth/SignInForm";
 import type { SignInFormData } from "../components/Auth/SignInForm";
 import SocialLoginButtons from "../components/Auth/SocialLoginButtons";
+import type { UserInfo } from "../contexts/AuthContextInstance"; // type-only import
 import axios from "axios";
 
 const SignInPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Temporary email/password form handler (not used in Google SSO flow)
   const handleFormSubmit = (data: SignInFormData) => {
-    // Placeholder: replace with real auth call
-    console.debug("Form submit", data);
-    login(data.email, undefined);
+    console.debug("Form submit (local)", data);
+    login(
+      { userId: 0, email: data.email, givenName: "Local", familyName: "User" },
+      null,
+    );
     navigate("/yourday");
   };
 
   const handleGoogleSuccess = async (idToken: string | undefined) => {
     console.debug("Google ID Token:", idToken);
-    if (!idToken) {
-      console.warn("No ID token received from Google");
-      return;
-    }
+    if (!idToken) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      // 1) Check if user exists
+      // 1. Check if user exists
       const checkResp = await axios.get("http://localhost:8080/api/v1/check", {
         headers: { Authorization: `Bearer ${idToken}` },
       });
 
-      console.debug("Check response", checkResp.data);
       const exists = !!checkResp.data?.exists;
+      const email = checkResp.data?.email;
 
       if (!exists) {
-        // Redirect to signup flow with idToken so signup can use it
-        navigate("/signup", { state: { idToken, info: checkResp.data } });
+        // Redirect to signup page with Google token & email
+        navigate("/signup", { state: { idToken, email } });
         return;
       }
 
-      // 2) User exists: exchange/verify token with backend and create session
-      const resp = await axios.post(
-        "http://localhost:8080/api/v1/auth/log-token",
-        null,
+      // 2. Fetch full user details from backend
+      const meResp = await axios.get<UserInfo>(
+        "http://localhost:8080/api/v1/me",
         {
-          headers: {
-            Authorization: `Bearer ${idToken}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${idToken}` },
         },
       );
 
-      console.debug("Backend response", resp.data);
-      const serverToken = resp.data?.token || idToken;
-      login(resp.data?.user || "google-user", serverToken);
+      console.debug("User details from /me", meResp.data);
+
+      // 3. Store user + token in context
+      login(meResp.data, idToken);
+
+      // 4. Navigate to dashboard
       navigate("/yourday");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        console.error("Failed during Google auth/check", err.response || err);
         setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Failed to authenticate",
+          err.response?.data?.message || "Failed to authenticate with Google",
         );
       } else if (err instanceof Error) {
-        console.error("Failed during Google auth/check", err);
-        setError(err.message || "Failed to authenticate");
+        setError(err.message);
       } else {
-        console.error("Failed during Google auth/check", err);
-        setError("Failed to authenticate");
+        setError("Unknown authentication error");
       }
     } finally {
       setLoading(false);
@@ -80,50 +78,37 @@ const SignInPage: React.FC = () => {
 
   const handleGoogleError = () => {
     console.warn("Google login failed");
+    setError("Google login failed. Please try again.");
   };
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
-      {/* Animated background image (no blur) */}
+      {/* Background */}
       <div
-        className="bg-zoom-animate absolute inset-0 -z-20 bg-cover bg-center brightness-90 transition-all duration-1000"
+        className="bg-zoom-animate absolute inset-0 -z-20 bg-cover bg-center brightness-90"
         style={{
           backgroundImage: "url('/assets/exploresg-backdrop-jewel.jpg')",
         }}
         aria-hidden="true"
       />
-      {/* Glass-like blue overlay */}
       <div
         className="absolute inset-0 -z-10 bg-blue-300/10"
         aria-hidden="true"
       />
 
-      {/* Foreground: Glassmorphic Sign-in form */}
+      {/* Foreground */}
       <div className="w-full max-w-md rounded-xl border border-white/30 bg-white/60 p-8 shadow-lg backdrop-blur-2xl">
         <div className="flex flex-col items-center">
           <h1 className="text-4xl font-bold text-red-600">ExploreSG</h1>
           <h2 className="mt-4 mb-2 text-center text-xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
-          <p className="mb-8 text-center text-sm text-gray-500">
-            Not a member?{" "}
-            <a
-              href="#"
-              className="font-medium text-[#6366f1] hover:underline"
-              onClick={(e) => e.preventDefault()}
-            >
-              Start a 14-day free trial
-            </a>
-          </p>
         </div>
 
         <SignInForm onSubmit={handleFormSubmit} />
 
         {error && (
-          <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <div className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -136,7 +121,6 @@ const SignInPage: React.FC = () => {
 
         <div className="flex flex-col items-center gap-4">
           {loading && <div className="text-sm text-gray-600">Signing in…</div>}
-
           <SocialLoginButtons
             onGoogleSuccess={handleGoogleSuccess}
             onGoogleError={handleGoogleError}
