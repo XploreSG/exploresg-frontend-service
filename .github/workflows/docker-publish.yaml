@@ -10,6 +10,11 @@ on:
       - "release/**"
       # - "feature/**"
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Docker image tag (default: latest)"
+        required: false
+        default: "latest"
 
 jobs:
   docker-publish:
