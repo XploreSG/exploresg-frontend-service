@@ -28,6 +28,10 @@ const Navbar: React.FC = () => {
     navigate("/");
   };
 
+  const fullName = user
+    ? [user.givenName, user.familyName].filter(Boolean).join(" ")
+    : "";
+
   return (
     <nav className="relative bg-white text-gray-900 shadow-md">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -75,6 +79,7 @@ const Navbar: React.FC = () => {
               )}
             </button>
           </div>
+
           {/* Logo and desktop nav */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
@@ -93,20 +98,8 @@ const Navbar: React.FC = () => {
                       : "text-gray-700 hover:bg-indigo-100 hover:text-indigo-700"
                   } `}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  style={{
-                    transitionProperty:
-                      "background, color, box-shadow, transform",
-                  }}
                 >
-                  <span
-                    className={`transition-transform duration-200 ${
-                      isActive(item.href)
-                        ? "scale-105"
-                        : "group-hover:scale-105"
-                    }`}
-                  >
-                    {item.name}
-                  </span>
+                  {item.name}
                   {isActive(item.href) && (
                     <span className="absolute -bottom-1.5 left-1/2 block h-1 w-6 -translate-x-1/2 rounded-full bg-indigo-400 opacity-80 transition-all duration-300"></span>
                   )}
@@ -114,6 +107,7 @@ const Navbar: React.FC = () => {
               ))}
             </div>
           </div>
+
           {/* Right side: notification and profile */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             {user && (
@@ -149,14 +143,24 @@ const Navbar: React.FC = () => {
                 >
                   <span className="sr-only">Open user menu</span>
                   <img
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                    className="h-8 w-8 rounded-full bg-gray-200 outline-1 outline-indigo-100"
+                    src={user.picture || "/assets/default-avatar.png"}
+                    alt={fullName || user.email}
+                    className="h-8 w-8 rounded-full bg-gray-200 object-cover"
+                    onError={(e) =>
+                      ((e.target as HTMLImageElement).src =
+                        "/assets/default-avatar.png")
+                    }
                   />
                 </button>
                 {/* Dropdown */}
                 {profileOpen && (
                   <div className="absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                    <div className="px-4 py-2 text-sm text-gray-700">
+                      Signed in as <br />
+                      <span className="font-semibold">
+                        {fullName || user.email}
+                      </span>
+                    </div>
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
@@ -191,6 +195,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="sm:hidden" id="mobile-menu">

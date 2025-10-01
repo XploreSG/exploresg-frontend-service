@@ -1,15 +1,85 @@
+import { useAuth } from "../contexts/useAuth";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
+import { useMemo } from "react";
+
+// Supported languages type
+type SupportedLanguage = "English" | "Chinese" | "Malay" | "Tamil";
+
+// Greeting messages per language
+const greetingsMap: Record<
+  SupportedLanguage,
+  { morning: string; afternoon: string; evening: string; night: string }
+> = {
+  English: {
+    morning: "Good morning",
+    afternoon: "Good afternoon",
+    evening: "Good evening",
+    night: "Good night",
+  },
+  Chinese: {
+    morning: "早上好",
+    afternoon: "下午好",
+    evening: "晚上好",
+    night: "晚安",
+  },
+  Malay: {
+    morning: "Selamat pagi",
+    afternoon: "Selamat petang",
+    evening: "Selamat malam",
+    night: "Selamat malam",
+  },
+  Tamil: {
+    morning: "காலை வணக்கம்",
+    afternoon: "மதிய வணக்கம்",
+    evening: "மாலை வணக்கம்",
+    night: "இனிய இரவு",
+  },
+};
 
 const YourDayPage = () => {
+  const { user } = useAuth();
+
+  // Always compute greeting first, even if user is null
+  const { greeting, emoji } = useMemo(() => {
+    const now = new Date();
+    const hour = now.getHours();
+
+    // fallback to English if no user or invalid language
+    const lang: SupportedLanguage =
+      (user?.preferredLanguage as SupportedLanguage) || "English";
+    const texts = greetingsMap[lang];
+
+    if (hour < 5) return { greeting: texts.night, emoji: "🌙" };
+    if (hour < 12) return { greeting: texts.morning, emoji: "🌅" };
+    if (hour < 18) return { greeting: texts.afternoon, emoji: "🌞" };
+    if (hour < 22) return { greeting: texts.evening, emoji: "🌆" };
+    return { greeting: texts.night, emoji: "🌙" };
+  }, [user?.preferredLanguage]);
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="rounded-xl bg-white p-6 shadow">
+          <h1 className="text-xl font-bold text-gray-900">
+            Please sign in to view your day
+          </h1>
+        </div>
+      </div>
+    );
+  }
+
+  // Build full name
+  const fullName = [user.givenName, user.familyName].filter(Boolean).join(" ");
+
   return (
     <div className="min-h-screen bg-gray-50 px-2 py-4 sm:px-6 lg:px-16">
-      {/* Header and Weather */}
       <div className="mx-auto max-w-5xl">
+        {/* Header */}
         <div className="mb-6 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-3xl font-bold text-gray-900">Your Day</h1>
             <div className="flex items-center gap-3 rounded-xl bg-blue-50 px-4 py-2">
-              <span className="text-2xl">☀️</span>
+              <span className="text-2xl">{emoji}</span>
               <div>
                 <div className="text-lg font-semibold text-blue-700">30°C</div>
                 <div className="text-xs text-gray-500">
@@ -21,12 +91,26 @@ const YourDayPage = () => {
               </div>
             </div>
           </div>
-          <div className="mt-2 text-lg text-gray-700">
-            Good morning, Sree! Here's what's planned for your day
+
+          {/* Greeting */}
+          <div className="mt-2 flex items-center gap-3 text-lg text-gray-700">
+            <img
+              src={user.picture || "/assets/default-avatar.png"}
+              alt={fullName || user.email}
+              className="h-10 w-10 rounded-full border object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "/assets/default-avatar.png";
+              }}
+            />
+            <span>
+              {greeting}, {user.givenName || fullName || user.email}! Here's
+              what's planned for your day
+            </span>
           </div>
         </div>
 
-        {/* Prominent Car Booking Card */}
+        {/* Example Ride */}
         <div className="mb-6 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow">
           <h1 className="mb-4 text-3xl font-bold text-gray-900">Your Ride</h1>
 
