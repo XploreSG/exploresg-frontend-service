@@ -8,7 +8,7 @@ on:
     branches:
       - main
       - "release/**"
-      - "feature/**"
+      # - "feature/**"
   workflow_dispatch:
 
 jobs:
