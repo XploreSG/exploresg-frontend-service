@@ -2,93 +2,76 @@ import React from "react";
 
 const HomePage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-red-500 to-red-700 py-20">
-        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-white sm:text-5xl md:text-6xl">
-            Discover Singapore
+    <div className="min-h-screen">
+      {/* Hero Section with background image and overlay */}
+      <div className="relative flex min-h-screen flex-col items-center justify-center px-4 pt-20 pb-24 sm:px-8">
+        {/* Background image */}
+        <img
+          src="/assets/exploresg-backdrop-garden.jpg"
+          alt="Singapore Jewel Backdrop"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
+          // style={{ filter: "brightness(0.7) blur(0.5px)" }}
+        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 -z-10" />
+        <div className="mx-auto w-full max-w-3xl rounded-2xl bg-white/40 p-8 drop-shadow-2xl backdrop-blur-sm">
+          {/* Announcement bar */}
+          <div className="mb-6 flex items-center justify-center">
+            <span className="rounded-full bg-white/80 px-4 py-1 text-xs font-medium text-gray-700">
+              Discover Singapore, Your Way!
+            </span>
+          </div>
+          {/* Headline */}
+          <h1 className="mb-6 text-center text-4xl font-extrabold text-gray-100 drop-shadow-lg sm:text-5xl md:text-6xl">
+            Explore Singapore
+            <br className="hidden sm:block" /> with ExploreSG
           </h1>
-          <p className="mx-auto mt-6 max-w-3xl text-xl text-red-100">
-            From world-class attractions to local street food, explore
-            everything the Lion City has to offer. Your adventure starts here.
+          {/* Subheadline */}
+          <p className="mb-8 max-w-2xl text-center text-lg text-gray-200">
+            Welcome to ExploreSG, your platform to discover the best of
+            Singapore. Dive into world-class attractions, vibrant local events,
+            and hidden gems. Whether you’re a local or a visitor, find new
+            adventures, food, and experiences that make Singapore truly special.
           </p>
-          <div className="mt-10">
-            <button className="rounded-lg bg-white px-8 py-3 text-lg font-semibold text-red-600 transition-colors hover:bg-gray-100">
+          {/* CTA Buttons */}
+          <div className="mb-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <button className="rounded-md bg-indigo-600 px-8 py-3 text-base font-semibold text-white shadow hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
               Start Exploring
+            </button>
+            <button className="rounded-md bg-white px-8 py-3 text-base font-semibold text-indigo-700 hover:bg-indigo-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              Learn more <span className="ml-1">→</span>
             </button>
           </div>
         </div>
       </div>
-
-      {/* Features Section */}
-      <div className="py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900">What We Offer</h2>
-            <p className="mt-4 text-xl text-gray-600">
-              Everything you need to make the most of your Singapore experience
-            </p>
-          </div>
-
-          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg bg-white p-6 shadow-lg">
-              <div className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                  <span className="text-2xl">🏛️</span>
-                </div>
-                <h3 className="mt-4 text-xl font-semibold text-gray-900">
-                  Attractions
-                </h3>
-                <p className="mt-2 text-gray-600">
-                  Iconic landmarks and hidden gems waiting to be discovered
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-lg bg-white p-6 shadow-lg">
-              <div className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                  <span className="text-2xl">🍜</span>
-                </div>
-                <h3 className="mt-4 text-xl font-semibold text-gray-900">
-                  Food & Dining
-                </h3>
-                <p className="mt-2 text-gray-600">
-                  From hawker centers to fine dining, taste the flavors of
-                  Singapore
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-lg bg-white p-6 shadow-lg">
-              <div className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                  <span className="text-2xl">🎉</span>
-                </div>
-                <h3 className="mt-4 text-xl font-semibold text-gray-900">
-                  Events
-                </h3>
-                <p className="mt-2 text-gray-600">
-                  Stay updated with the latest events and festivals in the city
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-lg bg-white p-6 shadow-lg">
-              <div className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                  <span className="text-2xl">📍</span>
-                </div>
-                <h3 className="mt-4 text-xl font-semibold text-gray-900">
-                  Local Insights
-                </h3>
-                <p className="mt-2 text-gray-600">
-                  Get insider tips and recommendations from locals
-                </p>
-              </div>
-            </div>
-          </div>
+      {/* Company Logos Row */}
+      <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-8">
+        <div className="flex flex-wrap items-center justify-center gap-8 border-t border-gray-100 pt-10">
+          <img
+            src="https://tailwindui.com/img/logos/transistor-logo-gray-400.svg"
+            alt="Transistor"
+            className="h-8"
+          />
+          <img
+            src="https://tailwindui.com/img/logos/reform-logo-gray-400.svg"
+            alt="Reform"
+            className="h-8"
+          />
+          <img
+            src="https://tailwindui.com/img/logos/tuple-logo-gray-400.svg"
+            alt="Tuple"
+            className="h-8"
+          />
+          <img
+            src="https://tailwindui.com/img/logos/savvycal-logo-gray-400.svg"
+            alt="SavvyCal"
+            className="h-8"
+          />
+          <img
+            src="https://tailwindui.com/img/logos/statamic-logo-gray-400.svg"
+            alt="Statamic"
+            className="h-8"
+          />
         </div>
       </div>
     </div>

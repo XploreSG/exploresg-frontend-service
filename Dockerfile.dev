@@ -1,8 +1,18 @@
 # Development Dockerfile for ExploreSG Frontend
 FROM node:20-alpine3.20
+
+# Set working directory
 WORKDIR /app
+
+# Install dependencies
 COPY package*.json ./
 RUN npm install --frozen-lockfile || npm install
+
+# Copy all source code
 COPY . .
+
+# Expose frontend dev server port
 EXPOSE 3000
+
+# Run the Vite dev server
 CMD ["npm", "run", "dev", "--", "--host", "--port", "3000"]

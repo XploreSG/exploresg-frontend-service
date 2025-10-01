@@ -15,6 +15,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@keyframes gentle-zoom {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+.bg-zoom-animate {
+  animation: gentle-zoom 16s ease-in-out infinite;
+}
 /* a {
   font-weight: 500;
   color: #646cff;
