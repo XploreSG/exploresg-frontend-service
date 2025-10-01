@@ -17,48 +17,65 @@ const SignInPage: React.FC = () => {
     navigate("/yourday");
   };
 
-  const handleGoogleSuccess = (idToken: string | undefined) => {
+  const handleGoogleSuccess = async (idToken: string | undefined) => {
     console.debug("Google ID Token:", idToken);
     if (!idToken) {
       console.warn("No ID token received from Google");
       return;
     }
 
-    // POST the ID token to backend for verification / session creation
     setLoading(true);
     setError(null);
 
-    axios
-      .post(
-        "http://localhost:8080/api/auth/log-token",
-        // no body needed, token sent in Authorization header
+    try {
+      // 1) Check if user exists
+      const checkResp = await axios.get("http://localhost:8080/api/v1/check", {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+
+      console.debug("Check response", checkResp.data);
+      const exists = !!checkResp.data?.exists;
+
+      if (!exists) {
+        // Redirect to signup flow with idToken so signup can use it
+        navigate("/signup", { state: { idToken, info: checkResp.data } });
+        return;
+      }
+
+      // 2) User exists: exchange/verify token with backend and create session
+      const resp = await axios.post(
+        "http://localhost:8080/api/v1/auth/log-token",
         null,
         {
           headers: {
             Authorization: `Bearer ${idToken}`,
             "Content-Type": "application/json",
           },
-          // include credentials only when your backend uses cookies/sessions
-          // withCredentials: true,
         },
-      )
-      .then((resp) => {
-        // assume backend returns user info or success
-        console.debug("Backend response", resp.data);
-        // update client auth state with the idToken (or backend token if provided)
-        const serverToken = resp.data?.token || idToken;
-        login(resp.data?.user || "google-user", serverToken);
-        navigate("/yourday");
-      })
-      .catch((err) => {
-        console.error("Failed to send token to backend", err?.response || err);
+      );
+
+      console.debug("Backend response", resp.data);
+      const serverToken = resp.data?.token || idToken;
+      login(resp.data?.user || "google-user", serverToken);
+      navigate("/yourday");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("Failed during Google auth/check", err.response || err);
         setError(
-          err?.response?.data?.message ||
+          err.response?.data?.message ||
             err.message ||
             "Failed to authenticate",
         );
-      })
-      .finally(() => setLoading(false));
+      } else if (err instanceof Error) {
+        console.error("Failed during Google auth/check", err);
+        setError(err.message || "Failed to authenticate");
+      } else {
+        console.error("Failed during Google auth/check", err);
+        setError("Failed to authenticate");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleError = () => {

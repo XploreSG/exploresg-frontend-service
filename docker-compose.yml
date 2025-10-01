@@ -13,3 +13,5 @@ services:
     environment:
       - NODE_ENV=development
     command: npm run dev -- --host --port 3000
+volumes:
+  xpl-frontend-data:
