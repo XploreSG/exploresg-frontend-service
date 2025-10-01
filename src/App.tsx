@@ -15,6 +15,7 @@ import SignInPage from "./pages/SignInPage";
 import YourDayPage from "./pages/YourDayPage";
 import TestPage from "./pages/TestPage";
 import SignUpForm from "./components/Auth/SignUpForm";
+import type { SignupDetails } from "./components/Auth/SignUpForm";
 // import { BookingProvider } from "./contexts/BookingContext";
 
 const App = () => {
@@ -37,7 +38,7 @@ const App = () => {
               path="/signup"
               element={
                 <SignUpForm
-                  onSubmit={(data) => {
+                  onSubmit={(data: SignupDetails) => {
                     // TODO: handle sign up form submission
                     console.log("Sign up data:", data);
                   }}

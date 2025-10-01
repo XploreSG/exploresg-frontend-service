@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-interface SignupDetails {
+export interface SignupDetails {
   firstName: string;
   lastName: string;
   email: string;
@@ -11,9 +11,14 @@ interface SignupDetails {
   passportNumber?: string;
   preferredLanguage: string;
   countryOfResidence: string;
+  role: "USER" | "SUPPORT" | "ADMIN" | "FLEET_MANAGER" | "MANAGER";
 }
 
-const SignupForm: React.FC = () => {
+interface SignUpFormProps {
+  onSubmit?: (data: SignupDetails) => void;
+}
+
+const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,6 +35,7 @@ const SignupForm: React.FC = () => {
     passportNumber: "",
     preferredLanguage: "English",
     countryOfResidence: "Singapore",
+    role: "USER",
   });
 
   const [errors, setErrors] = useState<Partial<SignupDetails>>({});
@@ -40,8 +46,28 @@ const SignupForm: React.FC = () => {
     }
   }, [googleEmail]);
 
+  // Helpers
+  const capitalize = (value: string): string => {
+    if (!value) return "";
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  };
+
+  const toUpperAlphanumeric = (value: string): string => {
+    return value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+  };
+
   const handleInputChange = (field: keyof SignupDetails, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    let sanitizedValue = value;
+
+    if (field === "firstName" || field === "lastName") {
+      sanitizedValue = capitalize(value.trim());
+    }
+
+    if (field === "drivingLicenseNumber" || field === "passportNumber") {
+      sanitizedValue = toUpperAlphanumeric(value);
+    }
+
+    setFormData((prev) => ({ ...prev, [field]: sanitizedValue }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
@@ -73,6 +99,7 @@ const SignupForm: React.FC = () => {
       passportNumber: formData.passportNumber,
       preferredLanguage: formData.preferredLanguage,
       countryOfResidence: formData.countryOfResidence,
+      role: formData.role,
     };
 
     try {
@@ -86,6 +113,7 @@ const SignupForm: React.FC = () => {
       });
 
       if (response.ok) {
+        if (onSubmit) onSubmit(formData);
         navigate("/yourday");
       } else {
         const error = await response.json();
@@ -254,6 +282,24 @@ const SignupForm: React.FC = () => {
                 <option value="Other">Other</option>
               </select>
             </div>
+          </div>
+
+          {/* Role Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Role *
+            </label>
+            <select
+              value={formData.role}
+              onChange={(e) => handleInputChange("role", e.target.value)}
+              className="w-full rounded-lg border px-4 py-3"
+            >
+              <option value="USER">User</option>
+              <option value="SUPPORT">Support</option>
+              <option value="ADMIN">Admin</option>
+              <option value="FLEET_MANAGER">Fleet Manager</option>
+              <option value="MANAGER">Manager</option>
+            </select>
           </div>
 
           {/* Submit */}
