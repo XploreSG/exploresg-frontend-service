@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
+import { useAuth } from "../../contexts/useAuth";
+import { createSessionWithGoogle } from "../../api/authService";
+import { API_BASE_URL } from "../../api/config";
 
 export interface SignupDetails {
   firstName: string;
@@ -21,6 +25,7 @@ interface SignUpFormProps {
 const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
 
   const googleIdToken: string | undefined = location.state?.idToken;
   const googleEmail: string | undefined = location.state?.email;
@@ -39,6 +44,8 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
   });
 
   const [errors, setErrors] = useState<Partial<SignupDetails>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (googleEmail) {
@@ -46,7 +53,6 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     }
   }, [googleEmail]);
 
-  // Helpers
   const capitalize = (value: string): string => {
     if (!value) return "";
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
@@ -90,6 +96,9 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setSubmitError(null);
+    setSubmitting(true);
+
     const payload = {
       givenName: formData.firstName,
       familyName: formData.lastName,
@@ -103,37 +112,64 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/v1/signup", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(googleIdToken && { Authorization: `Bearer ${googleIdToken}` }),
         },
         body: JSON.stringify(payload),
+        credentials: "include",
       });
 
-      if (response.ok) {
-        if (onSubmit) onSubmit(formData);
-        navigate("/yourday");
-      } else {
-        const error = await response.json();
-        alert(error.message || "Signup error.");
+      if (!response.ok) {
+        const error = await response.json().catch(() => null);
+        throw new Error(error?.message || "Signup error.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Network error during signup.");
+
+      if (googleIdToken) {
+        try {
+          const session = await createSessionWithGoogle(googleIdToken);
+          login(session.user, session.tokenPair);
+        } catch (sessionError) {
+          if (isAxiosError(sessionError)) {
+            console.warn("Signup succeeded but session creation failed", sessionError);
+          } else {
+            console.warn("Signup succeeded but encountered an error", sessionError);
+          }
+        }
+      }
+
+      if (onSubmit) onSubmit(formData);
+      navigate("/yourday");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setSubmitError(err.message);
+      } else {
+        setSubmitError("Signup error.");
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-3xl rounded-xl bg-white p-8 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
-          Complete Your Profile
-        </h1>
+    <div className="flex min-h-screen flex-col items-center bg-gray-50 py-12">
+      <div className="w-full max-w-4xl rounded-xl bg-white p-10 shadow-xl">
+        <div className="mb-10 text-center">
+          <h1 className="text-3xl font-bold text-gray-900">Complete Your Profile</h1>
+          <p className="mt-2 text-sm text-gray-500">
+            Help us tailor the ExploreSG experience to your preferences.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Fields */}
+        {submitError && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {submitError}
+          </div>
+        )}
+
+        <form className="space-y-8" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -144,6 +180,7 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                 value={formData.firstName}
                 onChange={(e) => handleInputChange("firstName", e.target.value)}
                 className="w-full rounded-lg border px-4 py-3"
+                required
               />
               {errors.firstName && (
                 <p className="text-sm text-red-500">{errors.firstName}</p>
@@ -158,6 +195,7 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                 value={formData.lastName}
                 onChange={(e) => handleInputChange("lastName", e.target.value)}
                 className="w-full rounded-lg border px-4 py-3"
+                required
               />
               {errors.lastName && (
                 <p className="text-sm text-red-500">{errors.lastName}</p>
@@ -165,21 +203,23 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
             </div>
           </div>
 
-          {/* Email (read-only) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email (Google)
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              readOnly
-              className="w-full cursor-not-allowed rounded-lg border bg-gray-100 px-4 py-3"
-            />
-          </div>
-
-          {/* Phone + DOB */}
+          {/* Contact */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email *
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                className="w-full rounded-lg border px-4 py-3"
+                required
+              />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email}</p>
+              )}
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Phone *
@@ -189,11 +229,16 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 className="w-full rounded-lg border px-4 py-3"
+                required
               />
               {errors.phone && (
                 <p className="text-sm text-red-500">{errors.phone}</p>
               )}
             </div>
+          </div>
+
+          {/* Personal */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Date of Birth *
@@ -205,6 +250,7 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                   handleInputChange("dateOfBirth", e.target.value)
                 }
                 className="w-full rounded-lg border px-4 py-3"
+                required
               />
               {errors.dateOfBirth && (
                 <p className="text-sm text-red-500">{errors.dateOfBirth}</p>
@@ -225,6 +271,7 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                   handleInputChange("drivingLicenseNumber", e.target.value)
                 }
                 className="w-full rounded-lg border px-4 py-3"
+                required
               />
               {errors.drivingLicenseNumber && (
                 <p className="text-sm text-red-500">
@@ -293,6 +340,7 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
               value={formData.role}
               onChange={(e) => handleInputChange("role", e.target.value)}
               className="w-full rounded-lg border px-4 py-3"
+              required
             >
               <option value="USER">User</option>
               <option value="SUPPORT">Support</option>
@@ -305,9 +353,10 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+            className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={submitting}
           >
-            Complete Signup
+            {submitting ? "Submitting…" : "Complete Signup"}
           </button>
         </form>
       </div>

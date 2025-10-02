@@ -1,5 +1,5 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { apiClient } from "../api/httpClient";
 
 const TestPage = () => {
   const [data, setData] = useState<unknown>(null);
@@ -8,7 +8,7 @@ const TestPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/test", {
+        const response = await apiClient.get("/test", {
           headers: { accept: "*/*" },
         });
         setData(response.data);

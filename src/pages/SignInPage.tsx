@@ -4,8 +4,18 @@ import { useAuth } from "../contexts/useAuth";
 import SignInForm from "../components/Auth/SignInForm";
 import type { SignInFormData } from "../components/Auth/SignInForm";
 import SocialLoginButtons from "../components/Auth/SocialLoginButtons";
-import type { UserInfo } from "../contexts/AuthContextInstance"; // type-only import
-import axios from "axios";
+import type { UserInfo } from "../contexts/AuthContextInstance";
+import { createSessionWithGoogle } from "../api/authService";
+import type { AuthSessionResponse } from "../api/authService";
+import { decodeJwtPayload } from "../utils/jwt";
+import { isAxiosError } from "axios";
+
+interface GoogleJwtPayload {
+  email?: string;
+  given_name?: string;
+  family_name?: string;
+  name?: string;
+}
 
 const SignInPage: React.FC = () => {
   const { login } = useAuth();
@@ -14,58 +24,53 @@ const SignInPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Temporary email/password form handler (not used in Google SSO flow)
   const handleFormSubmit = (data: SignInFormData) => {
     console.debug("Form submit (local)", data);
-    login(
-      { userId: 0, email: data.email, givenName: "Local", familyName: "User" },
-      null,
-    );
+    const placeholderUser: UserInfo = {
+      userId: 0,
+      email: data.email,
+      givenName: "Local",
+      familyName: "User",
+    };
+    login(placeholderUser, null);
     navigate("/yourday");
   };
 
   const handleGoogleSuccess = async (idToken: string | undefined) => {
-    console.debug("Google ID Token:", idToken);
-    if (!idToken) return;
+    console.debug("handleGoogleSuccess called, idToken present:", !!idToken);
+    if (!idToken) {
+      console.debug("handleGoogleSuccess: no idToken, aborting");
+      return;
+    }
+
+    const decoded = decodeJwtPayload<GoogleJwtPayload>(idToken);
+    const fallbackEmail = decoded?.email ?? undefined;
 
     setLoading(true);
     setError(null);
 
     try {
-      // 1. Check if user exists
-      const checkResp = await axios.get("http://localhost:8080/api/v1/check", {
-        headers: { Authorization: `Bearer ${idToken}` },
-      });
-
-      const exists = !!checkResp.data?.exists;
-      const email = checkResp.data?.email;
-
-      if (!exists) {
-        // Redirect to signup page with Google token & email
-        navigate("/signup", { state: { idToken, email } });
-        return;
-      }
-
-      // 2. Fetch full user details from backend
-      const meResp = await axios.get<UserInfo>(
-        "http://localhost:8080/api/v1/me",
-        {
-          headers: { Authorization: `Bearer ${idToken}` },
-        },
-      );
-
-      console.debug("User details from /me", meResp.data);
-
-      // 3. Store user + token in context
-      login(meResp.data, idToken);
-
-      // 4. Navigate to dashboard
+      console.debug("Creating session with backend using idToken (masked)");
+      const masked = `${idToken.slice(0, 8)}... (len=${idToken.length})`;
+      console.debug("idToken (masked):", masked);
+      const session: AuthSessionResponse =
+        await createSessionWithGoogle(idToken);
+      console.debug("createSessionWithGoogle response:", session);
+      login(session.user, session.tokenPair);
+      console.debug("login succeeded, navigating to /yourday");
       navigate("/yourday");
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        setError(
-          err.response?.data?.message || "Failed to authenticate with Google",
-        );
+      console.warn("createSessionWithGoogle failed", err);
+      if (isAxiosError(err)) {
+        const status = err.response?.status;
+        if (status === 404 || status === 409) {
+          navigate("/signup", { state: { idToken, email: fallbackEmail } });
+          return;
+        }
+        const message =
+          (err.response?.data as { message?: string } | undefined)?.message ??
+          "Failed to authenticate with Google";
+        setError(message);
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -83,7 +88,6 @@ const SignInPage: React.FC = () => {
 
   return (
     <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
-      {/* Background */}
       <div
         className="bg-zoom-animate absolute inset-0 -z-20 bg-cover bg-center brightness-90"
         style={{
@@ -96,7 +100,6 @@ const SignInPage: React.FC = () => {
         aria-hidden="true"
       />
 
-      {/* Foreground */}
       <div className="w-full max-w-md rounded-xl border border-white/30 bg-white/60 p-8 shadow-lg backdrop-blur-2xl">
         <div className="flex flex-col items-center">
           <h1 className="text-4xl font-bold text-red-600">ExploreSG</h1>

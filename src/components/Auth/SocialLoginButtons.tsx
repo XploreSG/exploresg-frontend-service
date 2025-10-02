@@ -16,10 +16,24 @@ const SocialLoginButtons: React.FC<Props> = ({
       <div className="flex items-center justify-center rounded-md border border-gray-300 bg-white px-6 py-2">
         <GoogleLogin
           onSuccess={(credentialResponse: CredentialResponse) => {
+            // Debug: show the full credentialResponse (useful to inspect structure)
+            // NOTE: credential can be sensitive; we only log the first few chars below
+            console.debug(
+              "GoogleLogin onSuccess credentialResponse:",
+              credentialResponse,
+            );
             const idToken = credentialResponse?.credential;
+            if (idToken) {
+              // Mask token for safety in logs
+              const masked = `${idToken.slice(0, 8)}... (len=${idToken.length})`;
+              console.debug("Received idToken (masked):", masked);
+            } else {
+              console.debug("Received idToken: undefined or null");
+            }
             onGoogleSuccess(idToken ?? undefined);
           }}
           onError={() => {
+            console.warn("GoogleLogin onError: Google login reported an error");
             onGoogleError?.();
           }}
         />
