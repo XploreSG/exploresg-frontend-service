@@ -601,7 +601,9 @@ const FleetPage: React.FC = () => {
                     model={car.model}
                     seats={car.seats}
                     luggage={car.luggage}
-                    transmission={car.transmission}
+                    transmission={
+                      car.transmission === "automatic" ? "automatic" : "manual"
+                    }
                     originalPrice={car.originalPrice}
                     price={car.price}
                     promoText={car.promoText}
