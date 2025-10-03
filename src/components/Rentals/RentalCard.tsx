@@ -12,7 +12,7 @@ interface RentalCardProps {
   promoText?: string;
   imageUrl: string;
   operator: string;
-  operatorStyling: string;
+  operatorStyling: { brand: string; background: string };
   carId?: string;
 }
 
@@ -58,9 +58,17 @@ const RentalCard: React.FC<RentalCardProps> = ({
       className="group relative h-96 w-80 cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"
     >
       {/* Main Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-500 from-30% via-gray-300 via-60% to-gray-800 to-95%">
+      <div
+        className={`absolute inset-0 bg-gradient-to-b ${operatorStyling.background} from-30% via-gray-300 via-60% to-gray-800 to-95%`}
+      >
+        {/* <div
+        className={`absolute inset-0 bg-gradient-to-b ${operatorStyling.background} from-30% via-gray-300 via-60% to-gray-800 to-95%`}
+      > */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-slate-600/10 to-indigo-600/0 transition-opacity duration-500 group-hover:opacity-200" />
       </div>
+      {/* <div className="absolute inset-0 bg-gradient-to-b from-gray-500 from-30% via-gray-300 via-60% to-gray-800 to-95%">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-slate-600/10 to-indigo-600/0 transition-opacity duration-500 group-hover:opacity-200" />
+      </div> */}
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col p-6">
@@ -90,7 +98,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
             > */}
               {/* <span className="rounded-md bg-black/20 px-2 py-1 backdrop-blur-sm"> */}
               <span
-                className={`rounded-md bg-black/20 px-2 py-1 backdrop-blur-sm ${operatorStyling} shadow-md`}
+                className={`rounded-md bg-black/20 px-2 py-1 backdrop-blur-sm ${operatorStyling.brand} shadow-md`}
               >
                 {operator}
               </span>

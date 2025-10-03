@@ -34,7 +34,7 @@ interface DisplayCarData {
   category: string;
   price: number;
   operator: string;
-  operatorStyling: string;
+  operatorStyling: { brand: string; background: string };
   availableVehicleCount: number;
 }
 
@@ -50,13 +50,39 @@ const OPERATOR_NAMES: Record<number, string> = {
   106: "Enterprise",
 };
 
-const OPERATOR_STYLES: Record<number, string> = {
-  101: "text-orange-600 bg-gray-200",
-  102: "text-yellow-600 bg-gray-200",
-  103: "text-blue-600 bg-gray-200",
-  104: "text-red-600 bg-gray-200",
-  105: "text-indigo-600",
-  106: "text-gray-700",
+const OPERATOR_STYLES: Record<number, { brand: string; background: string }> = {
+  101: {
+    brand: "text-orange-600 bg-gray-200",
+    background: "bg-black bg-blend-overlay bg-orange-800/70",
+  },
+  102: {
+    brand: "text-yellow-600 bg-gray-200",
+    //  background: "bg-yellow-900"
+    background: "bg-black bg-blend-overlay bg-yellow-900/60",
+  },
+  103: {
+    brand: "text-blue-600 bg-gray-200",
+    // , background: "bg-blue-900",
+    background: "bg-black bg-blend-overlay bg-blue-900/80",
+  },
+  104: {
+    brand: "text-red-600 bg-gray-200",
+    background: "bg-black bg-blend-overlay bg-red-900/80",
+
+    // background: "bg-red-900",
+  },
+  105: {
+    brand: "text-indigo-600 bg-indigo-200",
+    background: "bg-black bg-blend-overlay bg-indigo-900/80",
+
+    // "bg-indigo-900"
+  },
+  106: {
+    brand: "text-teal-700 bg-gray-200",
+    background: "bg-black bg-blend-overlay bg-teal-900/80",
+
+    // "bg-gray-900"
+  },
 };
 
 function getOperatorInfo(operatorId: number, fallbackName?: string) {
