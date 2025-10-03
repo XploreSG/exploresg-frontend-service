@@ -6,6 +6,8 @@ on:
       - main
       - "feature/**"
       - "hotfix/**"
+      - "snyk*"
+      - "snyk-**"
   # pull_request:
   #   branches:
   #
