@@ -1,3 +1,5 @@
+[![CI Frontend - Build, Test & Security Scan](https://github.com/XploreSG/exploresg-frontend-service/actions/workflows/ci.yml/badge.svg)](https://github.com/XploreSG/exploresg-frontend-service/actions/workflows/ci.yml)
+
 # 🚗 ExploreSG Frontend Service
 
 A comprehensive React TypeScript application for exploring Singapore's attractions, car rentals, dining, and events. Built with modern web technologies and featuring a complete car rental booking system.
