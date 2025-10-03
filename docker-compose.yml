@@ -9,9 +9,17 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
-      - /app/node_modules # Ensures host node_modules don't interfere with container
+      - /app/node_modules
     environment:
       - NODE_ENV=development
     command: npm run dev -- --host --port 3000
-volumes:
-  xpl-frontend-data:
+    # --- ADD THIS SECTION ---
+    # Connects the frontend to the shared network
+    networks:
+      - exploresg-network
+
+# Define the shared network as external
+networks:
+  exploresg-network:
+    name: exploresg-net
+    external: true
