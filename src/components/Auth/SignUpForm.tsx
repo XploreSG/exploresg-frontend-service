@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/useAuth"; // <-- Import useAuth
+import axios from "axios"; // <-- Import axios
 
 export interface SignupDetails {
   firstName: string;
@@ -21,14 +23,13 @@ interface SignUpFormProps {
 const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, token } = useAuth(); // <-- Get user and custom token from context
 
-  const googleIdToken: string | undefined = location.state?.idToken;
-  const googleEmail: string | undefined = location.state?.email;
-
+  // Pre-fill form data from the AuthContext or location.state as a fallback
   const [formData, setFormData] = useState<SignupDetails>({
-    firstName: "",
-    lastName: "",
-    email: googleEmail || "",
+    firstName: user?.givenName || location.state?.user?.givenName || "",
+    lastName: user?.familyName || location.state?.user?.familyName || "",
+    email: user?.email || location.state?.user?.email || "",
     phone: "",
     dateOfBirth: "",
     drivingLicenseNumber: "",
@@ -40,34 +41,20 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
 
   const [errors, setErrors] = useState<Partial<SignupDetails>>({});
 
+  // This effect ensures the form stays populated even after a page refresh
   useEffect(() => {
-    if (googleEmail) {
-      setFormData((prev) => ({ ...prev, email: googleEmail }));
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        email: user.email,
+        firstName: user.givenName || prev.firstName,
+        lastName: user.familyName || prev.lastName,
+      }));
     }
-  }, [googleEmail]);
-
-  // Helpers
-  const capitalize = (value: string): string => {
-    if (!value) return "";
-    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-  };
-
-  const toUpperAlphanumeric = (value: string): string => {
-    return value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
-  };
+  }, [user]);
 
   const handleInputChange = (field: keyof SignupDetails, value: string) => {
-    let sanitizedValue = value;
-
-    if (field === "firstName" || field === "lastName") {
-      sanitizedValue = capitalize(value.trim());
-    }
-
-    if (field === "drivingLicenseNumber" || field === "passportNumber") {
-      sanitizedValue = toUpperAlphanumeric(value);
-    }
-
-    setFormData((prev) => ({ ...prev, [field]: sanitizedValue }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
@@ -90,38 +77,46 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    // The custom token from our AuthContext is now the source of truth for authorization
+    if (!token) {
+      alert("Authentication token not found. Please sign in again.");
+      navigate("/login");
+      return;
+    }
+
     const payload = {
       givenName: formData.firstName,
       familyName: formData.lastName,
       phone: formData.phone,
       dateOfBirth: formData.dateOfBirth,
       drivingLicenseNumber: formData.drivingLicenseNumber,
-      passportNumber: formData.passportNumber,
+      passportNumber: formData.passportNumber || null,
       preferredLanguage: formData.preferredLanguage,
       countryOfResidence: formData.countryOfResidence,
-      role: formData.role,
+      requestedRole: formData.role, // Backend expects 'requestedRole' on this DTO
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/v1/signup", {
-        method: "POST",
+      // Submit the form using axios and the custom JWT
+      await axios.post("http://localhost:8080/api/v1/signup", payload, {
         headers: {
           "Content-Type": "application/json",
-          ...(googleIdToken && { Authorization: `Bearer ${googleIdToken}` }),
+          Authorization: `Bearer ${token}`, // <-- Use the custom application token
         },
-        body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
-        if (onSubmit) onSubmit(formData);
-        navigate("/yourday");
+      if (onSubmit) onSubmit(formData);
+      navigate("/yourday"); // Navigate to the main dashboard on success
+    } catch (err: unknown) {
+      console.error("Signup failed:", err);
+      if (axios.isAxiosError(err)) {
+        const apiError =
+          err.response?.data?.message || "An error occurred during signup.";
+        alert(apiError);
+        setErrors({ ...errors, email: apiError });
       } else {
-        const error = await response.json();
-        alert(error.message || "Signup error.");
+        alert("A network error occurred during signup.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Network error during signup.");
     }
   };
 
@@ -168,7 +163,7 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           {/* Email (read-only) */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Email (Google)
+              Email (from Google)
             </label>
             <input
               type="email"
@@ -189,6 +184,7 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 className="w-full rounded-lg border px-4 py-3"
+                placeholder="e.g., +65 9123 4567"
               />
               {errors.phone && (
                 <p className="text-sm text-red-500">{errors.phone}</p>
@@ -287,25 +283,30 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           {/* Role Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Role *
+              Sign up as *
             </label>
             <select
               value={formData.role}
-              onChange={(e) => handleInputChange("role", e.target.value)}
+              onChange={(e) =>
+                handleInputChange(
+                  "role",
+                  e.target.value as SignupDetails["role"],
+                )
+              }
               className="w-full rounded-lg border px-4 py-3"
             >
               <option value="USER">User</option>
-              <option value="SUPPORT">Support</option>
-              <option value="ADMIN">Admin</option>
               <option value="FLEET_MANAGER">Fleet Manager</option>
               <option value="MANAGER">Manager</option>
+              <option value="SUPPORT">Support</option>
+              <option value="ADMIN">Admin</option>
             </select>
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+            className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
           >
             Complete Signup
           </button>

@@ -4,8 +4,15 @@ import { useAuth } from "../contexts/useAuth";
 import SignInForm from "../components/Auth/SignInForm";
 import type { SignInFormData } from "../components/Auth/SignInForm";
 import SocialLoginButtons from "../components/Auth/SocialLoginButtons";
-import type { UserInfo } from "../contexts/AuthContextInstance"; // type-only import
+import type { UserInfo } from "../contexts/AuthContextInstance";
 import axios from "axios";
+
+// Define the shape of the response from the backend
+interface AuthResponse {
+  token: string;
+  requiresProfileSetup: boolean;
+  userInfo: UserInfo; // This now contains the full user profile
+}
 
 const SignInPage: React.FC = () => {
   const { login } = useAuth();
@@ -14,7 +21,6 @@ const SignInPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Temporary email/password form handler (not used in Google SSO flow)
   const handleFormSubmit = (data: SignInFormData) => {
     console.debug("Form submit (local)", data);
     login(
@@ -25,51 +31,46 @@ const SignInPage: React.FC = () => {
   };
 
   const handleGoogleSuccess = async (idToken: string | undefined) => {
-    console.debug("Google ID Token:", idToken);
-    if (!idToken) return;
+    if (!idToken) {
+      setError("Failed to get Google ID token.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      // 1. Check if user exists
-      const checkResp = await axios.get("http://localhost:8080/api/v1/check", {
-        headers: { Authorization: `Bearer ${idToken}` },
-      });
-
-      const exists = !!checkResp.data?.exists;
-      const email = checkResp.data?.email;
-
-      if (!exists) {
-        // Redirect to signup page with Google token & email
-        navigate("/signup", { state: { idToken, email } });
-        return;
-      }
-
-      // 2. Fetch full user details from backend
-      const meResp = await axios.get<UserInfo>(
-        "http://localhost:8080/api/v1/me",
+      // Step 1: Exchange the Google token for our custom token and full user profile
+      const response = await axios.post<AuthResponse>(
+        "http://localhost:8080/api/v1/auth/google",
+        {},
         {
           headers: { Authorization: `Bearer ${idToken}` },
         },
       );
 
-      console.debug("User details from /me", meResp.data);
+      const { token, requiresProfileSetup, userInfo } = response.data;
 
-      // 3. Store user + token in context
-      login(meResp.data, idToken);
+      if (!token || !userInfo) {
+        throw new Error("Did not receive complete auth data from the backend.");
+      }
 
-      // 4. Navigate to dashboard
-      navigate("/yourday");
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        setError(
-          err.response?.data?.message || "Failed to authenticate with Google",
-        );
-      } else if (err instanceof Error) {
-        setError(err.message);
+      // Step 2: Set the FULL user object and token in the global AuthContext
+      login(userInfo, token);
+
+      // Step 3: Navigate to the correct page based on the backend's response
+      if (requiresProfileSetup) {
+        // Pass the full user info to the signup page for pre-filling
+        navigate("/signup", { state: { user: userInfo } });
       } else {
-        setError("Unknown authentication error");
+        navigate("/yourday");
+      }
+    } catch (err: unknown) {
+      console.error("Authentication failed:", err);
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || "Failed to authenticate.");
+      } else {
+        setError("An unknown authentication error occurred.");
       }
     } finally {
       setLoading(false);
