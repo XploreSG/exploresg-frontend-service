@@ -1,9 +1,34 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import RentalCard from "../components/Rentals/RentalCard";
-import { RENTAL_CARS } from "../data/rentalCars";
-import { FaFilter, FaTimes } from "react-icons/fa";
+import { FaFilter, FaTimes, FaSpinner } from "react-icons/fa";
+
+// Type definitions for backend data
+interface CarModelData {
+  id: number;
+  model: string;
+  manufacturer: string;
+  seats: number;
+  luggage: number;
+  transmission: string;
+  imageUrl: string;
+  category: string;
+}
+
+// Extended type with pricing info (placeholder until pricing API is ready)
+interface DisplayCarData extends CarModelData {
+  price: number;
+  originalPrice?: number;
+  promoText?: string;
+  operator: string;
+  operatorStyling: string;
+}
 
 const FleetPage: React.FC = () => {
+  // NEW: Data fetching state
+  const [carModels, setCarModels] = useState<DisplayCarData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   // Filter states
   const [sortBy, setSortBy] = useState<string>("price-low");
   const [vehicleType, setVehicleType] = useState<string>("all");
@@ -15,20 +40,61 @@ const FleetPage: React.FC = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [activeFilterTab, setActiveFilterTab] = useState<string>("price");
 
-  // Get unique values from our data for dynamic filters
-  const uniqueCategories = useMemo(() => {
-    const categories = [...new Set(RENTAL_CARS.map((car) => car.category))];
-    return categories.sort();
+  // NEW: Fetch data from backend API
+  useEffect(() => {
+    const fetchCarModels = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch(
+          "http://localhost:8081/api/v1/fleet/models",
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: CarModelData[] = await response.json();
+
+        // Map backend data with placeholder pricing
+        // TODO: Replace with actual pricing API when available
+        const displayData = data.map((car) => ({
+          ...car,
+          price: 100 + Math.floor(Math.random() * 400),
+          operator: Math.random() > 0.5 ? "Hertz" : "Sixt",
+          operatorStyling:
+            Math.random() > 0.5 ? "text-yellow-400" : "text-orange-400",
+        }));
+
+        setCarModels(displayData);
+      } catch (err) {
+        console.error("Failed to fetch car models:", err);
+        setError(
+          "Could not load vehicle data. Please check if the backend service is running.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCarModels();
   }, []);
+
+  // CHANGED: Now uses carModels state instead of RENTAL_CARS
+  const uniqueCategories = useMemo(() => {
+    const categories = [...new Set(carModels.map((car) => car.category))];
+    return categories.sort();
+  }, [carModels]);
 
   const uniqueSeats = useMemo(() => {
-    const seats = [...new Set(RENTAL_CARS.map((car) => car.seats))];
+    const seats = [...new Set(carModels.map((car) => car.seats))];
     return seats.sort((a, b) => a - b);
-  }, []);
+  }, [carModels]);
 
-  // Filter and sort the cars
+  // CHANGED: Filter logic now operates on carModels
   const filteredCars = useMemo(() => {
-    let filtered = [...RENTAL_CARS];
+    let filtered = [...carModels];
 
     // Filter by price range
     filtered = filtered.filter(
@@ -75,7 +141,7 @@ const FleetPage: React.FC = () => {
     }
 
     return filtered;
-  }, [sortBy, vehicleType, minSeats, transmission, priceRange]);
+  }, [sortBy, vehicleType, minSeats, transmission, priceRange, carModels]);
 
   const resetFilters = () => {
     setSortBy("price-low");
@@ -100,6 +166,40 @@ const FleetPage: React.FC = () => {
       priceRange[1] !== 1000
     );
   };
+
+  // NEW: Loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <FaSpinner className="h-12 w-12 animate-spin text-blue-600" />
+          <p className="text-lg font-medium text-gray-700">
+            Loading Vehicles...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // NEW: Error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="rounded-xl bg-white p-8 text-center shadow-lg">
+          <h2 className="mb-4 text-2xl font-bold text-red-600">
+            Something Went Wrong
+          </h2>
+          <p className="text-gray-600">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-6 rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -247,11 +347,11 @@ const FleetPage: React.FC = () => {
         {showMobileFilters && (
           <div
             className="fixed inset-0 z-50 bg-black/20 backdrop-blur-xs md:hidden"
-            onClick={() => setShowMobileFilters(false)} // Close when clicking backdrop
+            onClick={() => setShowMobileFilters(false)}
           >
             <div
               className="absolute right-0 bottom-0 left-0 max-h-[80vh] overflow-y-auto rounded-t-xl bg-white"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b p-4">
@@ -497,7 +597,7 @@ const FleetPage: React.FC = () => {
                 {filteredCars.map((car) => (
                   <RentalCard
                     key={car.id}
-                    carId={car.id}
+                    carId={String(car.id)}
                     model={car.model}
                     seats={car.seats}
                     luggage={car.luggage}
