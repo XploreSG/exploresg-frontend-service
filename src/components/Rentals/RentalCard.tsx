@@ -81,9 +81,17 @@ const RentalCard: React.FC<RentalCardProps> = ({
               <p className="px-2 text-xs font-thin text-white">or similar</p>
             </div>
             <span
-              className={`pl-4 text-xs font-bold whitespace-nowrap ${operatorStyling} transition-all duration-300 group-hover:scale-105 group-hover:brightness-110`}
+              className={
+                "pl-4 text-xs font-bold whitespace-nowrap transition-all duration-300 group-hover:scale-105 group-hover:brightness-110"
+              }
             >
-              <span className="rounded-md bg-black/20 px-2 py-1 backdrop-blur-sm">
+              {/* <span
+              className={`pl-4 text-xs font-bold whitespace-nowrap ${operatorStyling} transition-all duration-300 group-hover:scale-105 group-hover:brightness-110`}
+            > */}
+              {/* <span className="rounded-md bg-black/20 px-2 py-1 backdrop-blur-sm"> */}
+              <span
+                className={`rounded-md bg-black/20 px-2 py-1 backdrop-blur-sm ${operatorStyling} shadow-md`}
+              >
                 {operator}
               </span>
             </span>
