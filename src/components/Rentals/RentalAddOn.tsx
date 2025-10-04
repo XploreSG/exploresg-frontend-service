@@ -30,7 +30,7 @@ type CarDetails = {
   promoText?: string;
   imageUrl: string;
   operator: string;
-  operatorStyling: string;
+  operatorStyling: { brand: string; background: string };
   carId: string;
 };
 
@@ -106,9 +106,19 @@ const RentalAddOnPage: React.FC = () => {
     price: 250,
     imageUrl: "/assets/alphard.png",
     operator: "Default Operator",
-    operatorStyling: "",
+    operatorStyling: { brand: "Default", background: "#f0f0f0" },
     carId: "default-1",
   };
+
+  // Ensure operatorStyling is always an object with brand and background
+  if (
+    typeof carDetails.operatorStyling !== "object" ||
+    carDetails.operatorStyling === null ||
+    !("brand" in carDetails.operatorStyling) ||
+    !("background" in carDetails.operatorStyling)
+  ) {
+    carDetails.operatorStyling = { brand: "Default", background: "#f0f0f0" };
+  }
 
   // Booking details (normally passed as props or from context/state)
   const bookingDetails: BookingDetails = {
