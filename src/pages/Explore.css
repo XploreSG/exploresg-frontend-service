@@ -1,14 +1,215 @@
-.map-container {
+/* Removed duplicate map-container definition - using the comprehensive one below */
+
+/* Duplicate marker styles removed - using the comprehensive definition below */
+
+/* Explore Page Container */
+.explore-page {
   width: 100%;
-  height: 100vh; /* Full viewport height */
+  height: calc(
+    100vh - 64px
+  ); /* Full viewport minus navbar height (64px = h-16 in Tailwind) */
 }
 
-/* Custom marker style */
-.marker {
-  background-image: url("https://docs.mapbox.com/mapbox-gl-js/assets/mapbox-icon.png");
-  background-size: cover;
-  width: 50px;
-  height: 50px;
+/* Map Container */
+.map-container {
+  width: 100%;
+  height: 100%; /* Take full height of explore page container */
+}
+
+/* Loading State */
+.map-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3b82f6;
   border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.map-loading p {
+  margin: 0;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Custom Marker Styles */
+.marker {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   cursor: pointer;
+  position: relative;
+  transform-origin: center center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.marker:hover,
+.marker.marker-hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+  z-index: 1;
+}
+
+.marker:active {
+  transform: scale(0.95);
+}
+
+/* Mapbox Popup Customization */
+.mapboxgl-popup {
+  max-width: 300px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+    "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+.mapboxgl-popup-content {
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.custom-popup {
+  padding: 1rem;
+}
+
+.popup-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+.popup-description {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.mapboxgl-popup-close-button {
+  font-size: 20px;
+  padding: 8px;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.mapboxgl-popup-close-button:hover {
+  color: #1f2937;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Mapbox Controls Styling */
+.mapboxgl-ctrl-group {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mapboxgl-ctrl-group button {
+  width: 36px;
+  height: 36px;
+}
+
+.mapboxgl-ctrl-group button:hover {
+  background-color: #f3f4f6;
+}
+
+/* Scale Control */
+.mapboxgl-ctrl-scale {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .map-loading {
+    padding: 1.5rem 2rem;
+  }
+
+  .mapboxgl-popup {
+    max-width: 250px;
+  }
+
+  .custom-popup {
+    padding: 0.75rem;
+  }
+
+  .popup-title {
+    font-size: 14px;
+  }
+
+  .popup-description {
+    font-size: 12px;
+  }
+
+  .marker {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+  }
+}
+
+/* High DPI/Retina Display Optimization */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .marker {
+    border-width: 2.5px;
+  }
+}
+
+/* Accessibility - Focus States */
+.marker:focus {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.mapboxgl-ctrl-group button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .mapboxgl-ctrl-group,
+  .mapboxgl-ctrl-scale,
+  .map-loading {
+    display: none;
+  }
 }
