@@ -2,6 +2,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { RoleBanner } from "./components/RoleBanner";
 import HomePage from "./pages/HomePage";
 import AttractionsPage from "./pages/AttractionsPage";
 import FoodPage from "./pages/FoodPage";
@@ -26,6 +27,7 @@ const App = () => {
     <Router>
       <div className="flex min-h-screen flex-col">
         <Navbar />
+        <RoleBanner />
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
