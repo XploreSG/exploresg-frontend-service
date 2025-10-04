@@ -105,6 +105,16 @@
   transform: translate(-50%, -50%) scale(1.2);
 }
 
+/* Hover popup styling - lighter and less prominent */
+.mapboxgl-popup.hover-popup {
+  pointer-events: none;
+}
+
+.mapboxgl-popup.hover-popup .mapboxgl-popup-content {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+}
+
 /* Mapbox Popup Customization */
 .mapboxgl-popup {
   max-width: 320px;

@@ -36,10 +36,73 @@ const ExplorePage: React.FC = () => {
   const markersRef = useRef<MarkerData[]>([]);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const activeMarkerRef = useRef<MarkerData | null>(null);
+  const hoveredMarkerRef = useRef<MarkerData | null>(null);
+  const hoverTimeoutRef = useRef<number | null>(null);
 
-  // Function to handle marker click and active state
+  // Function to handle marker hover (show popup)
+  const handleMarkerHover = useCallback((markerData: MarkerData) => {
+    // Clear any existing hover timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+
+    // Don't show hover popup if this marker is already active (clicked)
+    if (activeMarkerRef.current === markerData) {
+      return;
+    }
+
+    // Close any existing hover popup
+    if (
+      hoveredMarkerRef.current &&
+      hoveredMarkerRef.current !== activeMarkerRef.current
+    ) {
+      if (hoveredMarkerRef.current.popup.isOpen()) {
+        hoveredMarkerRef.current.popup.remove();
+      }
+      hoveredMarkerRef.current.element.classList.remove("marker-hover");
+    }
+
+    // Set new hovered marker and show popup
+    hoveredMarkerRef.current = markerData;
+    markerData.element.classList.add("marker-hover");
+
+    if (mapInstance.current) {
+      markerData.popup
+        .setLngLat(markerData.marker.getLngLat())
+        .addTo(mapInstance.current);
+    }
+  }, []);
+
+  // Function to handle marker hover leave (hide popup after delay)
+  const handleMarkerHoverLeave = useCallback((markerData: MarkerData) => {
+    // Don't hide if this marker is active (clicked)
+    if (activeMarkerRef.current === markerData) {
+      return;
+    }
+
+    // Set timeout to hide popup after a short delay
+    hoverTimeoutRef.current = window.setTimeout(() => {
+      if (hoveredMarkerRef.current === markerData) {
+        markerData.element.classList.remove("marker-hover");
+        if (markerData.popup.isOpen()) {
+          markerData.popup.remove();
+        }
+        hoveredMarkerRef.current = null;
+      }
+      hoverTimeoutRef.current = null;
+    }, 300); // 300ms delay before hiding
+  }, []);
+
+  // Function to handle marker click (pin popup)
   const handleMarkerClick = useCallback((markerData: MarkerData) => {
-    // If there's an active marker, deactivate it and close its popup
+    // Clear hover timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+
+    // If there's an active marker, deactivate it
     if (activeMarkerRef.current) {
       activeMarkerRef.current.element.classList.remove("marker-active");
       if (activeMarkerRef.current.popup.isOpen()) {
@@ -47,7 +110,16 @@ const ExplorePage: React.FC = () => {
       }
     }
 
-    // If clicking the same marker, just deactivate it
+    // If there's a hovered marker that's not the clicked one, hide it
+    if (hoveredMarkerRef.current && hoveredMarkerRef.current !== markerData) {
+      hoveredMarkerRef.current.element.classList.remove("marker-hover");
+      if (hoveredMarkerRef.current.popup.isOpen()) {
+        hoveredMarkerRef.current.popup.remove();
+      }
+      hoveredMarkerRef.current = null;
+    }
+
+    // If clicking the same active marker, deactivate it
     if (activeMarkerRef.current === markerData) {
       activeMarkerRef.current = null;
       return;
@@ -57,7 +129,7 @@ const ExplorePage: React.FC = () => {
     markerData.element.classList.add("marker-active");
     activeMarkerRef.current = markerData;
 
-    // Open the popup for the new active marker
+    // Show the popup (pinned)
     if (mapInstance.current) {
       markerData.popup
         .setLngLat(markerData.marker.getLngLat())
@@ -128,17 +200,17 @@ const ExplorePage: React.FC = () => {
         }
       });
 
-      // Add hover effect using CSS classes for better performance
+      // Add hover handlers for popup display
       el.addEventListener("mouseenter", () => {
-        el.classList.add("marker-hover");
+        handleMarkerHover(markerData);
       });
       el.addEventListener("mouseleave", () => {
-        el.classList.remove("marker-hover");
+        handleMarkerHoverLeave(markerData);
       });
 
       return markerData;
     },
-    [handleMarkerClick],
+    [handleMarkerClick, handleMarkerHover, handleMarkerHoverLeave],
   );
 
   // Initialize map
@@ -222,8 +294,15 @@ const ExplorePage: React.FC = () => {
 
     // Cleanup function
     return () => {
-      // Reset active marker
+      // Clear hover timeout
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+
+      // Reset marker references
       activeMarkerRef.current = null;
+      hoveredMarkerRef.current = null;
 
       // Remove all markers
       markersRef.current.forEach(({ marker, element }) => {
