@@ -65,6 +65,25 @@ const ExplorePage: React.FC = () => {
     }
   }, []);
 
+  // Function to update marker sizes based on zoom level
+  const updateMarkerSizes = useCallback(() => {
+    if (!mapInstance.current) return;
+
+    const zoom = mapInstance.current.getZoom();
+    const baseSize = 30;
+    const minSize = 15;
+    const maxSize = 40;
+
+    // Calculate size based on zoom (zoom typically ranges from 9 to 18)
+    const zoomFactor = Math.max(0.5, Math.min(1.5, (zoom - 8) / 10));
+    const newSize = Math.max(minSize, Math.min(maxSize, baseSize * zoomFactor));
+
+    markersRef.current.forEach(({ element }) => {
+      element.style.width = `${newSize}px`;
+      element.style.height = `${newSize}px`;
+    });
+  }, []);
+
   // Memoized marker creation function
   const createMarker = useCallback(
     (feature: (typeof places.features)[0], index: number) => {
@@ -87,10 +106,11 @@ const ExplorePage: React.FC = () => {
         </div>`,
       );
 
-      // Create marker instance WITHOUT popup initially
-      const marker = new mapboxgl.Marker(el).setLngLat(
-        geometry.coordinates as [number, number],
-      );
+      // Create marker instance with proper anchor
+      const marker = new mapboxgl.Marker({
+        element: el,
+        anchor: "center",
+      }).setLngLat(geometry.coordinates as [number, number]);
 
       // Store popup separately in markerData
       const markerData = { marker, element: el, popup };
@@ -171,6 +191,9 @@ const ExplorePage: React.FC = () => {
           markersRef.current.push(markerData);
         });
 
+        // Initial marker size update
+        updateMarkerSizes();
+
         // Fit map to markers bounds with padding
         if (places.features.length > 0) {
           const bounds = new mapboxgl.LngLatBounds();
@@ -183,6 +206,9 @@ const ExplorePage: React.FC = () => {
           });
         }
       });
+
+      // Handle zoom changes to resize markers
+      map.on("zoom", updateMarkerSizes);
 
       // Handle errors
       map.on("error", (e) => {
@@ -212,7 +238,7 @@ const ExplorePage: React.FC = () => {
         mapInstance.current = null;
       }
     };
-  }, [createMarker]);
+  }, [createMarker, updateMarkerSizes]);
 
   return (
     <div className="explore-page">

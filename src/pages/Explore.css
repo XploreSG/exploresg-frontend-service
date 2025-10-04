@@ -67,39 +67,42 @@
   border: 3px solid white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  position: relative;
+  position: absolute;
   transform-origin: center center;
+  transform: translate(-50%, -50%);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    width 0.15s ease,
+    height 0.15s ease;
 }
 
 .marker:hover,
 .marker.marker-hover {
   background-color: #dc2626; /* Red on hover */
-  transform: scale(1.1);
+  transform: translate(-50%, -50%) scale(1.1);
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5); /* Red shadow on hover */
-  z-index: 1;
+  z-index: 10;
 }
 
 .marker:active {
-  transform: scale(0.95);
+  transform: translate(-50%, -50%) scale(0.95);
 }
 
 /* Active marker state - red color when selected */
 .marker.marker-active {
   background-color: #dc2626; /* Red color */
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6);
-  transform: scale(1.15);
-  z-index: 2;
+  transform: translate(-50%, -50%) scale(1.15);
+  z-index: 20;
 }
 
 .marker.marker-active:hover,
 .marker.marker-active.marker-hover {
   background-color: #b91c1c; /* Darker red on hover */
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.7);
-  transform: scale(1.2);
+  transform: translate(-50%, -50%) scale(1.2);
 }
 
 /* Mapbox Popup Customization */
@@ -242,7 +245,7 @@
 
   .marker.marker-active:hover,
   .marker.marker-active.marker-hover {
-    transform: scale(1.15);
+    transform: scale(1.5);
   }
 }
 
