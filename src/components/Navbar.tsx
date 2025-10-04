@@ -5,8 +5,9 @@ import { useAuth } from "../contexts/useAuth";
 const navigation = [
   { name: "Home", href: "/" },
   { name: "Rentals", href: "/rentals" },
-  { name: "Projects", href: "/projects" },
+  { name: "Explore", href: "/explore" },
   { name: "Your Day", href: "/yourday" },
+  { name: "Projects", href: "/projects" },
 ];
 
 const Navbar: React.FC = () => {

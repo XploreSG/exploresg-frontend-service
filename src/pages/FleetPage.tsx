@@ -1,281 +1,41 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState } from "react";
 import RentalCard from "../components/Rentals/RentalCard";
 import { FaFilter, FaTimes, FaSpinner } from "react-icons/fa";
-
-// Backend response type
-interface OperatorCarModelData {
-  operatorId: number;
-  operatorName: string;
-  carModelId: number;
-  model: string;
-  manufacturer: string;
-  seats: number;
-  luggage: number;
-  transmission: string;
-  imageUrl: string;
-  category: string;
-  fuelType: string;
-  modelYear: number;
-  dailyPrice: number;
-  availableVehicleCount: number;
-}
-
-// Display type for UI
-interface DisplayCarData {
-  id: string; // Unique combination of operatorId-carModelId
-  operatorId: number;
-  operatorName: string;
-  model: string;
-  manufacturer: string;
-  seats: number;
-  luggage: number;
-  transmission: string;
-  imageUrl: string;
-  category: string;
-  price: number;
-  operator: string;
-  operatorStyling: { brand: string; background: string };
-  availableVehicleCount: number;
-}
-
-// Operator mapping and styling
-// Add the requested operator display names for IDs 101-104 and
-// provide a per-operator styling class used by the UI.
-const OPERATOR_NAMES: Record<number, string> = {
-  101: "Sixt",
-  102: "Hertz",
-  103: "Lylo",
-  104: "Budget",
-  105: "Avis",
-  106: "Enterprise",
-};
-
-const OPERATOR_STYLES: Record<number, { brand: string; background: string }> = {
-  101: {
-    brand: "text-orange-600 bg-gray-200",
-    background: "bg-black bg-blend-overlay bg-orange-800/70",
-  },
-  102: {
-    brand: "text-yellow-600 bg-gray-200",
-    //  background: "bg-yellow-900"
-    background: "bg-black bg-blend-overlay bg-yellow-900/60",
-  },
-  103: {
-    brand: "text-blue-600 bg-gray-200",
-    // , background: "bg-blue-900",
-    background: "bg-black bg-blend-overlay bg-blue-900/80",
-  },
-  104: {
-    brand: "text-red-600 bg-gray-200",
-    background: "bg-black bg-blend-overlay bg-red-900/80",
-
-    // background: "bg-red-900",
-  },
-  105: {
-    brand: "text-indigo-600 bg-indigo-200",
-    background: "bg-black bg-blend-overlay bg-indigo-900/80",
-
-    // "bg-indigo-900"
-  },
-  106: {
-    brand: "text-teal-700 bg-gray-200",
-    background: "bg-black bg-blend-overlay bg-teal-900/80",
-
-    // "bg-gray-900"
-  },
-};
-
-function getOperatorInfo(operatorId: number, fallbackName?: string) {
-  return {
-    name: OPERATOR_NAMES[operatorId] || fallbackName || String(operatorId),
-    styling: OPERATOR_STYLES[operatorId] || "text-blue-600",
-  };
-}
+import { useFleetData } from "../hooks/useFleetData";
+import {
+  formatCategoryName,
+  normalizeTransmission,
+} from "../utils/rentalUtils";
 
 const FleetPage: React.FC = () => {
-  const [carModels, setCarModels] = useState<DisplayCarData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Filter states
-  const [sortBy, setSortBy] = useState<string>("price-low");
-  const [vehicleType, setVehicleType] = useState<string>("all");
-  const [transmission, setTransmission] = useState<string>("all");
-  const [minSeats, setMinSeats] = useState<string>("all");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
-  const [selectedOperator, setSelectedOperator] = useState<string>("all"); // NEW
+  const {
+    filteredCars,
+    isLoading,
+    error,
+    sortBy,
+    setSortBy,
+    vehicleType,
+    setVehicleType,
+    minSeats,
+    setMinSeats,
+    priceRange,
+    setPriceRange,
+    selectedOperator,
+    setSelectedOperator,
+    uniqueCategories,
+    uniqueSeats,
+    uniqueOperators,
+    resetFilters,
+    hasActiveFilters,
+    refetch,
+  } = useFleetData();
 
   // Mobile filter popup state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [activeFilterTab, setActiveFilterTab] = useState<string>("price");
 
-  // Fetch data from backend
-  useEffect(() => {
-    const fetchCarModels = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const response = await fetch(
-          "http://localhost:8081/api/v1/fleet/models",
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data: OperatorCarModelData[] = await response.json();
-
-        // Map backend data to display format
-        const displayData: DisplayCarData[] = data.map((item) => {
-          const op = getOperatorInfo(item.operatorId, item.operatorName);
-          return {
-            id: `${item.operatorId}-${item.carModelId}`,
-            operatorId: item.operatorId,
-            operatorName: item.operatorName,
-            model: item.model,
-            manufacturer: item.manufacturer,
-            seats: item.seats,
-            luggage: item.luggage,
-            transmission: item.transmission,
-            imageUrl: item.imageUrl,
-            category: item.category,
-            price: Number(item.dailyPrice),
-            operator: op.name,
-            operatorStyling: op.styling,
-            availableVehicleCount: item.availableVehicleCount,
-          };
-        });
-
-        setCarModels(displayData);
-      } catch (err) {
-        console.error("Failed to fetch car models:", err);
-        setError(
-          "Could not load vehicle data. Please check if the backend service is running.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCarModels();
-  }, []);
-
-  // Get unique values for filters
-  const uniqueCategories = useMemo(() => {
-    const categories = [...new Set(carModels.map((car) => car.category))];
-    return categories.sort();
-  }, [carModels]);
-
-  const uniqueSeats = useMemo(() => {
-    const seats = [...new Set(carModels.map((car) => car.seats))];
-    return seats.sort((a, b) => a - b);
-  }, [carModels]);
-
-  const uniqueOperators = useMemo(() => {
-    // Deduplicate by operatorId. Using `new Set` on objects won't remove
-    // duplicates because each object reference is unique. Use a Map keyed
-    // by operatorId to ensure uniqueness.
-    const map = new Map<number, { id: number; name: string }>();
-    carModels.forEach((car) => {
-      if (!map.has(car.operatorId)) {
-        map.set(car.operatorId, { id: car.operatorId, name: car.operator });
-      }
-    });
-
-    const operators = Array.from(map.values());
-    return operators.sort((a, b) => a.name.localeCompare(b.name));
-  }, [carModels]);
-
-  // Filter logic
-  const filteredCars = useMemo(() => {
-    let filtered = [...carModels];
-
-    // Filter by price range
-    filtered = filtered.filter(
-      (car) => car.price >= priceRange[0] && car.price <= priceRange[1],
-    );
-
-    // Filter by vehicle type/category
-    if (vehicleType !== "all") {
-      filtered = filtered.filter((car) => car.category === vehicleType);
-    }
-
-    // Filter by minimum seats
-    if (minSeats !== "all") {
-      filtered = filtered.filter((car) => car.seats >= parseInt(minSeats));
-    }
-
-    // Filter by transmission
-    if (transmission !== "all") {
-      filtered = filtered.filter((car) => car.transmission === transmission);
-    }
-
-    // Filter by operator - NEW
-    if (selectedOperator !== "all") {
-      filtered = filtered.filter(
-        (car) => car.operatorId === parseInt(selectedOperator),
-      );
-    }
-
-    // Sort cars
-    switch (sortBy) {
-      case "price-low":
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case "price-high":
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case "name-az":
-        filtered.sort((a, b) => a.model.localeCompare(b.model));
-        break;
-      case "name-za":
-        filtered.sort((a, b) => b.model.localeCompare(a.model));
-        break;
-      case "seats-high":
-        filtered.sort((a, b) => b.seats - a.seats);
-        break;
-      case "seats-low":
-        filtered.sort((a, b) => a.seats - b.seats);
-        break;
-      default:
-        break;
-    }
-
-    return filtered;
-  }, [
-    sortBy,
-    vehicleType,
-    minSeats,
-    transmission,
-    priceRange,
-    selectedOperator,
-    carModels,
-  ]);
-
-  const resetFilters = () => {
-    setSortBy("price-low");
-    setVehicleType("all");
-    setTransmission("all");
-    setMinSeats("all");
-    setPriceRange([0, 1000]);
-    setSelectedOperator("all"); // NEW
-  };
-
   const applyMobileFilters = () => {
     setShowMobileFilters(false);
-  };
-
-  const hasActiveFilters = () => {
-    return (
-      sortBy !== "price-low" ||
-      vehicleType !== "all" ||
-      minSeats !== "all" ||
-      transmission !== "all" ||
-      priceRange[0] !== 0 ||
-      priceRange[1] !== 1000 ||
-      selectedOperator !== "all" // NEW
-    );
   };
 
   if (isLoading) {
@@ -300,7 +60,7 @@ const FleetPage: React.FC = () => {
           </h2>
           <p className="text-gray-600">{error}</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={refetch}
             className="mt-6 rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
           >
             Retry
@@ -414,12 +174,7 @@ const FleetPage: React.FC = () => {
                 <option value="all">All Types</option>
                 {uniqueCategories.map((category) => (
                   <option key={category} value={category}>
-                    {category
-                      .split("-")
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
-                      )
-                      .join(" ")}
+                    {formatCategoryName(category)}
                   </option>
                 ))}
               </select>
@@ -650,11 +405,7 @@ const FleetPage: React.FC = () => {
                     model={car.model}
                     seats={car.seats}
                     luggage={car.luggage}
-                    transmission={
-                      car.transmission.toLowerCase() === "automatic"
-                        ? "automatic"
-                        : "manual"
-                    }
+                    transmission={normalizeTransmission(car.transmission)}
                     originalPrice={undefined}
                     price={car.price}
                     promoText={undefined}

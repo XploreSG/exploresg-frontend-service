@@ -1,20 +1,9 @@
 import React from "react";
 import { FaUsers, FaSuitcase, FaPaw, FaCogs } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import type { CarDetailsWithPricing } from "../../types/rental";
 
-interface RentalCardProps {
-  model: string;
-  seats: number;
-  luggage: number;
-  transmission: "automatic" | "manual";
-  price: number;
-  originalPrice?: number;
-  promoText?: string;
-  imageUrl: string;
-  operator: string;
-  operatorStyling: { brand: string; background: string };
-  carId?: string;
-}
+type RentalCardProps = CarDetailsWithPricing;
 
 const RentalCard: React.FC<RentalCardProps> = ({
   model,

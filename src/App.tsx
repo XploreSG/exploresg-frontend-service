@@ -2,6 +2,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { RoleBanner } from "./components/RoleBanner";
 import HomePage from "./pages/HomePage";
 import AttractionsPage from "./pages/AttractionsPage";
 import FoodPage from "./pages/FoodPage";
@@ -17,6 +18,7 @@ import TestPage from "./pages/TestPage";
 import SignUpForm from "./components/Auth/SignUpForm";
 import type { SignupDetails } from "./components/Auth/SignUpForm";
 import ProfilePage from "./pages/ProfilePage";
+import ExplorePage from "./pages/ExplorePage";
 // import { BookingProvider } from "./contexts/BookingContext";
 
 const App = () => {
@@ -25,6 +27,7 @@ const App = () => {
     <Router>
       <div className="flex min-h-screen flex-col">
         <Navbar />
+        <RoleBanner />
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -36,6 +39,7 @@ const App = () => {
             <Route path="/login" element={<SignInPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/yourday" element={<YourDayPage />} />
+            <Route path="/explore" element={<ExplorePage />} />
             <Route
               path="/signup"
               element={
