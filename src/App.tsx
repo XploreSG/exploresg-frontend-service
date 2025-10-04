@@ -17,6 +17,7 @@ import TestPage from "./pages/TestPage";
 import SignUpForm from "./components/Auth/SignUpForm";
 import type { SignupDetails } from "./components/Auth/SignUpForm";
 import ProfilePage from "./pages/ProfilePage";
+import ExplorePage from "./pages/ExplorePage";
 // import { BookingProvider } from "./contexts/BookingContext";
 
 const App = () => {
@@ -36,6 +37,7 @@ const App = () => {
             <Route path="/login" element={<SignInPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/yourday" element={<YourDayPage />} />
+            <Route path="/explore" element={<ExplorePage />} />
             <Route
               path="/signup"
               element={
