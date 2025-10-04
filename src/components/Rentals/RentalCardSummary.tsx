@@ -1,14 +1,8 @@
 import React from "react";
 import { FaUsers, FaSuitcase, FaCogs, FaCheck } from "react-icons/fa";
+import type { BaseCarDetails } from "../../types/rental";
 
-interface RentalCardSummaryProps {
-  model: string;
-  seats: number;
-  luggage: number;
-  transmission: "automatic" | "manual";
-  imageUrl: string;
-  operator: string;
-  operatorStyling: { brand: string; background: string };
+interface RentalCardSummaryProps extends BaseCarDetails {
   price?: number;
   originalPrice?: number;
   promoText?: string;

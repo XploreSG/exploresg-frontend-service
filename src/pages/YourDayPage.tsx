@@ -1,6 +1,12 @@
 import { useAuth } from "../contexts/useAuth";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 import { useMemo } from "react";
+import type { BookingInfo } from "../types/rental";
+import { getOperatorInfo } from "../types/rental";
+import {
+  formatBookingTimeLocation,
+  formatBookingRef,
+} from "../utils/rentalUtils";
 
 // Supported languages type
 type SupportedLanguage = "English" | "Chinese" | "Malay" | "Tamil";
@@ -38,6 +44,28 @@ const greetingsMap: Record<
 
 const YourDayPage = () => {
   const { user } = useAuth();
+
+  // Example booking data using shared interfaces
+  const exampleBooking: BookingInfo = useMemo(() => {
+    const operatorInfo = getOperatorInfo(102); // Hertz
+    return {
+      bookingRef: "#SG12345",
+      pickupTime: "9:00 AM",
+      dropoffTime: "5:00 PM",
+      pickupLocation: "Changi Airport Terminal 3",
+      dropoffLocation: "Marina Bay Sands",
+      price: 320,
+      carDetails: {
+        model: "Porsche 911 Carrera",
+        seats: 4,
+        luggage: 2,
+        transmission: "automatic" as const,
+        imageUrl: "/assets/porsche-911-c.png",
+        operator: operatorInfo.name,
+        operatorStyling: operatorInfo.styling,
+      },
+    };
+  }, []);
 
   // Always compute greeting first, even if user is null
   const { greeting, emoji } = useMemo(() => {
@@ -118,18 +146,31 @@ const YourDayPage = () => {
             <div className="flex items-center gap-4">
               <div className="flex-1">
                 <div className="font-medium text-gray-800">
-                  Porsche 911 Carrera
+                  {exampleBooking.carDetails.model}
                 </div>
                 <div className="text-sm text-gray-600">
-                  9:00 AM @ Changi Airport Terminal 3<br />
-                  Drop-off: 5:00 PM @ Marina Bay Sands
+                  {formatBookingTimeLocation(
+                    exampleBooking.pickupTime,
+                    exampleBooking.pickupLocation,
+                  )}
+                  <br />
+                  Drop-off:{" "}
+                  {formatBookingTimeLocation(
+                    exampleBooking.dropoffTime,
+                    exampleBooking.dropoffLocation,
+                  )}
                 </div>
                 <div className="mt-1 flex items-center gap-2">
-                  <span className="rounded bg-yellow-400 px-2 py-0.5 text-xs font-bold">
-                    Hertz
+                  <span
+                    className={`rounded px-2 py-0.5 text-xs font-bold ${exampleBooking.carDetails.operatorStyling.brand}`}
+                  >
+                    {exampleBooking.carDetails.operator}
                   </span>
                   <span className="text-xs text-gray-500">
-                    Booking Ref: #SG12345
+                    Booking Ref:{" "}
+                    {formatBookingRef(
+                      exampleBooking.bookingRef.replace("#", ""),
+                    )}
                   </span>
                 </div>
               </div>
@@ -137,17 +178,8 @@ const YourDayPage = () => {
           </div>
           <div className="mb-8">
             <RentalCardSummary
-              model="Porsche 911 Carrera"
-              seats={4}
-              luggage={2}
-              transmission="automatic"
-              imageUrl="/assets/porsche-911-c.png"
-              operator="Hertz"
-              operatorStyling={{
-                brand: "text-black",
-                background: "from-yellow-400",
-              }}
-              price={320}
+              {...exampleBooking.carDetails}
+              price={exampleBooking.price}
               className="w-full"
             />
             <div className="relative w-full">
