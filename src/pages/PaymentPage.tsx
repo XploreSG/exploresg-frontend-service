@@ -21,7 +21,7 @@ interface CarDetails {
   promoText?: string;
   imageUrl: string;
   operator: string;
-  operatorStyling: string;
+  operatorStyling: { brand: string; background: string };
   carId: string;
 }
 
