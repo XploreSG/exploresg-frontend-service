@@ -246,7 +246,11 @@ const DriverDetailsPage: React.FC = () => {
                 promoText={carDetails.promoText}
                 imageUrl={carDetails.imageUrl}
                 operator={carDetails.operator}
-                operatorStyling={carDetails.operatorStyling}
+                operatorStyling={
+                  typeof carDetails.operatorStyling === "string"
+                    ? { brand: "text-white", background: "from-gray-500" }
+                    : carDetails.operatorStyling
+                }
                 nights={bookingDates?.nights || 5}
                 showPricing={true}
                 className="mb-0"

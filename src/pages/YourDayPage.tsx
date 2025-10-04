@@ -143,7 +143,10 @@ const YourDayPage = () => {
               transmission="automatic"
               imageUrl="/assets/porsche-911-c.png"
               operator="Hertz"
-              operatorStyling="bg-yellow-400 text-black"
+              operatorStyling={{
+                brand: "text-black",
+                background: "from-yellow-400",
+              }}
               price={320}
               className="w-full"
             />
