@@ -1,5 +1,6 @@
 import React from "react";
 import StatsSection from "../components/StatsSection";
+import TestimonialsSection from "../components/TestimonialsSection";
 
 const HomePage: React.FC = () => {
   return (
@@ -75,6 +76,8 @@ const HomePage: React.FC = () => {
           />
         </div>
       </div>
+      {/* Testimonials Section */}
+      <TestimonialsSection />
       {/* Stats Section */}
       <StatsSection />
     </div>
