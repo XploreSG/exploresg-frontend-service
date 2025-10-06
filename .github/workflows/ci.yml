@@ -111,7 +111,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile.prod
+          file: ./Dockerfile
           platforms: linux/amd64
           push: false
           tags: exploresg-frontend:ci
