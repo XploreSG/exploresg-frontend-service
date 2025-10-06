@@ -44,7 +44,6 @@ const FleetPageHeader: React.FC<FleetPageHeaderProps> = ({
       </div>
 
       {/* Gradient overlay for text readability */}
-      <div className="" />
       {/* <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/80" /> */}
 
       {/* Content */}
