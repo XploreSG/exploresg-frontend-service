@@ -144,13 +144,13 @@ const SignInPage: React.FC = () => {
       </div>
 
       {/* Right Panel - Video Background */}
-      <div className="relative hidden overflow-hidden lg:block lg:w-1/2">
+      <div className="relative hidden overflow-hidden lg:block lg:w-1/4">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="absolute inset-0 h-full w-full object-cover"
+          className="inset-0 h-full w-full object-cover"
           poster="/assets/singapore-flyer-poster.jpg"
         >
           <source src="/assets/banner-video.mp4" type="video/mp4" />
