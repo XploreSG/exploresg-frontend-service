@@ -1,6 +1,6 @@
 // AuthProvider.tsx
 import type { ReactNode } from "react";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { AuthContext } from "./AuthContextInstance";
 import type { UserInfo } from "./AuthContextInstance"; // <-- type-only import
 
@@ -29,6 +29,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "user") {
+        const stored = localStorage.getItem("user");
+        setUser(stored ? JSON.parse(stored) : null);
+      }
+      if (event.key === "token") {
+        setToken(localStorage.getItem("token"));
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   const contextValue = useMemo(
