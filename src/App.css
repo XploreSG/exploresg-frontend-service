@@ -35,13 +35,13 @@
   animation: shimmer 2s ease-in-out infinite;
 }
 
-/* marquee left-to-right: track moves from -50% to 0 so content appears to move right */
+/* marquee left-to-right: track moves right continuously */
 @keyframes marquee-ltr {
   0% {
     transform: translate3d(-50%, 0, 0);
   }
   100% {
-    transform: translate3d(0%, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -52,7 +52,7 @@
 .marquee-track {
   display: flex;
   gap: 1.5rem;
-  align-items: stretch;
+  align-items: center;
   /* children shouldn't flex or shrink; preserve exact widths */
   > * {
     flex: 0 0 auto;
@@ -61,14 +61,7 @@
   will-change: transform;
   transform-style: preserve-3d;
   backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
   animation: marquee-ltr 40s linear infinite;
-}
-
-/* Pause animation on hover or focus for accessibility/readability */
-.marquee:hover .marquee-track,
-.marquee:focus-within .marquee-track {
-  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
