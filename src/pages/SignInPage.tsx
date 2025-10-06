@@ -80,96 +80,123 @@ const SignInPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Left Panel - Form */}
-      <div className="flex w-full items-center justify-center bg-white px-8 py-12 lg:w-1/2 lg:px-16">
-        <div className="w-full max-w-md">
+      <div className="flex w-full items-center justify-center bg-white px-4 py-12 sm:px-6 lg:w-1/2 lg:px-8">
+        <div className="w-full max-w-md space-y-8">
           {/* Header */}
-          <div className="mb-12">
-            <h1 className="mb-6 text-5xl leading-tight font-light text-gray-900">
-              Discover.
-              <br />
-              <span className="font-semibold">Explore.</span>
+          <div className="">
+            <h1 className="flex w-full justify-center pb-6 text-6xl font-light text-gray-900">
+              <span className="pr-3 text-gray-500">Discover. </span>
+              <span className="font-semibold text-red-600"> Explore</span>
             </h1>
-            <p className="text-lg text-gray-600">Your guide to Singapore</p>
+            <p className="mt-2 flex w-full justify-center text-lg text-gray-600">
+              Your premier guide to Singapore
+            </p>
           </div>
 
           {/* Social Login */}
-          <div className="mb-6">
-            <SocialLoginButtons
-              onGoogleSuccess={handleGoogleSuccess}
-              onGoogleError={handleGoogleError}
-            />
-          </div>
+          <SocialLoginButtons
+            onGoogleSuccess={handleGoogleSuccess}
+            onGoogleError={handleGoogleError}
+          />
 
           {/* Divider */}
-          <div className="relative my-8">
+          <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-4 text-gray-500">OR</span>
+              <span className="bg-white px-3 text-gray-500">
+                Or continue with
+              </span>
             </div>
           </div>
 
           {/* Email Form */}
           <SignInForm onSubmit={handleFormSubmit} />
 
-          {/* Error Message */}
-          {error && (
-            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          {/* Loading State */}
-          {loading && (
-            <div className="mt-4 text-center text-sm text-gray-600">
-              Signing in...
-            </div>
-          )}
+          {/* Error & Loading Feedback */}
+          <div className="h-10">
+            {error && (
+              <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
+                {error}
+              </div>
+            )}
+            {loading && (
+              <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                <svg
+                  className="h-5 w-5 animate-spin text-gray-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <span>Signing in...</span>
+              </div>
+            )}
+          </div>
 
           {/* Footer Text */}
-          <p className="mt-8 text-center text-sm text-gray-500">
+          <p className="text-center text-xs text-gray-500">
             By continuing, you agree to our{" "}
-            <a href="/terms" className="underline hover:text-gray-700">
+            <a
+              href="/terms"
+              className="font-medium text-gray-700 hover:text-gray-900"
+            >
               Terms of Service
             </a>{" "}
             and{" "}
-            <a href="/privacy" className="underline hover:text-gray-700">
+            <a
+              href="/privacy"
+              className="font-medium text-gray-700 hover:text-gray-900"
+            >
               Privacy Policy
             </a>
+            .
           </p>
         </div>
       </div>
 
       {/* Right Panel - Video Background */}
-      <div className="relative hidden overflow-hidden lg:block lg:w-1/4">
+      <div className="relative hidden h-screen w-1/2 overflow-hidden lg:block">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="inset-0 h-full w-full object-cover"
-          poster="/assets/singapore-flyer-poster.jpg"
+          className="h-full w-full object-cover"
+          poster="/assets/exploresg-backdrop-jewel.jpg"
         >
           <source src="/assets/banner-video.mp4" type="video/mp4" />
-          <source src="/assets/singapore-flyer-loop.webm" type="video/webm" />
           {/* Fallback image if video fails to load */}
           <img
             src="/assets/exploresg-backdrop-jewel.jpg"
-            alt="Singapore Flyer"
+            alt="Jewel Changi Airport"
             className="h-full w-full object-cover"
           />
         </video>
 
-        {/* Subtle overlay for better text contrast if needed */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-black/10" />
+        {/* Gradient overlay for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-        {/* Optional: Branding or tagline on video */}
-        <div className="absolute bottom-12 left-12 text-white">
-          <h2 className="text-3xl font-light">Experience</h2>
-          <h2 className="text-5xl font-bold">Singapore</h2>
+        {/* Branding or tagline on video */}
+        <div className="absolute bottom-10 left-10 text-white">
+          <h2 className="text-4xl font-light tracking-wide">Experience</h2>
+          <h2 className="text-6xl font-bold">Singapore</h2>
         </div>
       </div>
     </div>
