@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --frozen-lockfile || npm install
 COPY . .
+# Ensure .env.production is available for Vite build
+RUN if [ -f .env.production ]; then cp .env.production .env; fi
 RUN npm run build
 
 # Nginx stage

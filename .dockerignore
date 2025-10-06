@@ -3,7 +3,8 @@ build
 dist
 .git
 .gitignore
-.env
+.env.local
+.env.development
 *.test.*
 coverage
 Dockerfile*
