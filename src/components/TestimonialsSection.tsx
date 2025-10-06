@@ -21,8 +21,6 @@ const testimonials = [
     company: "Lion City Tours",
     initials: "LC",
     color: "bg-rose-50 text-rose-600",
-    avatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
   },
   {
     quote:
@@ -53,8 +51,6 @@ const testimonials = [
     company: "Urban Wanderers",
     initials: "UW",
     color: "bg-sky-50 text-sky-600",
-    avatar:
-      "https://images.unsplash.com/photo-1545996124-1b4b9b7e2f6d?auto=format&fit=facearea&facepad=2&w=320&h=320&q=80",
   },
   {
     quote:
@@ -72,7 +68,7 @@ const testimonials = [
 
 const TestimonialsSection: React.FC = () => {
   return (
-    <section className="bg-slate-50 py-12">
+    <section className="bg-slate-50/10 py-12 drop-shadow-2xl">
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* marquee container with fixed card height to ensure equal heights */}
         <div className="marquee">
@@ -87,7 +83,6 @@ const TestimonialsSection: React.FC = () => {
                   quote={t.quote}
                   name={t.name}
                   title={`${t.role} | ${t.company}`}
-                  avatarUrl={t.avatar}
                   className="h-full"
                 />
               </div>
@@ -103,7 +98,6 @@ const TestimonialsSection: React.FC = () => {
                   quote={t.quote}
                   name={t.name}
                   title={`${t.role} | ${t.company}`}
-                  avatarUrl={t.avatar}
                   className="h-full"
                 />
               </div>

@@ -2,7 +2,7 @@ import React from "react";
 
 const StatsSection: React.FC = () => {
   return (
-    <section className="bg-slate-400/10 text-slate-900 drop-shadow-2xl">
+    <section className="bg-white text-slate-900">
       <div className="mx-auto max-w-6xl px-4 py-12 xl:px-0">
         <div className="rounded-xl bg-white/90 ring-1 ring-slate-100 drop-shadow-2xl sm:p-8">
           <div className="grid grid-cols-1 items-center gap-x-8 gap-y-8 sm:grid-cols-3">

@@ -1,6 +1,7 @@
 import React from "react";
 import StatsSection from "../components/StatsSection";
 import TestimonialsSection from "../components/TestimonialsSection";
+import FeaturesSection from "../components/FeaturesSection";
 
 const HomePage: React.FC = () => {
   return (
@@ -76,10 +77,12 @@ const HomePage: React.FC = () => {
           />
         </div>
       </div>
-      {/* Testimonials Section */}
-      <TestimonialsSection />
+      {/* Features / Product Highlights */}
+      <FeaturesSection />
       {/* Stats Section */}
       <StatsSection />
+      {/* Testimonials Section */}
+      <TestimonialsSection />
     </div>
   );
 };
