@@ -64,7 +64,7 @@ const login = useCallback((user: UserInfo, token?: string | null) => {
 ```typescript
 // ...
 const login = useCallback((user: UserInfo, token?: string | null) => {
-  let finalUser = { ...user };
+  const finalUser = { ...user };
 
   if (token) {
     try {
