@@ -17,7 +17,7 @@ const FeaturesSection: React.FC = () => {
           <p className="mt-5">
             <a
               className="inline-flex items-center gap-x-2 text-sm font-medium text-teal-600 decoration-2 hover:underline focus:outline-none"
-              href="#rent"
+              href="/rentals"
             >
               Browse cars or contact our fleet team
               <svg
