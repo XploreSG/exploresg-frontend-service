@@ -5,6 +5,7 @@ import SignInForm from "../components/Auth/SignInForm";
 import type { SignInFormData } from "../components/Auth/SignInForm";
 import SocialLoginButtons from "../components/Auth/SocialLoginButtons";
 import type { UserInfo } from "../contexts/AuthContextInstance";
+import { API_ENDPOINTS } from "../config/api";
 import axios from "axios";
 
 // Define the shape of the response from the backend
@@ -42,7 +43,7 @@ const SignInPage: React.FC = () => {
     try {
       // Step 1: Exchange the Google token for our custom token and full user profile
       const response = await axios.post<AuthResponse>(
-        "http://localhost:8080/api/v1/auth/google",
+        API_ENDPOINTS.AUTH.GOOGLE,
         {},
         {
           headers: { Authorization: `Bearer ${idToken}` },

@@ -5,9 +5,10 @@ import "./Explore.css";
 import { places } from "../data/places.geojson";
 
 // Move token to environment variable for security
-mapboxgl.accessToken =
-  import.meta.env.VITE_MAPBOX_TOKEN ||
-  "pk.eyJ1Ijoic3JlZS1yLW9uZSIsImEiOiJjbTY1OTJjemQxc25zMmpvdWQ2MWN2aDlvIn0.VMrL_nkV5-W7-T4AcEY3qA";
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+// mapboxgl.accessToken =
+//   import.meta.env.VITE_MAPBOX_TOKEN ||
+//   "pk.eyJ1Ijoic3JlZS1yLW9uZSIsImEiOiJjbTY1OTJjemQxc25zMmpvdWQ2MWN2aDlvIn0.VMrL_nkV5-W7-T4AcEY3qA";
 
 // Constants for better maintainability
 const MAP_CONFIG = {

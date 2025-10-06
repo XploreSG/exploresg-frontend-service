@@ -7,6 +7,7 @@ import type {
   OperatorInfo,
 } from "../types/rental";
 import { DEFAULT_FILTER_STATE } from "../types/rental";
+import { API_ENDPOINTS } from "../config/api";
 import {
   transformCarModelData,
   sortCarData,
@@ -48,7 +49,7 @@ export interface UseFleetDataReturn {
 }
 
 export function useFleetData(
-  apiEndpoint: string = "http://localhost:8081/api/v1/fleet/models",
+  apiEndpoint: string = API_ENDPOINTS.FLEET.MODELS,
 ): UseFleetDataReturn {
   // Data state
   const [carModels, setCarModels] = useState<DisplayCarData[]>([]);

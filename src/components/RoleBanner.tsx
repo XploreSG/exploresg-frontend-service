@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/useAuth";
+import { APP_ENV } from "../config/api";
 import { getUserRole } from "../utils/jwtUtils";
 
 export const RoleBanner = () => {
@@ -69,10 +70,12 @@ export const RoleBanner = () => {
   // FOR TESTING - Always show banner to debug
   // Remove this section and uncomment below when ready for production
   return (
-    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-blue-600/90 px-6 py-2.5 text-blue-100 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5">
+    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-red-600/90 px-6 py-2.5 text-blue-100 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <p className="text-sm/6">
-          <strong className="font-semibold">🔍 JWT Debug Mode</strong>
+          <strong className="font-semibold">
+            [{APP_ENV.toUpperCase()}] 🔍 JWT Debug Mode
+          </strong>
           <svg
             viewBox="0 0 2 2"
             aria-hidden="true"

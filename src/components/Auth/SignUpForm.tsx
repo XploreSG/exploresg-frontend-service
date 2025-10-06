@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/useAuth"; // <-- Import useAuth
+import { useAuth } from "../../contexts/useAuth";
+import { API_CONFIG, API_ENDPOINTS } from "../../config/api";
 import axios from "axios"; // <-- Import axios
 
 export interface SignupDetails {
@@ -98,9 +99,9 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
 
     try {
       // Submit the form using axios and the custom JWT
-      await axios.post("http://localhost:8080/api/v1/signup", payload, {
+      await axios.post(API_ENDPOINTS.USER.SIGNUP, payload, {
         headers: {
-          "Content-Type": "application/json",
+          ...API_CONFIG.headers,
           Authorization: `Bearer ${token}`, // <-- Use the custom application token
         },
       });

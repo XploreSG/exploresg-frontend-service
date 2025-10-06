@@ -1,6 +1,6 @@
 // AuthProvider.tsx
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { AuthContext } from "./AuthContextInstance";
 import type { UserInfo } from "./AuthContextInstance"; // <-- type-only import
 
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     () => localStorage.getItem("token") || null,
   );
 
-  const login = (user: UserInfo, token?: string | null) => {
+  const login = useCallback((user: UserInfo, token?: string | null) => {
     setUser(user);
     localStorage.setItem("user", JSON.stringify(user));
 
@@ -22,18 +22,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(token);
       localStorage.setItem("token", token);
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-  };
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({
+      user,
+      token,
+      login,
+      logout,
+    }),
+    [user, token, login, logout],
+  );
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
