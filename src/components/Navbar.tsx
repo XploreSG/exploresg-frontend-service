@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
     : "";
 
   return (
-    <nav className="relative bg-white text-gray-900 drop-shadow-2xl">
+    <nav className="sticky top-[var(--role-banner-height)] z-30 bg-white text-gray-900 drop-shadow-2xl">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           {/* Mobile menu button */}

@@ -66,7 +66,9 @@ export const RoleBanner: React.FC = () => {
 
   return (
     <div
-      className={`relative isolate flex items-center gap-x-6 overflow-hidden ${bannerColor} px-6 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5`}
+      className={`sticky top-0 z-40 isolate flex items-center gap-x-6 overflow-hidden ${bannerColor} px-6 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5`}
+      // expose banner height to CSS via a custom property so Navbar can sit below it
+      style={{ "--role-banner-height": "3.5rem" } as React.CSSProperties}
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <p className="text-sm/6">
