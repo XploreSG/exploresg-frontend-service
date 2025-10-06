@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import RentalCard from "../components/Rentals/RentalCard";
+import FleetPageHeader from "../components/FleetPageHeader";
 import { FaFilter, FaTimes, FaSpinner } from "react-icons/fa";
 import { useFleetData } from "../hooks/useFleetData";
 import {
@@ -70,65 +71,11 @@ const FleetPage: React.FC = () => {
     );
   }
 
-  // Car images for the carousel
-  const carImages = [
-    "/assets/cars/bmw-440i.png",
-    "/assets/cars/maserati-grecale.png",
-    "/assets/cars/porsche-911-c.png",
-    "/assets/cars/merc-sl63.png",
-    "/assets/cars/bmw-z4.png",
-    "/assets/cars/mini-cooper.png",
-    "/assets/cars/peugeot-5008.png",
-    "/assets/cars/bmw-x3.png",
-    "/assets/cars/vw-golf.png",
-    "/assets/cars/skoda-octavia.png",
-    "/assets/cars/nissan-sentra.png",
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section with Car Carousel Background */}
-        <div className="relative mb-12 overflow-hidden rounded-2xl py-16">
-          {/* <div className="relative mb-12 overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 py-16"> */}
-          {/* Car Carousel Background */}
-          <div className="absolute inset-0">
-            <div className="marquee h-full">
-              <div className="marquee-track h-full items-center">
-                {/* Original set */}
-                {carImages.map((img, idx) => (
-                  <div key={`orig-${idx}`} className="h-48 w-48 flex-shrink-0">
-                    <img
-                      src={img}
-                      alt=""
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                ))}
-                {/* Duplicated set for smooth loop */}
-                {carImages.map((img, idx) => (
-                  <div key={`dup-${idx}`} className="h-48 w-48 flex-shrink-0">
-                    <img
-                      src={img}
-                      alt=""
-                      className="h-full w-full object-contain grayscale"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="relative z-10 mt-30 text-center">
-            <h1 className="mb-4 text-4xl font-bold text-gray-900">
-              WHICH CAR DO YOU WANT TO DRIVE?
-            </h1>
-            <p className="text-xl text-gray-600">
-              Two or Four Wheels, Discover Singapore, Your Way!
-            </p>
-          </div>
-        </div>
+        <FleetPageHeader />
 
         {/* Desktop Filter Section */}
         <div className="mb-8 hidden rounded-lg bg-white p-6 shadow-lg md:block">
