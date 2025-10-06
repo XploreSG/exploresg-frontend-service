@@ -1,20 +1,21 @@
 services:
-  frontend-dev:
+  frontend:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    image: exploresg-frontend:dev
-    container_name: dev-exploresg-frontend-service
+      dockerfile: Dockerfile
+    image: exploresg-frontend:prod
+    container_name: prod-exploresg-frontend-service
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
+    # Runtime environment variables to load from .env.production
+    # NOTE: env_file injects variables at container runtime. If you need Vite
+    # build-time variables (VITE_*) baked into the static bundle, ensure
+    # .env.production exists in the build context so the Dockerfile copies it
+    # before running `npm run build`.
+    env_file:
+      - .env.production
     environment:
-      - NODE_ENV=development
-    command: npm run dev -- --host --port 3000
-    # --- ADD THIS SECTION ---
-    # Connects the frontend to the shared network
+      - NODE_ENV=production
     networks:
       - exploresg-network
 
