@@ -6,19 +6,20 @@ const FeaturesSection: React.FC = () => {
       <div className="grid gap-12 md:grid-cols-2">
         <div className="lg:w-3/4">
           <h2 className="text-3xl font-bold text-gray-800 lg:text-4xl">
-            Built to help you discover and design better experiences
+            Rent a car, plan an itinerary, and see Singapore your way
           </h2>
           <p className="mt-3 text-gray-700">
-            ExploreSG brings together local guides, curated itineraries and
-            scheduling tools so travellers and residents can find the best of
-            Singapore — quickly and confidently.
+            ExploreSG's car rental platform makes it simple to book the right
+            vehicle for your trip and build day-by-day routes. From short
+            weekend getaways to multi-day island drives, plan, schedule and
+            navigate with confidence.
           </p>
           <p className="mt-5">
             <a
               className="inline-flex items-center gap-x-2 text-sm font-medium text-teal-600 decoration-2 hover:underline focus:outline-none"
-              href="#contact"
+              href="#rent"
             >
-              Partner with our events & experiences team
+              Browse cars or contact our fleet team
               <svg
                 className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1"
                 xmlns="http://www.w3.org/2000/svg"
@@ -56,12 +57,12 @@ const FeaturesSection: React.FC = () => {
             </span>
             <div className="grow">
               <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
-                Local guides & resources
+                Smart itinerary builder
               </h3>
               <p className="mt-1 text-gray-600">
-                In-depth guides and curated neighbourhood walks crafted by local
-                experts — everything you need to plan a day, an event, or a
-                whole weekend in Singapore.
+                Create day-by-day routes that combine attractions, meals and
+                drive time. The builder automatically optimises routing and
+                suggests nearby stops so you can make the most of every trip.
               </p>
             </div>
           </div>
@@ -84,12 +85,12 @@ const FeaturesSection: React.FC = () => {
             </span>
             <div className="grow">
               <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
-                Partners & local experts
+                Nationwide fleet & trusted partners
               </h3>
               <p className="mt-1 text-gray-600">
-                We work with a growing network of tour operators, venues and
-                creators to make it easy for businesses and organisers to run
-                memorable events and experiences.
+                Choose from a wide selection of well-maintained vehicles and
+                optional add-ons (GPS, child seats, insurance). Our partner
+                garages and support network keep you moving.
               </p>
             </div>
           </div>
@@ -112,12 +113,12 @@ const FeaturesSection: React.FC = () => {
             </span>
             <div className="grow">
               <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
-                Flexible packages & transparent pricing
+                Flexible pricing & roadside support
               </h3>
               <p className="mt-1 text-gray-600">
-                From single-day itineraries to full-service event support, our
-                pricing and packages are designed to be flexible and clear so
-                you can choose what fits your needs.
+                Transparent daily and hourly rates, easy upgrades, and 24/7
+                roadside assistance mean you can plan with certainty and enjoy
+                the ride.
               </p>
             </div>
           </div>
