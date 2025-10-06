@@ -81,7 +81,7 @@ const TestimonialsSection: React.FC = () => {
             {testimonials.map((t, idx) => (
               <div
                 key={`orig-${idx}`}
-                className="h-[220px] max-w-[320px] min-w-[280px] flex-shrink-0"
+                className="h-[240px] max-w-[320px] min-w-[280px] flex-shrink-0"
               >
                 <TestimonialCard
                   quote={t.quote}
@@ -97,7 +97,7 @@ const TestimonialsSection: React.FC = () => {
             {testimonials.map((t, idx) => (
               <div
                 key={`dup-${idx}`}
-                className="h-[220px] max-w-[320px] min-w-[280px] flex-shrink-0"
+                className="h-[240px] max-w-[320px] min-w-[280px] flex-shrink-0"
               >
                 <TestimonialCard
                   quote={t.quote}

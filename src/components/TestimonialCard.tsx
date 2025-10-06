@@ -16,10 +16,12 @@ const TestimonialCard: React.FC<Props> = ({
   className,
 }) => {
   return (
-    <div className={"h-full " + (className ?? "")}>
+    <div className={"h-full overflow-hidden " + (className ?? "")}>
       <div className="flex h-full flex-col rounded-xl bg-white">
-        <div className="flex-auto p-4 md:p-6">
-          <p className="text-base text-gray-800 italic md:text-lg">“{quote}”</p>
+        <div className="flex-auto overflow-hidden p-4 md:p-6">
+          <p className="text-base break-words text-gray-800 italic md:text-lg">
+            “{quote}”
+          </p>
         </div>
 
         <div className="rounded-b-xl bg-gray-100 p-4 md:px-7">
