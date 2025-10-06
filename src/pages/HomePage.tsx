@@ -1,10 +1,13 @@
 import React from "react";
+import StatsSection from "../components/StatsSection";
+import TestimonialsSection from "../components/TestimonialsSection";
+import FeaturesSection from "../components/FeaturesSection";
 
 const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section with background image and overlay */}
-      <div className="relative flex min-h-screen flex-col items-center justify-center px-4 pt-20 pb-24 sm:px-8">
+      <div className="relative mb-8 flex min-h-screen flex-col items-center justify-center px-4 pt-20 pb-24 sm:px-8">
         {/* Background image */}
         <img
           src="/assets/exploresg-backdrop-garden.jpg"
@@ -44,36 +47,13 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* Company Logos Row */}
-      <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-8">
-        <div className="flex flex-wrap items-center justify-center gap-8 border-t border-gray-100 pt-10">
-          <img
-            src="https://tailwindui.com/img/logos/transistor-logo-gray-400.svg"
-            alt="Transistor"
-            className="h-8"
-          />
-          <img
-            src="https://tailwindui.com/img/logos/reform-logo-gray-400.svg"
-            alt="Reform"
-            className="h-8"
-          />
-          <img
-            src="https://tailwindui.com/img/logos/tuple-logo-gray-400.svg"
-            alt="Tuple"
-            className="h-8"
-          />
-          <img
-            src="https://tailwindui.com/img/logos/savvycal-logo-gray-400.svg"
-            alt="SavvyCal"
-            className="h-8"
-          />
-          <img
-            src="https://tailwindui.com/img/logos/statamic-logo-gray-400.svg"
-            alt="Statamic"
-            className="h-8"
-          />
-        </div>
-      </div>
+
+      {/* Features / Product Highlights */}
+      <FeaturesSection />
+      {/* Stats Section */}
+      <StatsSection />
+      {/* Testimonials Section */}
+      <TestimonialsSection />
     </div>
   );
 };

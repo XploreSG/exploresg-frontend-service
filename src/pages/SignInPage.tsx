@@ -5,13 +5,14 @@ import SignInForm from "../components/Auth/SignInForm";
 import type { SignInFormData } from "../components/Auth/SignInForm";
 import SocialLoginButtons from "../components/Auth/SocialLoginButtons";
 import type { UserInfo } from "../contexts/AuthContextInstance";
+import { API_ENDPOINTS } from "../config/api";
 import axios from "axios";
 
 // Define the shape of the response from the backend
 interface AuthResponse {
   token: string;
   requiresProfileSetup: boolean;
-  userInfo: UserInfo; // This now contains the full user profile
+  userInfo: UserInfo;
 }
 
 const SignInPage: React.FC = () => {
@@ -40,9 +41,8 @@ const SignInPage: React.FC = () => {
     setError(null);
 
     try {
-      // Step 1: Exchange the Google token for our custom token and full user profile
       const response = await axios.post<AuthResponse>(
-        "http://localhost:8080/api/v1/auth/google",
+        API_ENDPOINTS.AUTH.GOOGLE,
         {},
         {
           headers: { Authorization: `Bearer ${idToken}` },
@@ -55,12 +55,9 @@ const SignInPage: React.FC = () => {
         throw new Error("Did not receive complete auth data from the backend.");
       }
 
-      // Step 2: Set the FULL user object and token in the global AuthContext
       login(userInfo, token);
 
-      // Step 3: Navigate to the correct page based on the backend's response
       if (requiresProfileSetup) {
-        // Pass the full user info to the signup page for pre-filling
         navigate("/signup", { state: { user: userInfo } });
       } else {
         navigate("/yourday");
@@ -83,49 +80,123 @@ const SignInPage: React.FC = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div
-        className="bg-zoom-animate absolute inset-0 -z-20 bg-cover bg-center brightness-90"
-        style={{
-          backgroundImage: "url('/assets/exploresg-backdrop-jewel.jpg')",
-        }}
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-0 -z-10 bg-blue-300/10"
-        aria-hidden="true"
-      />
-
-      {/* Foreground */}
-      <div className="w-full max-w-md rounded-xl border border-white/30 bg-white/60 p-8 shadow-lg backdrop-blur-2xl">
-        <div className="flex flex-col items-center">
-          <h1 className="text-4xl font-bold text-red-600">ExploreSG</h1>
-          <h2 className="mt-4 mb-2 text-center text-xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-
-        <SignInForm onSubmit={handleFormSubmit} />
-
-        {error && (
-          <div className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {error}
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Left Panel - Form */}
+      <div className="flex w-full items-center justify-center bg-white px-4 py-12 sm:px-6 lg:w-1/2 lg:px-8">
+        <div className="w-full max-w-md space-y-8">
+          {/* Header */}
+          <div className="">
+            <h1 className="flex w-full justify-center pb-6 text-6xl font-light text-gray-900">
+              <span className="pr-3 text-gray-500">Discover. </span>
+              <span className="font-semibold text-red-600"> Explore</span>
+            </h1>
+            <p className="mt-2 flex w-full justify-center text-lg text-gray-600">
+              Your premier guide to Singapore
+            </p>
           </div>
-        )}
 
-        <div className="my-8 flex items-center">
-          <div className="flex-grow border-t border-gray-200" />
-          <span className="mx-4 text-sm text-gray-400">Or continue with</span>
-          <div className="flex-grow border-t border-gray-200" />
-        </div>
-
-        <div className="flex flex-col items-center gap-4">
-          {loading && <div className="text-sm text-gray-600">Signing in…</div>}
+          {/* Social Login */}
           <SocialLoginButtons
             onGoogleSuccess={handleGoogleSuccess}
             onGoogleError={handleGoogleError}
           />
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-3 text-gray-500">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          {/* Email Form */}
+          <SignInForm onSubmit={handleFormSubmit} />
+
+          {/* Error & Loading Feedback */}
+          <div className="h-10">
+            {error && (
+              <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
+                {error}
+              </div>
+            )}
+            {loading && (
+              <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                <svg
+                  className="h-5 w-5 animate-spin text-gray-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <span>Signing in...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Footer Text */}
+          <p className="text-center text-xs text-gray-500">
+            By continuing, you agree to our{" "}
+            <a
+              href="/terms"
+              className="font-medium text-gray-700 hover:text-gray-900"
+            >
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a
+              href="/privacy"
+              className="font-medium text-gray-700 hover:text-gray-900"
+            >
+              Privacy Policy
+            </a>
+            .
+          </p>
+        </div>
+      </div>
+
+      {/* Right Panel - Video Background */}
+      <div className="relative hidden h-screen w-1/2 overflow-hidden lg:block">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="h-full w-full object-cover"
+          poster="/assets/exploresg-backdrop-jewel.jpg"
+        >
+          <source src="/assets/banner-video.mp4" type="video/mp4" />
+          {/* Fallback image if video fails to load */}
+          <img
+            src="/assets/exploresg-backdrop-jewel.jpg"
+            alt="Jewel Changi Airport"
+            className="h-full w-full object-cover"
+          />
+        </video>
+
+        {/* Gradient overlay for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+        {/* Branding or tagline on video */}
+        <div className="absolute bottom-10 left-10 text-white">
+          <h2 className="text-4xl font-light tracking-wide">Experience</h2>
+          <h2 className="text-6xl font-bold">Singapore</h2>
         </div>
       </div>
     </div>

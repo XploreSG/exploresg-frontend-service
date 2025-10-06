@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "../config/api";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -8,7 +9,7 @@ const TestPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/test", {
+        const response = await axios.get(API_ENDPOINTS.TEST, {
           headers: { accept: "*/*" },
         });
         setData(response.data);

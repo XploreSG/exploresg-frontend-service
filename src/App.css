@@ -34,3 +34,45 @@
   filter: blur(20px);
   animation: shimmer 2s ease-in-out infinite;
 }
+
+/* marquee left-to-right: track moves from -50% to 0 so content appears to move right */
+@keyframes marquee-ltr {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0%, 0, 0);
+  }
+}
+
+.marquee {
+  overflow: hidden;
+  position: relative;
+}
+.marquee-track {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+  /* children shouldn't flex or shrink; preserve exact widths */
+  > * {
+    flex: 0 0 auto;
+  }
+  /* GPU-accelerated transform and smoother animation */
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  animation: marquee-ltr 40s linear infinite;
+}
+
+/* Pause animation on hover or focus for accessibility/readability */
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

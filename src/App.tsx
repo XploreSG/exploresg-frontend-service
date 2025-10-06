@@ -26,8 +26,8 @@ const App = () => {
     // <BookingProvider>
     <Router>
       <div className="flex min-h-screen flex-col">
-        <Navbar />
         <RoleBanner />
+        <Navbar />
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 
@@ -13,6 +13,7 @@ const navigation = [
 const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -29,12 +30,28 @@ const Navbar: React.FC = () => {
     navigate("/");
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const fullName = user
     ? [user.givenName, user.familyName].filter(Boolean).join(" ")
     : "";
 
   return (
-    <nav className="relative bg-white text-gray-900 shadow-md">
+    <nav className="sticky top-[var(--role-banner-height)] z-30 bg-white text-gray-900 drop-shadow-2xl">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           {/* Mobile menu button */}
@@ -135,7 +152,7 @@ const Navbar: React.FC = () => {
             )}
             {/* Auth logic: show Sign In or Profile */}
             {user ? (
-              <div className="relative ml-3">
+              <div className="relative ml-3" ref={profileMenuRef}>
                 <button
                   className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                   onClick={() => setProfileOpen((open) => !open)}
