@@ -1,4 +1,5 @@
 import React from "react";
+import StatsSection from "../components/StatsSection";
 
 const HomePage: React.FC = () => {
   return (
@@ -74,6 +75,8 @@ const HomePage: React.FC = () => {
           />
         </div>
       </div>
+      {/* Stats Section */}
+      <StatsSection />
     </div>
   );
 };
