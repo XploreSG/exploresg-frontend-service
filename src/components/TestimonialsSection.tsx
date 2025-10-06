@@ -73,18 +73,42 @@ const testimonials = [
 const TestimonialsSection: React.FC = () => {
   return (
     <section className="bg-slate-50 py-12">
-      <div className="mx-auto max-w-[85rem] px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 lg:gap-6">
-          {testimonials.map((t, idx) => (
-            <div key={idx}>
-              <TestimonialCard
-                quote={t.quote}
-                name={t.name}
-                title={`${t.role} | ${t.company}`}
-                avatarUrl={t.avatar}
-              />
-            </div>
-          ))}
+      <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* marquee container with fixed card height to ensure equal heights */}
+        <div className="marquee">
+          <div className="marquee-track">
+            {/* original set */}
+            {testimonials.map((t, idx) => (
+              <div
+                key={`orig-${idx}`}
+                className="h-[220px] max-w-[320px] min-w-[280px] flex-shrink-0"
+              >
+                <TestimonialCard
+                  quote={t.quote}
+                  name={t.name}
+                  title={`${t.role} | ${t.company}`}
+                  avatarUrl={t.avatar}
+                  className="h-full"
+                />
+              </div>
+            ))}
+
+            {/* duplicated set for smooth loop */}
+            {testimonials.map((t, idx) => (
+              <div
+                key={`dup-${idx}`}
+                className="h-[220px] max-w-[320px] min-w-[280px] flex-shrink-0"
+              >
+                <TestimonialCard
+                  quote={t.quote}
+                  name={t.name}
+                  title={`${t.role} | ${t.company}`}
+                  avatarUrl={t.avatar}
+                  className="h-full"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -34,3 +34,31 @@
   filter: blur(20px);
   animation: shimmer 2s ease-in-out infinite;
 }
+
+/* marquee left-to-right: track moves from -50% to 0 so content appears to move right */
+@keyframes marquee-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.marquee {
+  overflow: hidden;
+  position: relative;
+}
+.marquee-track {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+  /* animate to move track rightwards */
+  animation: marquee-ltr 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

@@ -5,6 +5,7 @@ type Props = {
   name: string;
   title?: string; // role | company
   avatarUrl?: string;
+  className?: string;
 };
 
 const TestimonialCard: React.FC<Props> = ({
@@ -12,10 +13,11 @@ const TestimonialCard: React.FC<Props> = ({
   name,
   title,
   avatarUrl,
+  className,
 }) => {
   return (
-    <div className="flex h-auto">
-      <div className="flex flex-col rounded-xl bg-white">
+    <div className={"h-full " + (className ?? "")}>
+      <div className="flex h-full flex-col rounded-xl bg-white">
         <div className="flex-auto p-4 md:p-6">
           <p className="text-base text-gray-800 italic md:text-lg">“{quote}”</p>
         </div>
