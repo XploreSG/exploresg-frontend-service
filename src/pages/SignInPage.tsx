@@ -12,7 +12,7 @@ import axios from "axios";
 interface AuthResponse {
   token: string;
   requiresProfileSetup: boolean;
-  userInfo: UserInfo; // This now contains the full user profile
+  userInfo: UserInfo;
 }
 
 const SignInPage: React.FC = () => {
@@ -41,7 +41,6 @@ const SignInPage: React.FC = () => {
     setError(null);
 
     try {
-      // Step 1: Exchange the Google token for our custom token and full user profile
       const response = await axios.post<AuthResponse>(
         API_ENDPOINTS.AUTH.GOOGLE,
         {},
@@ -56,12 +55,9 @@ const SignInPage: React.FC = () => {
         throw new Error("Did not receive complete auth data from the backend.");
       }
 
-      // Step 2: Set the FULL user object and token in the global AuthContext
       login(userInfo, token);
 
-      // Step 3: Navigate to the correct page based on the backend's response
       if (requiresProfileSetup) {
-        // Pass the full user info to the signup page for pre-filling
         navigate("/signup", { state: { user: userInfo } });
       } else {
         navigate("/yourday");
@@ -84,49 +80,96 @@ const SignInPage: React.FC = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen w-screen items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div
-        className="bg-zoom-animate absolute inset-0 -z-20 bg-cover bg-center brightness-90"
-        style={{
-          backgroundImage: "url('/assets/exploresg-backdrop-jewel.jpg')",
-        }}
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-0 -z-10 bg-blue-300/10"
-        aria-hidden="true"
-      />
-
-      {/* Foreground */}
-      <div className="w-full max-w-md rounded-xl border border-white/30 bg-white/60 p-8 shadow-lg backdrop-blur-2xl">
-        <div className="flex flex-col items-center">
-          <h1 className="text-4xl font-bold text-red-600">ExploreSG</h1>
-          <h2 className="mt-4 mb-2 text-center text-xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-
-        <SignInForm onSubmit={handleFormSubmit} />
-
-        {error && (
-          <div className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {error}
+    <div className="flex min-h-screen">
+      {/* Left Panel - Form */}
+      <div className="flex w-full items-center justify-center bg-white px-8 py-12 lg:w-1/2 lg:px-16">
+        <div className="w-full max-w-md">
+          {/* Header */}
+          <div className="mb-12">
+            <h1 className="mb-6 text-5xl leading-tight font-light text-gray-900">
+              Discover.
+              <br />
+              <span className="font-semibold">Explore.</span>
+            </h1>
+            <p className="text-lg text-gray-600">Your guide to Singapore</p>
           </div>
-        )}
 
-        <div className="my-8 flex items-center">
-          <div className="flex-grow border-t border-gray-200" />
-          <span className="mx-4 text-sm text-gray-400">Or continue with</span>
-          <div className="flex-grow border-t border-gray-200" />
+          {/* Social Login */}
+          <div className="mb-6">
+            <SocialLoginButtons
+              onGoogleSuccess={handleGoogleSuccess}
+              onGoogleError={handleGoogleError}
+            />
+          </div>
+
+          {/* Divider */}
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-4 text-gray-500">OR</span>
+            </div>
+          </div>
+
+          {/* Email Form */}
+          <SignInForm onSubmit={handleFormSubmit} />
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="mt-4 text-center text-sm text-gray-600">
+              Signing in...
+            </div>
+          )}
+
+          {/* Footer Text */}
+          <p className="mt-8 text-center text-sm text-gray-500">
+            By continuing, you agree to our{" "}
+            <a href="/terms" className="underline hover:text-gray-700">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" className="underline hover:text-gray-700">
+              Privacy Policy
+            </a>
+          </p>
         </div>
+      </div>
 
-        <div className="flex flex-col items-center gap-4">
-          {loading && <div className="text-sm text-gray-600">Signing in…</div>}
-          <SocialLoginButtons
-            onGoogleSuccess={handleGoogleSuccess}
-            onGoogleError={handleGoogleError}
+      {/* Right Panel - Video Background */}
+      <div className="relative hidden overflow-hidden lg:block lg:w-1/2">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+          poster="/assets/singapore-flyer-poster.jpg"
+        >
+          <source src="/assets/banner-video.mp4" type="video/mp4" />
+          <source src="/assets/singapore-flyer-loop.webm" type="video/webm" />
+          {/* Fallback image if video fails to load */}
+          <img
+            src="/assets/exploresg-backdrop-jewel.jpg"
+            alt="Singapore Flyer"
+            className="h-full w-full object-cover"
           />
+        </video>
+
+        {/* Subtle overlay for better text contrast if needed */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-black/10" />
+
+        {/* Optional: Branding or tagline on video */}
+        <div className="absolute bottom-12 left-12 text-white">
+          <h2 className="text-3xl font-light">Experience</h2>
+          <h2 className="text-5xl font-bold">Singapore</h2>
         </div>
       </div>
     </div>
