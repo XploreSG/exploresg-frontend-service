@@ -60,7 +60,7 @@ const YourDayPage = () => {
         seats: 4,
         luggage: 2,
         transmission: "automatic" as const,
-        imageUrl: "/assets/porsche-911-c.png",
+        imageUrl: "/assets/cars/porsche-911-c.png",
         operator: operatorInfo.name,
         operatorStyling: operatorInfo.styling,
       },
