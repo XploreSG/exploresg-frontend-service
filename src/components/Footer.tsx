@@ -4,7 +4,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-transparent">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="rounded-2xl bg-white p-8 drop-shadow-amber-400">
+        <div className="rounded-2xl bg-white p-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
