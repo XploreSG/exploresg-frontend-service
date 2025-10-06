@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 
@@ -13,6 +13,7 @@ const navigation = [
 const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -28,6 +29,22 @@ const Navbar: React.FC = () => {
     setProfileOpen(false);
     navigate("/");
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const fullName = user
     ? [user.givenName, user.familyName].filter(Boolean).join(" ")
@@ -135,7 +152,7 @@ const Navbar: React.FC = () => {
             )}
             {/* Auth logic: show Sign In or Profile */}
             {user ? (
-              <div className="relative ml-3">
+              <div className="relative ml-3" ref={profileMenuRef}>
                 <button
                   className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                   onClick={() => setProfileOpen((open) => !open)}

@@ -70,7 +70,7 @@ export const RoleBanner = () => {
   // FOR TESTING - Always show banner to debug
   // Remove this section and uncomment below when ready for production
   return (
-    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-red-600/90 px-6 py-2.5 text-blue-100 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5">
+    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-white px-6 py-2.5 text-red-500 shadow-2xl after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <p className="text-sm/6">
           <strong className="font-semibold">
@@ -83,8 +83,9 @@ export const RoleBanner = () => {
           >
             <circle r="1" cx="1" cy="1" />
           </svg>
-          Token: {token ? `✅ Present (${token.length} chars)` : "❌ Missing"} |
-          Role: {role ? `🎭 ${role}` : "🔍 Not found"} | User:{" "}
+          {/* Token: {token ? `✅ Present (${token.length} chars)` : "❌ Missing"} | */}
+          Token: {token ? `✅ Present` : "❌ Missing"} | Role:{" "}
+          {role ? `🎭 ${role}` : "🔍 Not found"} | User:{" "}
           {user ? `👤 ${user.email || "Logged in"}` : "👤 Not logged in"}
         </p>
         {token && (
