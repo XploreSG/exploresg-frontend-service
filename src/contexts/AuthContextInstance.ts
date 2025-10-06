@@ -2,7 +2,8 @@
 import { createContext } from "react";
 
 export interface UserInfo {
-  userId: number;
+  // userId can be numeric or a string UUID depending on backend
+  userId: number | string;
   email: string;
   givenName: string;
   familyName: string;
