@@ -54,9 +54,13 @@ const FleetPageHeader: React.FC<FleetPageHeaderProps> = ({
       </div>
 
       {/* Content */}
-      <div className="relative z-10 mt-30 text-center">
-        <h1 className="mb-4 text-4xl font-bold text-gray-900">{title}</h1>
-        <p className="text-xl text-gray-600">{subtitle}</p>
+      <div className="relative z-10 flex h-full items-end justify-center text-center">
+        <div className="">
+          <h1 className="mt-40 mb-4 text-4xl font-bold text-gray-900">
+            {title}
+          </h1>
+          <p className="text-xl text-gray-600">{subtitle}</p>
+        </div>
       </div>
     </div>
   );
