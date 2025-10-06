@@ -50,7 +50,7 @@ const FleetPageHeader: React.FC<FleetPageHeaderProps> = ({
       {/* Content */}
       <div className="relative z-10 flex h-full min-h-[400px] items-center justify-center px-4 text-center">
         <div className="max-w-4xl">
-          <h1 className="b-4 mt-60 text-4xl font-bold text-gray-900 md:text-5xl">
+          <h1 className="mb-4 mt-60 text-4xl font-bold text-gray-900 md:text-5xl">
             {title}
           </h1>
           <p className="text-xl text-gray-700 md:text-2xl">{subtitle}</p>
