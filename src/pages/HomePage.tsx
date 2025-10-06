@@ -29,7 +29,7 @@ const HomePage: React.FC = () => {
             Explore Singapore
             <span className="hidden pt-6 text-2xl sm:block">
               {" "}
-              with <p className="pt-6 text-4xl">ExploreSG</p>
+              with <span className="pt-6 text-4xl">ExploreSG</span>
             </span>
           </h1>
           {/* Subheadline */}
