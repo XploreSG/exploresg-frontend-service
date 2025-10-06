@@ -27,7 +27,10 @@ const HomePage: React.FC = () => {
           {/* Headline */}
           <h1 className="mb-6 text-center text-4xl font-extrabold text-gray-100 drop-shadow-lg sm:text-5xl md:text-6xl">
             Explore Singapore
-            <br className="hidden sm:block" /> with ExploreSG
+            <span className="hidden pt-6 text-2xl sm:block">
+              {" "}
+              with <p className="pt-6 text-4xl">ExploreSG</p>
+            </span>
           </h1>
           {/* Subheadline */}
           <p className="mb-8 max-w-2xl text-center text-lg text-gray-200">
