@@ -17,25 +17,120 @@ export interface Vehicle {
 type Subscriber = (vehicles: Vehicle[]) => void;
 
 const CAR_DATA = [
-  { file: "bmw-2.png", name: "BMW 2 Series", model: "218i Gran Coupé" },
-  { file: "bmw-440i.png", name: "BMW 4 Series", model: "440i Convertible" },
-  { file: "bmw-5-t.png", name: "BMW 5 Series", model: "520i" },
-  { file: "bmw-x3.png", name: "BMW X3", model: "xDrive30i" },
-  { file: "bmw-z4.png", name: "BMW Z4", model: "sDrive20i" },
-  { file: "maserati-grecale.png", name: "Maserati Grecale", model: "GT" },
-  { file: "merc-sl63.png", name: "Mercedes-AMG SL", model: "SL 63" },
-  { file: "merc-v.png", name: "Mercedes-Benz V-Class", model: "V 220 d" },
-  { file: "mini-cooper.png", name: "MINI Cooper", model: "3-Door" },
-  { file: "nissan-sentra.png", name: "Nissan Sentra", model: "SV" },
-  { file: "peugeot-5008.png", name: "Peugeot 5008", model: "Allure" },
-  { file: "porsche-911-c.png", name: "Porsche 911", model: "Carrera" },
-  { file: "rr.png", name: "Rolls-Royce Ghost", model: "Black Badge" },
-  { file: "skoda-octavia.png", name: "Skoda Octavia", model: "RS" },
-  { file: "vw-golf.png", name: "Volkswagen Golf", model: "GTI" },
-  { file: "vw-polo.png", name: "Volkswagen Polo", model: "Life" },
+  {
+    file: "bmw-2.png",
+    name: "BMW 2 Series",
+    model: "218i Gran Coupé",
+    numberPlate: "SGF1234A",
+    status: "Available" as const,
+  },
+  {
+    file: "bmw-440i.png",
+    name: "BMW 4 Series",
+    model: "440i Convertible",
+    numberPlate: "SGFUN88B",
+    status: "In Use" as const,
+  },
+  {
+    file: "bmw-5-t.png",
+    name: "BMW 5 Series",
+    model: "520i",
+    numberPlate: "SGMYCAR5C",
+    status: "Maintenance" as const,
+  },
+  {
+    file: "bmw-x3.png",
+    name: "BMW X3",
+    model: "xDrive30i",
+    numberPlate: "SGAGENT7X",
+    status: "Available" as const,
+  },
+  {
+    file: "bmw-z4.png",
+    name: "BMW Z4",
+    model: "sDrive20i",
+    numberPlate: "SGCOPILOT",
+    status: "In Use" as const,
+  },
+  {
+    file: "maserati-grecale.png",
+    name: "Maserati Grecale",
+    model: "GT",
+    numberPlate: "SGHACKER",
+    status: "Available" as const,
+  },
+  {
+    file: "merc-sl63.png",
+    name: "Mercedes-AMG SL",
+    model: "SL 63",
+    numberPlate: "SGEXPLORE",
+    status: "In Use" as const,
+  },
+  {
+    file: "merc-v.png",
+    name: "Mercedes-Benz V-Class",
+    model: "V 220 d",
+    numberPlate: "SGAWESOME",
+    status: "Maintenance" as const,
+  },
+  {
+    file: "mini-cooper.png",
+    name: "MINI Cooper",
+    model: "3-Door",
+    numberPlate: "SGFRIEND1",
+    status: "Available" as const,
+  },
+  {
+    file: "nissan-sentra.png",
+    name: "Nissan Sentra",
+    model: "SV",
+    numberPlate: "SGFRIEND2",
+    status: "In Use" as const,
+  },
+  {
+    file: "peugeot-5008.png",
+    name: "Peugeot 5008",
+    model: "Allure",
+    numberPlate: "SGBOSS",
+    status: "Available" as const,
+  },
+  {
+    file: "porsche-911-c.png",
+    name: "Porsche 911",
+    model: "Carrera",
+    numberPlate: "SGFAST",
+    status: "In Use" as const,
+  },
+  {
+    file: "rr.png",
+    name: "Rolls-Royce Ghost",
+    model: "Black Badge",
+    numberPlate: "SGEZ",
+    status: "Maintenance" as const,
+  },
+  {
+    file: "skoda-octavia.png",
+    name: "Skoda Octavia",
+    model: "RS",
+    numberPlate: "SGPRO",
+    status: "Available" as const,
+  },
+  {
+    file: "vw-golf.png",
+    name: "Volkswagen Golf",
+    model: "GTI",
+    numberPlate: "SGKING",
+    status: "In Use" as const,
+  },
+  {
+    file: "vw-polo.png",
+    name: "Volkswagen Polo",
+    model: "Life",
+    numberPlate: "SGRIDER",
+    status: "Available" as const,
+  },
 ];
 
-const STATUSES: Vehicle["status"][] = ["Available", "In Use", "Maintenance"];
 const DRIVERS = [
   "John Doe",
   "Jane Smith",
@@ -43,27 +138,6 @@ const DRIVERS = [
   "Emily Davis",
   "Michael Brown",
   "Sarah Wilson",
-];
-
-const CUSTOM_PLATES = [
-  "SGF1234A",
-  "SGFUN88B",
-  "SGMYCAR5C",
-  "SGAGENT7X",
-  "SGCOPILOT",
-  "SGHACKER",
-  "SGEXPLORE",
-  "SGAWESOME",
-  "SGFRIEND1",
-  "SGFRIEND2",
-  "SGBOSS",
-  "SGFAST",
-  "SGEZ",
-  "SGPRO",
-  "SGKING",
-  "SGRIDER",
-  "SGNINJA",
-  "SGWIZARD",
 ];
 
 // Tighter bounding box focused on central Singapore (downtown / Marina Bay / Orchard)
@@ -86,27 +160,6 @@ function randomLatLng() {
   };
 }
 
-function generateNumberPlate() {
-  // Simple Singapore-like plate: S followed by 3 letters and 4 digits (not exact format)
-  const letters = Array.from({ length: 3 })
-    .map(() => String.fromCharCode(65 + Math.floor(Math.random() * 26)))
-    .join("");
-  const digits = String(Math.floor(Math.random() * 9000) + 1000);
-  return `S${letters} ${digits}`;
-}
-
-function randomCarData() {
-  const car = CAR_DATA[Math.floor(Math.random() * CAR_DATA.length)];
-  return {
-    ...car,
-    imageUrl: `/assets/cars-logo/${car.file}`,
-  };
-}
-
-function randomStatus() {
-  return STATUSES[Math.floor(Math.random() * STATUSES.length)];
-}
-
 function randomDriver() {
   return DRIVERS[Math.floor(Math.random() * DRIVERS.length)];
 }
@@ -121,20 +174,18 @@ export class MockFleetSimulator {
     this.updateIntervalMs = updateIntervalMs;
     this.vehicles = Array.from({ length: count }).map((_, i) => {
       const { lat, lng } = randomLatLng();
-      const car = randomCarData();
-      const status = randomStatus();
+      const carData = CAR_DATA[i % CAR_DATA.length];
       return {
         id: `veh-${i + 1}`,
         lat,
         lng,
         heading: Math.floor(rand(0, 360)),
-        numberPlate:
-          CUSTOM_PLATES[i % CUSTOM_PLATES.length] || generateNumberPlate(),
-        imageUrl: car.imageUrl,
-        name: car.name,
-        model: car.model,
-        status: status,
-        driver: status === "In Use" ? randomDriver() : undefined,
+        numberPlate: carData.numberPlate,
+        imageUrl: `/assets/cars-logo/${carData.file}`,
+        name: carData.name,
+        model: carData.model,
+        status: carData.status,
+        driver: carData.status === "In Use" ? randomDriver() : undefined,
       } as Vehicle;
     });
   }
