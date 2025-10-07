@@ -128,19 +128,21 @@ const EagleViewPage: React.FC = () => {
       const isMatch =
         normalizedSearch.length > 0 && plate.includes(normalizedSearch);
 
+      const popupLabel = popupEl?.querySelector<HTMLElement>(".popup-label");
+
       if (isMatch) {
         entry.el.style.transform = "scale(1.6)";
         entry.el.style.background = "#ef4444"; // red-500
-        if (popupEl) {
-          popupEl.style.backgroundColor = "#ef4444";
-          popupEl.style.color = "white";
+        if (popupLabel) {
+          popupLabel.style.backgroundColor = "#ef4444";
+          popupLabel.style.color = "white";
         }
       } else {
         entry.el.style.transform = "scale(1)";
         entry.el.style.background = "#4f46e5"; // indigo-600
-        if (popupEl) {
-          popupEl.style.backgroundColor = "white";
-          popupEl.style.color = "#374151"; // gray-700
+        if (popupLabel) {
+          popupLabel.style.backgroundColor = "white";
+          popupLabel.style.color = "#374151"; // gray-700
         }
       }
     });
