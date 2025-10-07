@@ -47,7 +47,7 @@ const EagleViewPage: React.FC = () => {
       );
     }
 
-    const simulator = new MockFleetSimulator(18, 2000);
+    const simulator = new MockFleetSimulator(16, 2000);
 
     const sub = simulator.subscribe((vehicleData: Vehicle[]) => {
       const map = mapInstance.current;
