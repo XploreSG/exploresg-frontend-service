@@ -61,7 +61,7 @@ exploresg-frontend-service/
 │   │   ├── AboutPage.tsx            # About ExploreSG information
 │   │   ├── AttractionsPage.tsx      # Singapore attractions (placeholder)
 │   │   ├── EventsPage.tsx           # Events and festivals (placeholder)
-│   │   ├── FleetPage.tsx            # Car fleet browsing with filtering
+│   │   ├── UserVehicleBrowsePage.tsx # Customer-facing vehicle browsing with filtering
 │   │   ├── FoodPage.tsx             # Dining experiences (placeholder)
 │   │   ├── HomePage.tsx             # Landing page with hero section
 │   │   └── PaymentPage.tsx          # Payment processing and booking summary

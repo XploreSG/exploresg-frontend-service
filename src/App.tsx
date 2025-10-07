@@ -8,7 +8,7 @@ import AttractionsPage from "./pages/AttractionsPage";
 import FoodPage from "./pages/FoodPage";
 import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
-import FleetPage from "./pages/FleetPage";
+import UserVehicleBrowsePage from "./pages/UserVehicleBrowsePage";
 import SignInPage from "./pages/SignInPage";
 import YourDayPage from "./pages/YourDayPage";
 import TestPage from "./pages/TestPage";
@@ -37,7 +37,7 @@ const App = () => {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/rentals" element={<FleetPage />} />
+            <Route path="/rentals" element={<UserVehicleBrowsePage />} />
             <Route path="/attractions" element={<AttractionsPage />} />
             <Route path="/food" element={<FoodPage />} />
             <Route path="/events" element={<EventsPage />} />

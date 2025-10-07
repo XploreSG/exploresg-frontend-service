@@ -8,7 +8,7 @@ import {
   normalizeTransmission,
 } from "../utils/rentalUtils";
 
-const FleetPage: React.FC = () => {
+const UserVehicleBrowsePage: React.FC = () => {
   const {
     filteredCars,
     isLoading,
@@ -635,4 +635,4 @@ const FleetPage: React.FC = () => {
   );
 };
 
-export default FleetPage;
+export default UserVehicleBrowsePage;
