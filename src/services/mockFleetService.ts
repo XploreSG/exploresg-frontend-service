@@ -1,8 +1,16 @@
-// Frontend-only mock fleet simulator
-// Emits periodic location updates for a small set of vehicles inside Singapore
+/**
+ * Frontend-only mock fleet simulator
+ * Emits periodic location updates for a small set of vehicles inside Singapore
+ */
 
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+/** Vehicle operational status */
 export type VehicleStatus = "Available" | "In Use" | "Maintenance";
 
+/** Real-time vehicle data with location and status */
 export interface Vehicle {
   id: string;
   lat: number;
@@ -16,7 +24,8 @@ export interface Vehicle {
   driver?: string;
 }
 
-interface CarData {
+/** Static vehicle configuration data */
+export interface CarData {
   file: string;
   name: string;
   model: string;
@@ -26,6 +35,23 @@ interface CarData {
 
 type Subscriber = (vehicles: Vehicle[]) => void;
 
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Base path for vehicle images */
+const ASSETS_BASE_PATH = "/assets/cars-logo";
+
+/** Movement delta in degrees (approximately 200-300 meters) */
+const MOVEMENT_DELTA = 0.002;
+
+/** Default update interval in milliseconds */
+const DEFAULT_UPDATE_INTERVAL = 2000;
+
+/** Default number of vehicles to simulate */
+const DEFAULT_VEHICLE_COUNT = 12;
+
+/** Fleet vehicle catalog with predefined data */
 const CAR_DATA: CarData[] = [
   {
     file: "bmw-2.png",
@@ -141,6 +167,7 @@ const CAR_DATA: CarData[] = [
   },
 ];
 
+/** Pool of driver names for vehicles in use */
 const DRIVERS = [
   "John Doe",
   "Jane Smith",
@@ -148,75 +175,119 @@ const DRIVERS = [
   "Emily Davis",
   "Michael Brown",
   "Sarah Wilson",
-];
+] as const;
 
-// Tighter bounding box focused on central Singapore (downtown / Marina Bay / Orchard)
-// This keeps simulated points over land and avoids placing many points out at sea.
+/**
+ * Geographic bounding box for central Singapore
+ * Focused on downtown, Marina Bay, and Orchard areas to keep vehicles over land
+ */
 const SINGAPORE_BOUNDS = {
-  minLat: 1.3, // southern edge roughly around Marina Bay area
-  maxLat: 1.36, // northern edge around Balestier/Novena
-  minLng: 103.8, // western edge near Clementi/Orchard corridor
-  maxLng: 103.88, // eastern edge near Marina Bay / Kallang
+  minLat: 1.3, // Southern edge (Marina Bay area)
+  maxLat: 1.36, // Northern edge (Balestier/Novena)
+  minLng: 103.8, // Western edge (Clementi/Orchard)
+  maxLng: 103.88, // Eastern edge (Marina Bay/Kallang)
+} as const;
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/** Generate random number between min and max */
+const rand = (min: number, max: number): number => {
+  return Math.random() * (max - min) + min;
 };
 
-function rand(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
+/** Generate random coordinates within Singapore bounds */
+const randomLatLng = (): { lat: number; lng: number } => ({
+  lat: rand(SINGAPORE_BOUNDS.minLat, SINGAPORE_BOUNDS.maxLat),
+  lng: rand(SINGAPORE_BOUNDS.minLng, SINGAPORE_BOUNDS.maxLng),
+});
 
-function randomLatLng() {
-  return {
-    lat: rand(SINGAPORE_BOUNDS.minLat, SINGAPORE_BOUNDS.maxLat),
-    lng: rand(SINGAPORE_BOUNDS.minLng, SINGAPORE_BOUNDS.maxLng),
-  };
-}
+/** Select random driver from the pool */
+const randomDriver = (): string =>
+  DRIVERS[Math.floor(Math.random() * DRIVERS.length)];
 
-function randomDriver() {
-  return DRIVERS[Math.floor(Math.random() * DRIVERS.length)];
-}
+/** Clamp value between min and max */
+const clamp = (value: number, min: number, max: number): number =>
+  Math.max(min, Math.min(max, value));
 
+// ============================================================================
+// Mock Fleet Simulator Class
+// ============================================================================
+
+/**
+ * Simulates a fleet of vehicles with real-time location updates
+ * Uses pub/sub pattern for reactive updates
+ */
 export class MockFleetSimulator {
   private vehicles: Vehicle[] = [];
   private subscribers = new Set<Subscriber>();
   private timer: number | null = null;
-  private updateIntervalMs: number;
+  private readonly updateIntervalMs: number;
 
-  constructor(count = 12, updateIntervalMs = 2000) {
+  /**
+   * Initialize the fleet simulator
+   * @param count Number of vehicles to simulate (default: 12)
+   * @param updateIntervalMs Update frequency in milliseconds (default: 2000)
+   */
+  constructor(
+    count: number = DEFAULT_VEHICLE_COUNT,
+    updateIntervalMs: number = DEFAULT_UPDATE_INTERVAL,
+  ) {
     this.updateIntervalMs = updateIntervalMs;
-    this.vehicles = Array.from({ length: count }).map((_, i) => {
+    this.vehicles = this.initializeVehicles(count);
+  }
+
+  /**
+   * Create initial vehicle instances with random positions
+   */
+  private initializeVehicles(count: number): Vehicle[] {
+    return Array.from({ length: count }, (_, i) => {
       const { lat, lng } = randomLatLng();
       const carData = CAR_DATA[i % CAR_DATA.length];
+
       return {
         id: `veh-${i + 1}`,
         lat,
         lng,
         heading: Math.floor(rand(0, 360)),
         numberPlate: carData.numberPlate,
-        imageUrl: `/assets/cars-logo/${carData.file}`,
+        imageUrl: `${ASSETS_BASE_PATH}/${carData.file}`,
         name: carData.name,
         model: carData.model,
         status: carData.status,
         driver: carData.status === "In Use" ? randomDriver() : undefined,
-      } as Vehicle;
+      };
     });
   }
 
-  start() {
+  /**
+   * Start the simulation with periodic updates
+   * Emits initial positions immediately
+   */
+  start(): void {
     if (this.timer) return;
     this.timer = window.setInterval(() => this.tick(), this.updateIntervalMs);
-    // immediately emit initial positions
     this.emit();
   }
 
-  stop() {
+  /**
+   * Stop the simulation and clear the update timer
+   */
+  stop(): void {
     if (this.timer) {
       clearInterval(this.timer);
       this.timer = null;
     }
   }
 
-  subscribe(fn: Subscriber) {
+  /**
+   * Subscribe to vehicle updates
+   * @param fn Callback function to receive vehicle updates
+   * @returns Unsubscribe function
+   */
+  subscribe(fn: Subscriber): () => boolean {
     this.subscribers.add(fn);
-    // send initial snapshot
     fn(this.vehicles.map((v) => ({ ...v })));
     return () => this.subscribers.delete(fn);
   }
@@ -226,29 +297,30 @@ export class MockFleetSimulator {
     this.subscribers.forEach((s) => s(snapshot));
   }
 
-  private tick() {
-    // Move each vehicle a small amount, staying within bounds
+  /**
+   * Update vehicle positions (only moves vehicles "In Use")
+   */
+  private tick(): void {
     this.vehicles = this.vehicles.map((v) => {
-      // Only move vehicles that are "In Use"
       if (v.status !== "In Use") {
         return v;
       }
 
-      // random small delta in degrees (~ up to ~200-300m)
-      const dLat = rand(-0.002, 0.002);
-      const dLng = rand(-0.002, 0.002);
-      let lat = v.lat + dLat;
-      let lng = v.lng + dLng;
-      // clamp to SG bounds
-      lat = Math.max(
+      const dLat = rand(-MOVEMENT_DELTA, MOVEMENT_DELTA);
+      const dLng = rand(-MOVEMENT_DELTA, MOVEMENT_DELTA);
+
+      const lat = clamp(
+        v.lat + dLat,
         SINGAPORE_BOUNDS.minLat,
-        Math.min(SINGAPORE_BOUNDS.maxLat, lat),
+        SINGAPORE_BOUNDS.maxLat,
       );
-      lng = Math.max(
+      const lng = clamp(
+        v.lng + dLng,
         SINGAPORE_BOUNDS.minLng,
-        Math.min(SINGAPORE_BOUNDS.maxLng, lng),
+        SINGAPORE_BOUNDS.maxLng,
       );
       const heading = Math.floor(rand(0, 360));
+
       return { ...v, lat, lng, heading };
     });
     this.emit();
