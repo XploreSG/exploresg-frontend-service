@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { MAPBOX_TOKEN } from "../config/api";
+import MockFleetSimulator from "../services/mockFleetService";
 
 const EagleViewPage: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -31,10 +32,43 @@ const EagleViewPage: React.FC = () => {
       );
     }
 
+    // Set up mock fleet simulator and markers
+    const simulator = new MockFleetSimulator(14, 2000);
+    const markers = new Map<string, mapboxgl.Marker>();
+
+    const unsubscribe = simulator.subscribe((vehicles) => {
+      // For each vehicle, ensure a marker exists and update its position
+      vehicles.forEach((v) => {
+        const existing = markers.get(v.id);
+        const el = document.createElement("div");
+        el.className = "rounded-full bg-indigo-600 shadow-md ring-2 ring-white";
+        el.style.width = "14px";
+        el.style.height = "14px";
+
+        if (existing) {
+          existing.setLngLat([v.lng, v.lat]);
+        } else if (mapInstance.current) {
+          const marker = new mapboxgl.Marker({ element: el })
+            .setLngLat([v.lng, v.lat])
+            .addTo(mapInstance.current);
+          markers.set(v.id, marker);
+        }
+      });
+    });
+
+    simulator.start();
+
     return () => {
       if (mapInstance.current) {
         mapInstance.current.remove();
         mapInstance.current = null;
+      }
+      // stop simulator and cleanup markers
+      try {
+        unsubscribe();
+        simulator.stop();
+      } catch {
+        // ignore cleanup errors
       }
     };
   }, []);
