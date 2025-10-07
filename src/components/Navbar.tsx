@@ -11,7 +11,9 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   const navigation = useMemo(() => {
-    const nav = [{ name: "Explore", href: "/explore" }];
+    // Do not show the Explore route to fleet admin users
+    const isFleetAdmin = hasRole(["FLEET_MANAGER", "FLEET_ADMIN"]);
+    const nav = isFleetAdmin ? [] : [{ name: "Explore", href: "/explore" }];
 
     // Show Rentals to guests and USERs
     if (!user || hasRole("USER")) {
