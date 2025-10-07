@@ -7,9 +7,43 @@ export interface Vehicle {
   lng: number;
   heading?: number;
   numberPlate?: string;
+  imageUrl?: string;
+  name?: string;
+  model?: string;
+  status?: "Available" | "In Use" | "Maintenance";
+  driver?: string;
 }
 
 type Subscriber = (vehicles: Vehicle[]) => void;
+
+const CAR_DATA = [
+  { file: "bmw-2.png", name: "BMW 2 Series", model: "218i Gran Coupé" },
+  { file: "bmw-440i.png", name: "BMW 4 Series", model: "440i Convertible" },
+  { file: "bmw-5-t.png", name: "BMW 5 Series", model: "520i" },
+  { file: "bmw-x3.png", name: "BMW X3", model: "xDrive30i" },
+  { file: "bmw-z4.png", name: "BMW Z4", model: "sDrive20i" },
+  { file: "maserati-grecale.png", name: "Maserati Grecale", model: "GT" },
+  { file: "merc-sl63.png", name: "Mercedes-AMG SL", model: "SL 63" },
+  { file: "merc-v.png", name: "Mercedes-Benz V-Class", model: "V 220 d" },
+  { file: "mini-cooper.png", name: "MINI Cooper", model: "3-Door" },
+  { file: "nissan-sentra.png", name: "Nissan Sentra", model: "SV" },
+  { file: "peugeot-5008.png", name: "Peugeot 5008", model: "Allure" },
+  { file: "porsche-911-c.png", name: "Porsche 911", model: "Carrera" },
+  { file: "rr.png", name: "Rolls-Royce Ghost", model: "Black Badge" },
+  { file: "skoda-octavia.png", name: "Skoda Octavia", model: "RS" },
+  { file: "vw-golf.png", name: "Volkswagen Golf", model: "GTI" },
+  { file: "vw-polo.png", name: "Volkswagen Polo", model: "Life" },
+];
+
+const STATUSES: Vehicle["status"][] = ["Available", "In Use", "Maintenance"];
+const DRIVERS = [
+  "John Doe",
+  "Jane Smith",
+  "Alex Johnson",
+  "Emily Davis",
+  "Michael Brown",
+  "Sarah Wilson",
+];
 
 // Tighter bounding box focused on central Singapore (downtown / Marina Bay / Orchard)
 // This keeps simulated points over land and avoids placing many points out at sea.
@@ -40,6 +74,22 @@ function generateNumberPlate() {
   return `S${letters} ${digits}`;
 }
 
+function randomCarData() {
+  const car = CAR_DATA[Math.floor(Math.random() * CAR_DATA.length)];
+  return {
+    ...car,
+    imageUrl: `/assets/cars/${car.file}`,
+  };
+}
+
+function randomStatus() {
+  return STATUSES[Math.floor(Math.random() * STATUSES.length)];
+}
+
+function randomDriver() {
+  return DRIVERS[Math.floor(Math.random() * DRIVERS.length)];
+}
+
 export class MockFleetSimulator {
   private vehicles: Vehicle[] = [];
   private subscribers = new Set<Subscriber>();
@@ -50,12 +100,19 @@ export class MockFleetSimulator {
     this.updateIntervalMs = updateIntervalMs;
     this.vehicles = Array.from({ length: count }).map((_, i) => {
       const { lat, lng } = randomLatLng();
+      const car = randomCarData();
+      const status = randomStatus();
       return {
         id: `veh-${i + 1}`,
         lat,
         lng,
         heading: Math.floor(rand(0, 360)),
         numberPlate: generateNumberPlate(),
+        imageUrl: car.imageUrl,
+        name: car.name,
+        model: car.model,
+        status: status,
+        driver: status === "In Use" ? randomDriver() : undefined,
       } as Vehicle;
     });
   }

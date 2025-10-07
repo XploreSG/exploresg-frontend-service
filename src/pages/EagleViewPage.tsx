@@ -18,6 +18,7 @@ const EagleViewPage: React.FC = () => {
 
   const [search, setSearch] = useState("");
   const normalizedSearch = useMemo(() => search.trim().toLowerCase(), [search]);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
   useEffect(() => {
     if (!MAPBOX_TOKEN) {
@@ -67,8 +68,12 @@ const EagleViewPage: React.FC = () => {
           el.style.borderRadius = "9999px";
           el.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
           el.style.border = "2px solid white";
-          el.style.transition = "transform 0.2s, background-color 0.2s";
           el.style.background = "#4f46e5"; // Initial color
+          el.style.cursor = "pointer";
+
+          el.addEventListener("click", () => {
+            setSelectedVehicle(v);
+          });
 
           const popupNode = document.createElement("div");
           popupNode.className = "popup-label";
@@ -179,6 +184,82 @@ const EagleViewPage: React.FC = () => {
               className="w-64 rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
           </div>
+
+          {/* Vehicle Detail Overlay */}
+          {selectedVehicle && (
+            <div className="absolute bottom-6 left-6 z-30 w-80 rounded-lg bg-white/80 p-4 shadow-lg backdrop-blur-md">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {selectedVehicle.name}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {selectedVehicle.model}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedVehicle(null)}
+                  className="text-gray-500 hover:text-gray-800"
+                  aria-label="Close vehicle details"
+                >
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="mt-4">
+                <img
+                  src={selectedVehicle.imageUrl}
+                  alt={`Image of ${selectedVehicle.name}`}
+                  className="h-auto w-full rounded-md object-cover"
+                />
+              </div>
+
+              <div className="mt-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="font-semibold text-gray-600">
+                    Number Plate
+                  </span>
+                  <span className="font-mono text-gray-800">
+                    {selectedVehicle.numberPlate}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold text-gray-600">Status</span>
+                  <span
+                    className={`font-bold ${
+                      selectedVehicle.status === "Available"
+                        ? "text-green-600"
+                        : selectedVehicle.status === "In Use"
+                          ? "text-amber-600"
+                          : "text-red-600"
+                    }`}
+                  >
+                    {selectedVehicle.status}
+                  </span>
+                </div>
+                {selectedVehicle.driver && (
+                  <div className="flex justify-between">
+                    <span className="font-semibold text-gray-600">Driver</span>
+                    <span className="text-gray-800">
+                      {selectedVehicle.driver}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <style>{`
             .mapboxgl-popup-content {
