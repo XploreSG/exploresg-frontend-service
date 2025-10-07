@@ -5,21 +5,24 @@ import { getOperatorInfo } from "../types/rental";
 
 /**
  * Transforms backend car model data into display format for UI components
+ * Handles both UUID-based and numeric operator IDs from backend
  */
 export function transformCarModelData(
   data: OperatorCarModelData[],
 ): DisplayCarData[] {
   return data.map((item, index) => {
+    // Get operator info (automatically handles UUID to numeric conversion)
     const op = getOperatorInfo(item.operatorId, item.operatorName);
-    // Generate a unique ID, fallback to index if carModelId is missing
+
+    // Generate a unique ID using the normalized numeric operator ID
     const uniqueId = item.carModelId
-      ? `${item.operatorId}-${item.carModelId}`
-      : `${item.operatorId}-${item.model.replace(/\s+/g, "-")}-${index}`;
+      ? `${op.id}-${item.carModelId}`
+      : `${op.id}-${item.model.replace(/\s+/g, "-")}-${index}`;
 
     return {
       id: uniqueId,
-      operatorId: item.operatorId,
-      operatorName: item.operatorName,
+      operatorId: op.id, // Use normalized numeric ID
+      operatorName: op.name, // Use mapped operator name
       model: item.model,
       manufacturer: item.manufacturer,
       seats: item.seats,
