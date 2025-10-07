@@ -39,12 +39,14 @@ The `CAR_DATA` has been extracted from the mock service to make it modular and a
 ## 🚀 How to Use
 
 ### Current Setup (Mock Data)
+
 ```typescript
 import { CAR_DATA } from "../data/fleetData";
 const simulator = new MockFleetSimulator(CAR_DATA, undefined, 2000);
 ```
 
 ### With Backend API
+
 ```typescript
 import { fetchFleetData } from "../services/fleetApiService";
 
@@ -53,9 +55,10 @@ const simulator = new MockFleetSimulator(fleetData, undefined, 2000);
 ```
 
 ### With Real-Time Backend GPS
+
 ```typescript
 // WebSocket or polling - no simulator needed
-const ws = new WebSocket('wss://api.example.com/fleet/stream');
+const ws = new WebSocket("wss://api.example.com/fleet/stream");
 ws.onmessage = (event) => {
   const vehicles = JSON.parse(event.data);
   setVehicles(vehicles);
@@ -76,10 +79,10 @@ Your backend should provide an endpoint that returns:
 
 ```typescript
 interface CarData {
-  file: string;          // e.g., "bmw-2.png"
-  name: string;          // e.g., "BMW 2 Series"
-  model: string;         // e.g., "218i Gran Coupé"
-  numberPlate: string;   // e.g., "SGF1234A"
+  file: string; // e.g., "bmw-2.png"
+  name: string; // e.g., "BMW 2 Series"
+  model: string; // e.g., "218i Gran Coupé"
+  numberPlate: string; // e.g., "SGF1234A"
   status: "Available" | "In Use" | "Maintenance";
 }
 ```
@@ -89,7 +92,7 @@ See `docs/FLEET-DATA-INTEGRATION.md` for complete API specifications.
 ## ✨ Next Steps
 
 1. **For MVP**: Update data in `src/data/fleetData.ts` to match your actual fleet
-2. **For Production**: 
+2. **For Production**:
    - Implement backend API endpoint
    - Update `EagleViewPage.tsx` to use `fetchFleetData()`
    - Add error handling and loading states
