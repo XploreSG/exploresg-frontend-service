@@ -45,6 +45,27 @@ const DRIVERS = [
   "Sarah Wilson",
 ];
 
+const CUSTOM_PLATES = [
+  "SGF1234A",
+  "SGFUN88B",
+  "SGMYCAR5C",
+  "SGAGENT7X",
+  "SGCOPILOT",
+  "SGHACKER",
+  "SGEXPLORE",
+  "SGAWESOME",
+  "SGFRIEND1",
+  "SGFRIEND2",
+  "SGBOSS",
+  "SGFAST",
+  "SGEZ",
+  "SGPRO",
+  "SGKING",
+  "SGRIDER",
+  "SGNINJA",
+  "SGWIZARD",
+];
+
 // Tighter bounding box focused on central Singapore (downtown / Marina Bay / Orchard)
 // This keeps simulated points over land and avoids placing many points out at sea.
 const SINGAPORE_BOUNDS = {
@@ -107,7 +128,8 @@ export class MockFleetSimulator {
         lat,
         lng,
         heading: Math.floor(rand(0, 360)),
-        numberPlate: generateNumberPlate(),
+        numberPlate:
+          CUSTOM_PLATES[i % CUSTOM_PLATES.length] || generateNumberPlate(),
         imageUrl: car.imageUrl,
         name: car.name,
         model: car.model,
@@ -146,6 +168,11 @@ export class MockFleetSimulator {
   private tick() {
     // Move each vehicle a small amount, staying within bounds
     this.vehicles = this.vehicles.map((v) => {
+      // Only move vehicles that are "In Use"
+      if (v.status !== "In Use") {
+        return v;
+      }
+
       // random small delta in degrees (~ up to ~200-300m)
       const dLat = rand(-0.002, 0.002);
       const dLng = rand(-0.002, 0.002);

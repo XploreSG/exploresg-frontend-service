@@ -12,7 +12,12 @@ const EagleViewPage: React.FC = () => {
   const markersRef = useRef<
     Map<
       string,
-      { marker: mapboxgl.Marker; popup: mapboxgl.Popup; el: HTMLElement }
+      {
+        marker: mapboxgl.Marker;
+        popup: mapboxgl.Popup;
+        el: HTMLElement;
+        vehicle: Vehicle;
+      }
     >
   >(new Map());
 
@@ -54,6 +59,7 @@ const EagleViewPage: React.FC = () => {
 
         if (entry) {
           entry.marker.setLngLat([v.lng, v.lat]);
+          entry.vehicle = v; // Update vehicle data
           const popupElement = entry.popup
             .getElement()
             ?.querySelector(".popup-content");
@@ -96,7 +102,7 @@ const EagleViewPage: React.FC = () => {
             .setLngLat([v.lng, v.lat])
             .addTo(map);
 
-          markersRef.current.set(v.id, { marker, popup, el });
+          markersRef.current.set(v.id, { marker, popup, el, vehicle: v });
         }
       });
 
@@ -127,28 +133,62 @@ const EagleViewPage: React.FC = () => {
 
   useEffect(() => {
     markersRef.current.forEach((entry, id) => {
+      const { vehicle } = entry;
       const popupEl = entry.popup.getElement();
-      const contentEl = popupEl?.querySelector(".popup-content");
-      const plate = (contentEl?.textContent || "").toLowerCase();
+      const plate = (vehicle.numberPlate || "").toLowerCase();
       const isMatch =
         normalizedSearch.length > 0 && plate.includes(normalizedSearch);
       const isSelected = selectedVehicle?.id === id;
 
       const popupLabel = popupEl?.querySelector<HTMLElement>(".popup-label");
 
-      if (isMatch || isSelected) {
+      // Define colors
+      const colors = {
+        selected: {
+          marker: "#ef4444", // red-500
+          popupBg: "#ef4444",
+          popupText: "white",
+        },
+        status: {
+          Available: {
+            marker: "#22c55e", // green-500
+            popupBg: "#22c55e",
+            popupText: "white",
+          },
+          "In Use": {
+            marker: "#f59e0b", // amber-500
+            popupBg: "#f59e0b",
+            popupText: "white",
+          },
+          Maintenance: {
+            marker: "#ef4444", // red-500
+            popupBg: "#ef4444",
+            popupText: "white",
+          },
+        },
+        default: {
+          marker: "#4f46e5", // indigo-600
+          popupBg: "white",
+          popupText: "#374151", // gray-700
+        },
+      };
+
+      if (isSelected || isMatch) {
         entry.el.style.transform = "scale(1.6)";
-        entry.el.style.background = "#ef4444"; // red-500
+        entry.el.style.background = colors.selected.marker;
         if (popupLabel) {
-          popupLabel.style.backgroundColor = "#ef4444";
-          popupLabel.style.color = "white";
+          popupLabel.style.backgroundColor = colors.selected.popupBg;
+          popupLabel.style.color = colors.selected.popupText;
         }
       } else {
         entry.el.style.transform = "scale(1)";
-        entry.el.style.background = "#4f46e5"; // indigo-600
+        const statusColors =
+          colors.status[vehicle.status as keyof typeof colors.status] ||
+          colors.default;
+        entry.el.style.background = statusColors.marker;
         if (popupLabel) {
-          popupLabel.style.backgroundColor = "white";
-          popupLabel.style.color = "#374151"; // gray-700
+          popupLabel.style.backgroundColor = statusColors.popupBg;
+          popupLabel.style.color = statusColors.popupText;
         }
       }
     });
