@@ -20,6 +20,7 @@ import {
   FleetCountByModelChart,
 } from "../components/fleet";
 import type { DashboardResponse } from "../types/dashboard";
+import { FLEET_API_BASE_URL } from "../config/api";
 
 // Register Chart.js components
 ChartJS.register(
@@ -40,161 +41,109 @@ const FleetAdminDashboardPage: React.FC = () => {
     null,
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    // Example: fetchDashboardData().then(data => setDashboardData(data));
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-    // Mock data for demonstration - replace with actual API call
-    const mockData: DashboardResponse = {
-      vehicleStatus: {
-        available: 47,
-        underMaintenance: 12,
-        booked: 0,
-        total: 59,
-      },
-      serviceReminders: {
-        overdue: 12,
-        dueSoon: 0,
-      },
-      workOrders: {
-        active: 12,
-        pending: 0,
-      },
-      vehicleAssignments: {
-        assigned: 0,
-        unassigned: 47,
-      },
-      statistics: {
-        totalVehicles: 59,
-        totalModels: 9,
-        averageMileage: 8081.677966101695,
-        totalMileage: 476819,
-        totalPotentialDailyRevenue: 7889.7,
-        totalRevenue: 7889.7,
-        utilizationRate: 0.0,
-      },
-      fleetByModel: [
-        {
-          manufacturer: "Peugeot",
-          model: "Peugeot 5008",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/peugeot-5008.png",
-          totalCount: 7,
-          availableCount: 0,
-          bookedCount: 0,
-          underMaintenanceCount: 7,
-          averageMileage: 14828.0,
-          averageDailyPrice: 87.73,
-        },
-        {
-          manufacturer: "Mini",
-          model: "Mini Cooper",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/mini-cooper.png",
-          totalCount: 6,
-          availableCount: 6,
-          bookedCount: 0,
-          underMaintenanceCount: 0,
-          averageMileage: 761.0,
-          averageDailyPrice: 114.71,
-        },
-        {
-          manufacturer: "Toyota",
-          model: "Toyota Prius",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/toyota-prius.png",
-          totalCount: 7,
-          availableCount: 7,
-          bookedCount: 0,
-          underMaintenanceCount: 0,
-          averageMileage: 3058.0,
-          averageDailyPrice: 98.42,
-        },
-        {
-          manufacturer: "BMW",
-          model: "BMW Z4",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/bmw-z4.png",
-          totalCount: 7,
-          availableCount: 7,
-          bookedCount: 0,
-          underMaintenanceCount: 0,
-          averageMileage: 8380.0,
-          averageDailyPrice: 154.46,
-        },
-        {
-          manufacturer: "Maserati",
-          model: "Maserati Grecale",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/maserati-grecale.png",
-          totalCount: 5,
-          availableCount: 0,
-          bookedCount: 0,
-          underMaintenanceCount: 5,
-          averageMileage: 2193.0,
-          averageDailyPrice: 155.98,
-        },
-        {
-          manufacturer: "Toyota",
-          model: "Toyota Alphard",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/toyota-alphard.png",
-          totalCount: 7,
-          availableCount: 7,
-          bookedCount: 0,
-          underMaintenanceCount: 0,
-          averageMileage: 4130.0,
-          averageDailyPrice: 87.9,
-        },
-        {
-          manufacturer: "BMW",
-          model: "BMW M440i",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/bmw-440i.png",
-          totalCount: 7,
-          availableCount: 7,
-          bookedCount: 0,
-          underMaintenanceCount: 0,
-          averageMileage: 10792.0,
-          averageDailyPrice: 204.63,
-        },
-        {
-          manufacturer: "BMW",
-          model: "BMW M240i",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/bmw-2.png",
-          totalCount: 7,
-          availableCount: 7,
-          bookedCount: 0,
-          underMaintenanceCount: 0,
-          averageMileage: 11734.0,
-          averageDailyPrice: 188.72,
-        },
-        {
-          manufacturer: "Skoda",
-          model: "Skoda Octavia",
-          imageUrl:
-            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/skoda-octavia.png",
-          totalCount: 6,
-          availableCount: 6,
-          bookedCount: 0,
-          underMaintenanceCount: 0,
-          averageMileage: 15139.0,
-          averageDailyPrice: 111.42,
-        },
-      ],
+        // Get the auth token from localStorage
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          console.warn("No authentication token found in localStorage");
+        }
+
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+        };
+
+        // Add Authorization header if token exists
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const apiUrl = `${FLEET_API_BASE_URL}/api/v1/fleet/operators/dashboard`;
+        console.log("Fetching dashboard data from:", apiUrl);
+        console.log("Request headers:", headers);
+
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers,
+          credentials: "include", // Include cookies for authentication
+        });
+
+        console.log("Dashboard API response status:", response.status);
+
+        if (!response.ok) {
+          // Try to get error details from response body
+          let errorDetail = response.statusText;
+          try {
+            const errorData = await response.json();
+            errorDetail = errorData.message || errorData.error || errorDetail;
+          } catch {
+            // Response body might not be JSON
+          }
+
+          if (response.status === 401) {
+            throw new Error(
+              `Unauthorized: Please log in to access the dashboard. ${errorDetail}`,
+            );
+          }
+          throw new Error(
+            `Failed to fetch dashboard data: ${response.status} - ${errorDetail}`,
+          );
+        }
+
+        const data: DashboardResponse = await response.json();
+        console.log("Dashboard data received successfully:", data);
+        setDashboardData(data);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load dashboard data";
+        setError(errorMessage);
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    setDashboardData(mockData);
-    setIsLoading(false);
+    fetchDashboardData();
   }, []);
 
-  if (isLoading || !dashboardData) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex h-64 items-center justify-center">
           <p className="text-lg text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex h-64 flex-col items-center justify-center gap-4">
+          <p className="text-lg text-red-600">Error: {error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-lg text-gray-600">No dashboard data available.</p>
         </div>
       </div>
     );
