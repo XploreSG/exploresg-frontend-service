@@ -126,16 +126,17 @@ const EagleViewPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    markersRef.current.forEach((entry) => {
+    markersRef.current.forEach((entry, id) => {
       const popupEl = entry.popup.getElement();
       const contentEl = popupEl?.querySelector(".popup-content");
       const plate = (contentEl?.textContent || "").toLowerCase();
       const isMatch =
         normalizedSearch.length > 0 && plate.includes(normalizedSearch);
+      const isSelected = selectedVehicle?.id === id;
 
       const popupLabel = popupEl?.querySelector<HTMLElement>(".popup-label");
 
-      if (isMatch) {
+      if (isMatch || isSelected) {
         entry.el.style.transform = "scale(1.6)";
         entry.el.style.background = "#ef4444"; // red-500
         if (popupLabel) {
@@ -151,7 +152,7 @@ const EagleViewPage: React.FC = () => {
         }
       }
     });
-  }, [normalizedSearch]);
+  }, [normalizedSearch, selectedVehicle]);
 
   return (
     <div className="relative h-full w-full">

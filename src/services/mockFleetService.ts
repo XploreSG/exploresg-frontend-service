@@ -78,7 +78,7 @@ function randomCarData() {
   const car = CAR_DATA[Math.floor(Math.random() * CAR_DATA.length)];
   return {
     ...car,
-    imageUrl: `/assets/cars/${car.file}`,
+    imageUrl: `/assets/cars-logo/${car.file}`,
   };
 }
 
