@@ -11,10 +11,12 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   const navigation = useMemo(() => {
-    const nav = [
-      { name: "Rentals", href: "/rentals" },
-      { name: "Explore", href: "/explore" },
-    ];
+    const nav = [{ name: "Explore", href: "/explore" }];
+
+    // Show Rentals to guests and USERs
+    if (!user || hasRole("USER")) {
+      nav.unshift({ name: "Rentals", href: "/rentals" });
+    }
 
     if (hasRole("USER")) {
       nav.push({ name: "Your Day", href: "/yourday" });
@@ -22,6 +24,7 @@ const Navbar: React.FC = () => {
 
     if (hasRole(["ADMIN", "MANAGER", "FLEET_MANAGER"])) {
       nav.push({ name: "Dashboard", href: "/manager/dashboard" });
+      nav.push({ name: "Fleet", href: "/manager/fleet" });
     }
 
     if (hasRole("ADMIN")) {
@@ -29,7 +32,7 @@ const Navbar: React.FC = () => {
     }
 
     return nav;
-  }, [hasRole]);
+  }, [hasRole, user]);
 
   const isActive = (href: string) => location.pathname === href;
 

@@ -17,7 +17,9 @@ import type { SignupDetails } from "./components/Auth/SignUpForm";
 import ProfilePage from "./pages/ProfilePage";
 import ExplorePage from "./pages/ExplorePage";
 import ProtectedRoleRoute from "./components/Auth/ProtectedRoleRoute";
-import FleetManagerDashboard from "./pages/FleetManagerDashboard";
+import FleetDashboardPage from "./pages/FleetDashboardPage";
+import FleetListPage from "./pages/FleetListPage";
+import FleetDetailPage from "./pages/FleetDetailPage";
 import AdminConsole from "./pages/AdminConsole";
 import AccessDeniedPage from "./pages/AccessDeniedPage";
 import BookingFlow from "./pages/BookingFlow";
@@ -64,13 +66,17 @@ const App = () => {
             {/* Role-Specific Routes (Admin and Fleet Manager) */}
             <Route
               element={
-                <ProtectedRoleRoute allowedRoles={["ADMIN", "MANAGER"]} />
+                <ProtectedRoleRoute
+                  allowedRoles={["ADMIN", "MANAGER", "FLEET_MANAGER"]}
+                />
               }
             >
               <Route
                 path="/manager/dashboard"
-                element={<FleetManagerDashboard />}
+                element={<FleetDashboardPage />}
               />
+              <Route path="/manager/fleet" element={<FleetListPage />} />
+              <Route path="/manager/fleet/:id" element={<FleetDetailPage />} />
             </Route>
 
             {/* Role-Specific Routes (Admin only) */}
