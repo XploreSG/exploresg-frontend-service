@@ -17,7 +17,7 @@ import type { SignupDetails } from "./components/Auth/SignUpForm";
 import ProfilePage from "./pages/ProfilePage";
 import ExplorePage from "./pages/ExplorePage";
 import ProtectedRoleRoute from "./components/Auth/ProtectedRoleRoute";
-import FleetDashboardPage from "./pages/FleetDashboardPage";
+import FleetAdminDashboardPage from "./pages/FleetAdminDashboardPage";
 import FleetListPage from "./pages/FleetListPage";
 import FleetDetailPage from "./pages/FleetDetailPage";
 import AdminConsole from "./pages/AdminConsole";
@@ -74,7 +74,7 @@ const App = () => {
             >
               <Route
                 path="/manager/dashboard"
-                element={<FleetDashboardPage />}
+                element={<FleetAdminDashboardPage />}
               />
               <Route path="/manager/fleet" element={<FleetListPage />} />
               <Route path="/manager/fleet/:id" element={<FleetDetailPage />} />

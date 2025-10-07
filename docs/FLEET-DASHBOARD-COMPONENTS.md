@@ -104,7 +104,9 @@ A bar chart comparing average mileage across different vehicle models.
 
 ## Main Dashboard Page
 
-**Location:** `src/pages/FleetDashboardPage.tsx`
+## Usage
+
+**Location:** `src/pages/FleetAdminDashboardPage.tsx`
 
 The main dashboard page that orchestrates all components and manages the dashboard data state.
 
@@ -127,7 +129,9 @@ The main dashboard page that orchestrates all components and manages the dashboa
 
 ## Integration with Your API
 
-To connect to your actual backend API, replace the mock data in `FleetDashboardPage.tsx`:
+### Backend Integration
+
+To connect to your actual backend API, replace the mock data in `FleetAdminDashboardPage.tsx`:
 
 ```tsx
 useEffect(() => {
@@ -162,7 +166,7 @@ Each chart component accepts the data it needs and handles its own configuration
 
 - **Colors**: Modify the `backgroundColor` and `borderColor` arrays in each component
 - **Chart Options**: Edit the `options` object in each component
-- **Layout**: Adjust the grid layout in `FleetDashboardPage.tsx`
+- **Layout**: Adjust the grid layout in `FleetAdminDashboardPage.tsx`
 - **New Metrics**: Create new `StatCard` instances with your data
 
 ## Dependencies

@@ -35,7 +35,7 @@ ChartJS.register(
   Filler,
 );
 
-const FleetManagerDashboard: React.FC = () => {
+const FleetAdminDashboardPage: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(
     null,
   );
@@ -326,4 +326,4 @@ const FleetManagerDashboard: React.FC = () => {
   );
 };
 
-export default FleetManagerDashboard;
+export default FleetAdminDashboardPage;
