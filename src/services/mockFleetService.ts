@@ -6,6 +6,7 @@ export interface Vehicle {
   lat: number;
   lng: number;
   heading?: number;
+  numberPlate?: string;
 }
 
 type Subscriber = (vehicles: Vehicle[]) => void;
@@ -30,6 +31,15 @@ function randomLatLng() {
   };
 }
 
+function generateNumberPlate() {
+  // Simple Singapore-like plate: S followed by 3 letters and 4 digits (not exact format)
+  const letters = Array.from({ length: 3 })
+    .map(() => String.fromCharCode(65 + Math.floor(Math.random() * 26)))
+    .join("");
+  const digits = String(Math.floor(Math.random() * 9000) + 1000);
+  return `S${letters} ${digits}`;
+}
+
 export class MockFleetSimulator {
   private vehicles: Vehicle[] = [];
   private subscribers = new Set<Subscriber>();
@@ -45,6 +55,7 @@ export class MockFleetSimulator {
         lat,
         lng,
         heading: Math.floor(rand(0, 360)),
+        numberPlate: generateNumberPlate(),
       } as Vehicle;
     });
   }

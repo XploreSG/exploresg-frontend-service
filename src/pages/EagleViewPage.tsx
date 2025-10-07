@@ -34,24 +34,63 @@ const EagleViewPage: React.FC = () => {
 
     // Set up mock fleet simulator and markers
     const simulator = new MockFleetSimulator(14, 2000);
-    const markers = new Map<string, mapboxgl.Marker>();
+    const markers = new Map<
+      string,
+      { marker: mapboxgl.Marker; popup: mapboxgl.Popup }
+    >();
 
     const unsubscribe = simulator.subscribe((vehicles) => {
       // For each vehicle, ensure a marker exists and update its position
       vehicles.forEach((v) => {
-        const existing = markers.get(v.id);
+        const entry = markers.get(v.id);
         const el = document.createElement("div");
         el.className = "rounded-full bg-indigo-600 shadow-md ring-2 ring-white";
         el.style.width = "14px";
         el.style.height = "14px";
 
-        if (existing) {
-          existing.setLngLat([v.lng, v.lat]);
+        if (entry) {
+          entry.marker.setLngLat([v.lng, v.lat]);
+          // update popup content if numberPlate available
+          try {
+            // If popup was created with DOM content, update its innerHTML
+            const dom = entry.popup.getElement();
+            if (dom) {
+              dom.innerHTML = `<div class="rounded-md bg-white px-3 py-1 text-sm font-semibold text-gray-800 shadow">${v.numberPlate || "--"}</div>`;
+            }
+          } catch {
+            // fallback to setHTML if available (non-ideal typings)
+            try {
+              const p = entry.popup as unknown as {
+                setHTML?: (html: string) => void;
+              };
+              p.setHTML?.(`<strong>${v.numberPlate || "--"}</strong>`);
+            } catch {
+              // ignore failure to update popup content
+            }
+          }
+          // keep popup positioned at marker
+          entry.popup.setLngLat([v.lng, v.lat]);
         } else if (mapInstance.current) {
+          // Build a DOM node for popup content so we can style it
+          const popupNode = document.createElement("div");
+          popupNode.className =
+            "rounded-md bg-white px-3 py-1 text-sm font-semibold text-gray-800 shadow";
+          popupNode.innerHTML = `<div>${v.numberPlate || "--"}</div>`;
+
+          const popup = new mapboxgl.Popup({
+            offset: 12,
+            closeButton: false,
+            closeOnClick: false,
+          })
+            .setDOMContent(popupNode)
+            .setLngLat([v.lng, v.lat])
+            .addTo(mapInstance.current as mapboxgl.Map);
+
           const marker = new mapboxgl.Marker({ element: el })
             .setLngLat([v.lng, v.lat])
-            .addTo(mapInstance.current);
-          markers.set(v.id, marker);
+            .addTo(mapInstance.current as mapboxgl.Map);
+
+          markers.set(v.id, { marker, popup });
         }
       });
     });
