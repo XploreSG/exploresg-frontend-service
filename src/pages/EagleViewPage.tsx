@@ -24,6 +24,7 @@ const EagleViewPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const normalizedSearch = useMemo(() => search.trim().toLowerCase(), [search]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
   useEffect(() => {
     if (!MAPBOX_TOKEN) {
@@ -48,13 +49,14 @@ const EagleViewPage: React.FC = () => {
 
     const simulator = new MockFleetSimulator(18, 2000);
 
-    const sub = simulator.subscribe((vehicles: Vehicle[]) => {
+    const sub = simulator.subscribe((vehicleData: Vehicle[]) => {
       const map = mapInstance.current;
       if (!map) return;
 
-      const currentVehicleIds = new Set(vehicles.map((v) => v.id));
+      setVehicles(vehicleData);
+      const currentVehicleIds = new Set(vehicleData.map((v) => v.id));
 
-      vehicles.forEach((v) => {
+      vehicleData.forEach((v) => {
         const entry = markersRef.current.get(v.id);
 
         if (entry) {
@@ -194,6 +196,27 @@ const EagleViewPage: React.FC = () => {
     });
   }, [normalizedSearch, selectedVehicle]);
 
+  // Filter vehicles based on search
+  const filteredVehicles = useMemo(() => {
+    if (!normalizedSearch) return vehicles;
+    return vehicles.filter((v) =>
+      (v.numberPlate || "").toLowerCase().includes(normalizedSearch),
+    );
+  }, [vehicles, normalizedSearch]);
+
+  // Handle vehicle card click
+  const handleVehicleCardClick = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    // Center map on selected vehicle
+    if (mapInstance.current) {
+      mapInstance.current.flyTo({
+        center: [vehicle.lng, vehicle.lat],
+        zoom: 15,
+        duration: 1000,
+      });
+    }
+  };
+
   return (
     <div className="relative h-full w-full">
       {!MAPBOX_TOKEN ? (
@@ -213,17 +236,112 @@ const EagleViewPage: React.FC = () => {
             <div ref={mapContainer} className="h-full w-full" />
           </div>
 
-          <div className="absolute top-6 right-6 z-30 rounded-md bg-white/80 p-3 shadow backdrop-blur">
-            <label htmlFor="search-plate" className="sr-only">
-              Search vehicles
-            </label>
-            <input
-              id="search-plate"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search number plate (e.g. SABC)"
-              className="w-64 rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
+          {/* Search Bar and Vehicle List Panel */}
+          <div className="absolute top-6 right-6 z-30 w-80 space-y-3">
+            {/* Search Bar */}
+            <div className="rounded-md bg-white/80 p-3 shadow backdrop-blur">
+              <label htmlFor="search-plate" className="sr-only">
+                Search vehicles
+              </label>
+              <input
+                id="search-plate"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search number plate (e.g. SABC)"
+                className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Vehicle List */}
+            <div
+              className="overflow-y-auto rounded-md bg-white/90 shadow-lg backdrop-blur"
+              style={{
+                maxHeight: `calc(100vh - ${HEADER_TOTAL_REM}rem - 8rem)`,
+              }}
+            >
+              <div className="space-y-2 p-2">
+                {filteredVehicles.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-gray-500">
+                    {normalizedSearch
+                      ? "No vehicles found"
+                      : "No vehicles available"}
+                  </div>
+                ) : (
+                  filteredVehicles.map((vehicle) => (
+                    <button
+                      key={vehicle.id}
+                      onClick={() => handleVehicleCardClick(vehicle)}
+                      className={`flex w-full items-center gap-3 rounded-lg border-2 p-3 transition-all hover:shadow-md ${
+                        selectedVehicle?.id === vehicle.id
+                          ? "border-indigo-500 bg-indigo-50"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                      }`}
+                    >
+                      {/* Vehicle Thumbnail */}
+                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+                        <img
+                          src={vehicle.imageUrl}
+                          alt={vehicle.name || "Vehicle"}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = "/assets/default-car.png";
+                          }}
+                        />
+                      </div>
+
+                      {/* Vehicle Info */}
+                      <div className="flex-1 text-left">
+                        <div className="font-mono text-sm font-semibold text-gray-900">
+                          {vehicle.numberPlate}
+                        </div>
+                        <div className="truncate text-xs text-gray-600">
+                          {vehicle.name}
+                        </div>
+                        <div className="mt-1 flex items-center gap-1">
+                          <span
+                            className={`inline-block h-2 w-2 rounded-full ${
+                              vehicle.status === "Available"
+                                ? "bg-green-500"
+                                : vehicle.status === "In Use"
+                                  ? "bg-amber-500"
+                                  : "bg-red-500"
+                            }`}
+                          />
+                          <span
+                            className={`text-xs font-medium ${
+                              vehicle.status === "Available"
+                                ? "text-green-600"
+                                : vehicle.status === "In Use"
+                                  ? "text-amber-600"
+                                  : "text-red-600"
+                            }`}
+                          >
+                            {vehicle.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Selection Indicator */}
+                      {selectedVehicle?.id === vehicle.id && (
+                        <div className="flex-shrink-0">
+                          <svg
+                            className="h-5 w-5 text-indigo-500"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Vehicle Detail Overlay */}
