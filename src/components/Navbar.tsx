@@ -1,22 +1,35 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 
-const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Rentals", href: "/rentals" },
-  { name: "Explore", href: "/explore" },
-  { name: "Your Day", href: "/yourday" },
-  { name: "Projects", href: "/projects" },
-];
-
 const Navbar: React.FC = () => {
+  const { user, logout, hasRole } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+
+  const navigation = useMemo(() => {
+    const nav = [
+      { name: "Rentals", href: "/rentals" },
+      { name: "Explore", href: "/explore" },
+    ];
+
+    if (hasRole("USER")) {
+      nav.push({ name: "Your Day", href: "/yourday" });
+    }
+
+    if (hasRole(["ADMIN", "MANAGER", "FLEET_MANAGER"])) {
+      nav.push({ name: "Dashboard", href: "/manager/dashboard" });
+    }
+
+    if (hasRole("ADMIN")) {
+      nav.push({ name: "Admin Console", href: "/admin/console" });
+    }
+
+    return nav;
+  }, [hasRole]);
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -101,9 +114,12 @@ const Navbar: React.FC = () => {
           {/* Logo and desktop nav */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
-              <h1 className="text-xl font-bold text-red-600 md:text-3xl">
+              <Link
+                to="/"
+                className="text-xl font-bold text-red-600 md:text-3xl"
+              >
                 ExploreSG
-              </h1>
+              </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-2">
               {navigation.map((item) => (

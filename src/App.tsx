@@ -54,8 +54,8 @@ const App = () => {
             />
             <Route path="/test" element={<TestPage />} />
 
-            {/* Protected Routes - Only for logged-in users (all roles) */}
-            <Route element={<ProtectedRoleRoute />}>
+            {/* Protected Routes - Only for USER role */}
+            <Route element={<ProtectedRoleRoute allowedRoles={["USER"]} />}>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/yourday" element={<YourDayPage />} />
               <Route path="/booking/:carId/*" element={<BookingFlow />} />
