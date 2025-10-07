@@ -1,6 +1,8 @@
 // Frontend-only mock fleet simulator
 // Emits periodic location updates for a small set of vehicles inside Singapore
 
+export type VehicleStatus = "Available" | "In Use" | "Maintenance";
+
 export interface Vehicle {
   id: string;
   lat: number;
@@ -10,13 +12,21 @@ export interface Vehicle {
   imageUrl?: string;
   name?: string;
   model?: string;
-  status?: "Available" | "In Use" | "Maintenance";
+  status?: VehicleStatus;
   driver?: string;
+}
+
+interface CarData {
+  file: string;
+  name: string;
+  model: string;
+  numberPlate: string;
+  status: VehicleStatus;
 }
 
 type Subscriber = (vehicles: Vehicle[]) => void;
 
-const CAR_DATA = [
+const CAR_DATA: CarData[] = [
   {
     file: "bmw-2.png",
     name: "BMW 2 Series",
