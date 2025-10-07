@@ -145,6 +145,30 @@ const EagleViewPage: React.FC = () => {
         normalizedSearch.length > 0 && plate.includes(normalizedSearch);
       const isSelected = selectedVehicle?.id === id;
 
+      // Check if vehicle passes status filter
+      const passesStatusFilter =
+        statusFilter === "All" || vehicle.status === statusFilter;
+
+      // Check if vehicle passes search filter
+      const passesSearchFilter =
+        !normalizedSearch || plate.includes(normalizedSearch);
+
+      // Show/hide marker based on filters
+      const shouldShow = passesStatusFilter && passesSearchFilter;
+
+      if (shouldShow) {
+        entry.marker.getElement().style.display = "block";
+        if (popupEl) {
+          popupEl.style.display = "block";
+        }
+      } else {
+        entry.marker.getElement().style.display = "none";
+        if (popupEl) {
+          popupEl.style.display = "none";
+        }
+        return; // Skip styling hidden markers
+      }
+
       const popupLabel = popupEl?.querySelector<HTMLElement>(".popup-label");
 
       // Define colors
@@ -197,7 +221,7 @@ const EagleViewPage: React.FC = () => {
         }
       }
     });
-  }, [normalizedSearch, selectedVehicle]);
+  }, [normalizedSearch, selectedVehicle, statusFilter]);
 
   // Filter vehicles based on search and status
   const filteredVehicles = useMemo(() => {
