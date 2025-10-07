@@ -52,9 +52,20 @@ Created `src/components/VehicleBrowse/` to house all vehicle browsing-related co
    - Props: All filter state, setters, unique values, and callbacks
    - Handles all desktop filtering UI
 
+8. **VehicleBrowseHeader.tsx** (62 lines) - _Moved & Renamed_
+   - Page header with animated car carousel background
+   - Props: `title`, `subtitle`, `carImages`
+   - Previously `FleetPageHeader.tsx` in `components/`
+
 ### 4. Created Index Export
 
 Created `src/components/VehicleBrowse/index.ts` to export all components for cleaner imports.
+
+### 5. Moved & Renamed Header Component
+
+- **From**: `src/components/FleetPageHeader.tsx`
+- **To**: `src/components/VehicleBrowse/VehicleBrowseHeader.tsx`
+- **Reason**: Better naming consistency and logical grouping with other VehicleBrowse components
 
 ## Results
 
@@ -70,7 +81,7 @@ Created `src/components/VehicleBrowse/index.ts` to export all components for cle
 
 - **Main File**: `UserVehicleBrowsePage.tsx`
 - **Lines**: ~427 lines (33% reduction)
-- **New Components**: 7 reusable components
+- **New Components**: 8 reusable components (7 extracted + 1 moved)
 - **Complexity**: Lower - separated concerns
 - **Reusability**: High - components can be used elsewhere
 - **Maintainability**: Much easier
@@ -135,7 +146,7 @@ The large mobile filter popup (~300 lines) was intentionally left in the main pa
 
 ## Files Created
 
-```
+````
 src/components/VehicleBrowse/
 ├── index.ts                    # Barrel export
 ├── LoadingState.tsx           # Loading UI
@@ -144,20 +155,21 @@ src/components/VehicleBrowse/
 ├── ComingSoonSection.tsx      # Coming soon message
 ├── VehicleGrid.tsx            # Vehicle cards grid
 ├── MobileFilterButton.tsx     # Mobile filter button
-└── DesktopFilters.tsx         # Desktop filter bar
-```
+├── DesktopFilters.tsx         # Desktop filter bar
+└── VehicleBrowseHeader.tsx    # Page header with carousel
+```## Files Updated
 
-## Files Updated
+````
 
-```
-src/pages/UserVehicleBrowsePage.tsx  # Main page (refactored)
-src/App.tsx                           # Updated import
-docs/RBAC.md                          # Updated reference
-docs/YOURDAY-UPDATE-SUMMARY.md        # Updated reference
-docs/REFACTORING-SUMMARY.md           # Updated reference
-src/components/Rentals/RentalCardSummary.md  # Updated reference
-README.md                             # Updated file listing
-```
+src/pages/UserVehicleBrowsePage.tsx # Main page (refactored)
+src/App.tsx # Updated import
+docs/RBAC.md # Updated reference
+docs/YOURDAY-UPDATE-SUMMARY.md # Updated reference
+docs/REFACTORING-SUMMARY.md # Updated reference
+src/components/Rentals/RentalCardSummary.md # Updated reference
+README.md # Updated file listing
+
+````
 
 ## Key Takeaways
 
@@ -177,7 +189,7 @@ README.md                             # Updated file listing
   <FaSpinner />
   Loading Vehicles...
 </div>
-```
+````
 
 ### After
 

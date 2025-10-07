@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import FleetPageHeader from "../components/FleetPageHeader";
 import { FaTimes } from "react-icons/fa";
 import { useFleetData } from "../hooks/useFleetData";
 import { formatCategoryName } from "../utils/rentalUtils";
@@ -11,6 +10,7 @@ import {
   VehicleGrid,
   EmptyState,
   ComingSoonSection,
+  VehicleBrowseHeader,
 } from "../components/VehicleBrowse";
 
 const UserVehicleBrowsePage: React.FC = () => {
@@ -58,7 +58,7 @@ const UserVehicleBrowsePage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section with Car Carousel Background */}
-        <FleetPageHeader />
+        <VehicleBrowseHeader />
 
         {/* Desktop Filter Section */}
         <DesktopFilters
