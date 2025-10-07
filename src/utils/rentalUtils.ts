@@ -72,18 +72,15 @@ export function filterCarData(
 ): DisplayCarData[] {
   let filtered = [...cars];
 
-  // Filter by price range
   filtered = filtered.filter(
     (car) =>
       car.price >= filters.priceRange[0] && car.price <= filters.priceRange[1],
   );
 
-  // Filter by vehicle type/category
   if (filters.vehicleType !== "all") {
     filtered = filtered.filter((car) => car.category === filters.vehicleType);
   }
 
-  // Filter by minimum seats
   if (filters.minSeats !== "all") {
     filtered = filtered.filter(
       (car) => car.seats >= parseInt(filters.minSeats),

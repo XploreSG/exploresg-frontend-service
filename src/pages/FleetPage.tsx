@@ -366,8 +366,121 @@ const FleetPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Price, Seats, Type tabs remain the same */}
-                {/* ... (keep the rest of the filter content as is) ... */}
+                {activeFilterTab === "price" && (
+                  <div className="space-y-3">
+                    <h3 className="mb-4 font-medium text-gray-900">
+                      Filter by price range
+                    </h3>
+                    <div className="space-y-2">
+                      {[
+                        { label: "All Prices", value: "0-1000" },
+                        { label: "$0 - $100", value: "0-100" },
+                        { label: "$100 - $300", value: "100-300" },
+                        { label: "$300 - $500", value: "300-500" },
+                        { label: "$500+", value: "500-1000" },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50"
+                        >
+                          <input
+                            type="radio"
+                            name="priceRange"
+                            value={option.value}
+                            checked={
+                              `${priceRange[0]}-${priceRange[1]}` ===
+                              option.value
+                            }
+                            onChange={(e) => {
+                              const [min, max] = e.target.value
+                                .split("-")
+                                .map(Number);
+                              setPriceRange([min, max]);
+                            }}
+                            className="h-4 w-4 text-blue-600"
+                          />
+                          <span className="text-gray-700">{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeFilterTab === "seats" && (
+                  <div className="space-y-3">
+                    <h3 className="mb-4 font-medium text-gray-900">
+                      Filter by seats
+                    </h3>
+                    <div className="space-y-2">
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
+                        <input
+                          type="radio"
+                          name="seats"
+                          value="all"
+                          checked={minSeats === "all"}
+                          onChange={(e) => setMinSeats(e.target.value)}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="text-gray-700">Any</span>
+                      </label>
+                      {uniqueSeats.map((seats) => (
+                        <label
+                          key={seats}
+                          className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50"
+                        >
+                          <input
+                            type="radio"
+                            name="seats"
+                            value={seats.toString()}
+                            checked={minSeats === seats.toString()}
+                            onChange={(e) => setMinSeats(e.target.value)}
+                            className="h-4 w-4 text-blue-600"
+                          />
+                          <span className="text-gray-700">{seats} Seater</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeFilterTab === "type" && (
+                  <div className="space-y-3">
+                    <h3 className="mb-4 font-medium text-gray-900">
+                      Filter by vehicle type
+                    </h3>
+                    <div className="space-y-2">
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
+                        <input
+                          type="radio"
+                          name="vehicleType"
+                          value="all"
+                          checked={vehicleType === "all"}
+                          onChange={(e) => setVehicleType(e.target.value)}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="text-gray-700">All Types</span>
+                      </label>
+                      {uniqueCategories.map((category) => (
+                        <label
+                          key={category}
+                          className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50"
+                        >
+                          <input
+                            type="radio"
+                            name="vehicleType"
+                            value={category}
+                            checked={vehicleType === category}
+                            onChange={(e) => setVehicleType(e.target.value)}
+                            className="h-4 w-4 text-blue-600"
+                          />
+                          <span className="text-gray-700">
+                            {formatCategoryName(category)}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 border-t bg-gray-50 p-4">
