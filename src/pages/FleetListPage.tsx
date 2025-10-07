@@ -21,6 +21,9 @@ const FleetListPage: React.FC = () => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedVehicle, setSelectedVehicle] = useState<FleetTableData | null>(
+    null,
+  );
 
   // Transform CAR_DATA to include IDs
   const data = useMemo<FleetTableData[]>(
@@ -347,7 +350,11 @@ const FleetListPage: React.FC = () => {
                 </tr>
               ) : (
                 table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
+                  <tr
+                    key={row.id}
+                    className="cursor-pointer transition-colors hover:bg-gray-50"
+                    onClick={() => setSelectedVehicle(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
                         {flexRender(
@@ -504,6 +511,288 @@ const FleetListPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Vehicle Details Drawer */}
+      {selectedVehicle && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
+            onClick={() => setSelectedVehicle(null)}
+          />
+
+          {/* Drawer */}
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md transform overflow-hidden bg-white shadow-xl transition-transform duration-300 ease-in-out sm:max-w-lg">
+            {/* Drawer Header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
+              <h2 className="text-xl font-bold text-gray-900">
+                Vehicle Details
+              </h2>
+              <button
+                onClick={() => setSelectedVehicle(null)}
+                className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                aria-label="Close drawer"
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Drawer Content - Scrollable */}
+            <div
+              className="overflow-y-auto"
+              style={{ height: "calc(100vh - 73px)" }}
+            >
+              <div className="p-6">
+                {/* Vehicle Image */}
+                <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-gray-50 to-gray-100">
+                  <img
+                    src={`/assets/cars-logo/${selectedVehicle.file}`}
+                    alt={selectedVehicle.name}
+                    className="h-64 w-full object-contain p-6"
+                    onError={(e) => {
+                      e.currentTarget.src = "/assets/default-car.png";
+                    }}
+                  />
+                </div>
+
+                {/* Vehicle Name & Model */}
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {selectedVehicle.name}
+                  </h3>
+                  <p className="mt-1 text-lg text-gray-600">
+                    {selectedVehicle.model}
+                  </p>
+                </div>
+
+                {/* Status Badge */}
+                <div className="mb-6">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
+                      selectedVehicle.status === "Available"
+                        ? "bg-green-100 text-green-800"
+                        : selectedVehicle.status === "In Use"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    <span
+                      className={`h-3 w-3 rounded-full ${
+                        selectedVehicle.status === "Available"
+                          ? "bg-green-500"
+                          : selectedVehicle.status === "In Use"
+                            ? "bg-amber-500"
+                            : "bg-red-500"
+                      }`}
+                    />
+                    {selectedVehicle.status}
+                  </span>
+                </div>
+
+                {/* Details Grid */}
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-500">
+                        Number Plate
+                      </span>
+                      <span className="font-mono text-lg font-bold text-gray-900">
+                        {selectedVehicle.numberPlate}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-500">
+                        Vehicle ID
+                      </span>
+                      <span className="font-mono text-sm text-gray-900">
+                        {selectedVehicle.id}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-500">
+                        Model
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {selectedVehicle.model}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Information Section */}
+                <div className="mt-8">
+                  <h4 className="mb-4 text-lg font-semibold text-gray-900">
+                    Vehicle Information
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
+                      <svg
+                        className="h-5 w-5 flex-shrink-0 text-indigo-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          Registration
+                        </p>
+                        <p className="mt-1 text-sm text-gray-600">
+                          Singapore registered vehicle
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
+                      <svg
+                        className="h-5 w-5 flex-shrink-0 text-indigo-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          Last Known Location
+                        </p>
+                        <p className="mt-1 text-sm text-gray-600">
+                          Central Singapore
+                        </p>
+                      </div>
+                    </div>
+
+                    {selectedVehicle.status === "Available" && (
+                      <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
+                        <svg
+                          className="h-5 w-5 flex-shrink-0 text-green-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-green-900">
+                            Ready for Booking
+                          </p>
+                          <p className="mt-1 text-sm text-green-700">
+                            This vehicle is available for immediate rental
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedVehicle.status === "In Use" && (
+                      <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                        <svg
+                          className="h-5 w-5 flex-shrink-0 text-amber-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-amber-900">
+                            Currently Rented
+                          </p>
+                          <p className="mt-1 text-sm text-amber-700">
+                            Vehicle is in active rental period
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedVehicle.status === "Maintenance" && (
+                      <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+                        <svg
+                          className="h-5 w-5 flex-shrink-0 text-red-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-red-900">
+                            Under Maintenance
+                          </p>
+                          <p className="mt-1 text-sm text-red-700">
+                            Vehicle is currently being serviced
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-8 space-y-3">
+                  {selectedVehicle.status === "Available" && (
+                    <button className="w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none">
+                      Book This Vehicle
+                    </button>
+                  )}
+                  <button className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none">
+                    View Full History
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
