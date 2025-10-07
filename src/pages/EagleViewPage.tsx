@@ -25,6 +25,9 @@ const EagleViewPage: React.FC = () => {
   const normalizedSearch = useMemo(() => search.trim().toLowerCase(), [search]);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [statusFilter, setStatusFilter] = useState<
+    "All" | "Available" | "In Use" | "Maintenance"
+  >("All");
 
   useEffect(() => {
     if (!MAPBOX_TOKEN) {
@@ -196,13 +199,24 @@ const EagleViewPage: React.FC = () => {
     });
   }, [normalizedSearch, selectedVehicle]);
 
-  // Filter vehicles based on search
+  // Filter vehicles based on search and status
   const filteredVehicles = useMemo(() => {
-    if (!normalizedSearch) return vehicles;
-    return vehicles.filter((v) =>
-      (v.numberPlate || "").toLowerCase().includes(normalizedSearch),
-    );
-  }, [vehicles, normalizedSearch]);
+    let filtered = vehicles;
+
+    // Filter by status
+    if (statusFilter !== "All") {
+      filtered = filtered.filter((v) => v.status === statusFilter);
+    }
+
+    // Filter by search
+    if (normalizedSearch) {
+      filtered = filtered.filter((v) =>
+        (v.numberPlate || "").toLowerCase().includes(normalizedSearch),
+      );
+    }
+
+    return filtered;
+  }, [vehicles, normalizedSearch, statusFilter]);
 
   // Handle vehicle card click
   const handleVehicleCardClick = (vehicle: Vehicle) => {
@@ -250,6 +264,52 @@ const EagleViewPage: React.FC = () => {
                 placeholder="Search number plate (e.g. SABC)"
                 className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               />
+            </div>
+
+            {/* Status Filter Buttons */}
+            <div className="rounded-md bg-white/80 p-2 shadow backdrop-blur">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setStatusFilter("All")}
+                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-all ${
+                    statusFilter === "All"
+                      ? "bg-indigo-500 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setStatusFilter("Available")}
+                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-all ${
+                    statusFilter === "Available"
+                      ? "bg-green-500 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Available
+                </button>
+                <button
+                  onClick={() => setStatusFilter("In Use")}
+                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-all ${
+                    statusFilter === "In Use"
+                      ? "bg-amber-500 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  In Use
+                </button>
+                <button
+                  onClick={() => setStatusFilter("Maintenance")}
+                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-all ${
+                    statusFilter === "Maintenance"
+                      ? "bg-red-500 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Out of Service
+                </button>
+              </div>
             </div>
 
             {/* Vehicle List */}
