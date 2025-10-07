@@ -141,13 +141,13 @@ export function useFleetData(
 
     return sortCarData(filtered, sortBy);
   }, [
+    carModels, // Add carModels as a dependency
     sortBy,
     vehicleType,
     minSeats,
     transmission,
     priceRange,
     selectedOperator,
-    carModels,
   ]);
 
   const resetFilters = () => {
