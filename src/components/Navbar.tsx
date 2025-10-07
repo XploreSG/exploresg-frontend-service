@@ -1,22 +1,46 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
-
-const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Rentals", href: "/rentals" },
-  { name: "Explore", href: "/explore" },
-  { name: "Your Day", href: "/yourday" },
-  { name: "Projects", href: "/projects" },
-];
+import { IS_DEVELOPMENT } from "../config/api";
 
 const Navbar: React.FC = () => {
+  const { user, logout, hasRole, primaryRole } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+
+  const navigation = useMemo(() => {
+    // Do not show the Explore route to fleet admin users
+    const isFleetAdmin = hasRole(["FLEET_MANAGER", "FLEET_ADMIN"]);
+    const nav = isFleetAdmin ? [] : [{ name: "Explore", href: "/explore" }];
+
+    // Show Rentals to guests and USERs
+    if (!user || hasRole("USER")) {
+      nav.unshift({ name: "Rentals", href: "/rentals" });
+    }
+
+    if (hasRole("USER")) {
+      nav.push({ name: "Your Day", href: "/yourday" });
+    }
+
+    if (hasRole(["ADMIN", "MANAGER", "FLEET_MANAGER"])) {
+      nav.push({ name: "Dashboard", href: "/manager/dashboard" });
+      nav.push({ name: "Fleet", href: "/manager/fleet" });
+    }
+
+    // Eagle View for Fleet Admin and Fleet Manager
+    if (hasRole(["FLEET_ADMIN", "FLEET_MANAGER"])) {
+      nav.push({ name: "Eagle View", href: "/manager/eagle-view" });
+    }
+
+    if (hasRole("ADMIN")) {
+      nav.push({ name: "Admin Console", href: "/admin/console" });
+    }
+
+    return nav;
+  }, [hasRole, user]);
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -101,9 +125,12 @@ const Navbar: React.FC = () => {
           {/* Logo and desktop nav */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
-              <h1 className="text-xl font-bold text-red-600 md:text-3xl">
+              <Link
+                to="/"
+                className="text-xl font-bold text-red-600 md:text-3xl"
+              >
                 ExploreSG
-              </h1>
+              </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-2">
               {navigation.map((item) => (
@@ -128,6 +155,12 @@ const Navbar: React.FC = () => {
 
           {/* Right side: notification and profile */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            {/* Dev-only role badge to help debug RBAC */}
+            {IS_DEVELOPMENT && (
+              <div className="mr-4 hidden items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 sm:flex">
+                Role: <span className="ml-2 font-semibold">{primaryRole}</span>
+              </div>
+            )}
             {user && (
               <button
                 type="button"

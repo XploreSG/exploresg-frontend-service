@@ -16,11 +16,21 @@ export interface UserInfo {
   countryOfResidence?: string;
 }
 
+export type AppRole =
+  | "USER"
+  | "SUPPORT"
+  | "ADMIN"
+  | "FLEET_MANAGER"
+  | "FLEET_ADMIN"
+  | "MANAGER";
+
 export interface AuthContextType {
   user: UserInfo | null;
   token: string | null;
   login: (user: UserInfo, token?: string | null) => void;
   logout: () => void;
+  primaryRole: string;
+  hasRole: (requiredRoles: string | string[]) => boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

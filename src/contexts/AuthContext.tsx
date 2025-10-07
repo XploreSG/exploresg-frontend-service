@@ -1,7 +1,7 @@
 // AuthProvider.tsx
 import type { ReactNode } from "react";
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { decodeJWT } from "../utils/jwtUtils";
+import { decodeJWT, getUserRole } from "../utils/jwtUtils";
 import { AuthContext } from "./AuthContextInstance";
 import type { UserInfo } from "./AuthContextInstance"; // <-- type-only import
 
@@ -115,14 +115,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  const primaryRole = useMemo(() => {
+    const role = getUserRole(token);
+    return role ? role.replace("ROLE_", "").toUpperCase() : "GUEST";
+  }, [token]);
+
+  const hasRole = useCallback(
+    (requiredRoles: string | string[]): boolean => {
+      if (!token) return false;
+      const roles = Array.isArray(requiredRoles)
+        ? requiredRoles
+        : [requiredRoles];
+      return roles.includes(primaryRole);
+    },
+    [token, primaryRole],
+  );
+
   const contextValue = useMemo(
     () => ({
       user,
       token,
       login,
       logout,
+      primaryRole,
+      hasRole,
     }),
-    [user, token, login, logout],
+    [user, token, login, logout, primaryRole, hasRole],
   );
 
   return (

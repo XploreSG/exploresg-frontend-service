@@ -9,9 +9,6 @@ import FoodPage from "./pages/FoodPage";
 import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
 import FleetPage from "./pages/FleetPage";
-import RentalAddOnPage from "./components/Rentals/RentalAddOn";
-import DriverDetailsPage from "./components/Rentals/DriverDetailsPage";
-import PaymentPage from "./pages/PaymentPage";
 import SignInPage from "./pages/SignInPage";
 import YourDayPage from "./pages/YourDayPage";
 import TestPage from "./pages/TestPage";
@@ -19,6 +16,14 @@ import SignUpForm from "./components/Auth/SignUpForm";
 import type { SignupDetails } from "./components/Auth/SignUpForm";
 import ProfilePage from "./pages/ProfilePage";
 import ExplorePage from "./pages/ExplorePage";
+import ProtectedRoleRoute from "./components/Auth/ProtectedRoleRoute";
+import FleetDashboardPage from "./pages/FleetDashboardPage";
+import FleetListPage from "./pages/FleetListPage";
+import FleetDetailPage from "./pages/FleetDetailPage";
+import AdminConsole from "./pages/AdminConsole";
+import AccessDeniedPage from "./pages/AccessDeniedPage";
+import BookingFlow from "./pages/BookingFlow";
+import EagleViewPage from "./pages/EagleViewPage";
 // import { BookingProvider } from "./contexts/BookingContext";
 
 const App = () => {
@@ -30,6 +35,7 @@ const App = () => {
         <Navbar />
         <main className="flex-1">
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/rentals" element={<FleetPage />} />
             <Route path="/attractions" element={<AttractionsPage />} />
@@ -37,8 +43,6 @@ const App = () => {
             <Route path="/events" element={<EventsPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/login" element={<SignInPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/yourday" element={<YourDayPage />} />
             <Route path="/explore" element={<ExplorePage />} />
             <Route
               path="/signup"
@@ -52,16 +56,48 @@ const App = () => {
               }
             />
             <Route path="/test" element={<TestPage />} />
-            {/* Booking Flow Routes */}
+
+            {/* Protected Routes - Only for USER role */}
+            <Route element={<ProtectedRoleRoute allowedRoles={["USER"]} />}>
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/yourday" element={<YourDayPage />} />
+              <Route path="/booking/:carId/*" element={<BookingFlow />} />
+            </Route>
+
+            {/* Role-Specific Routes (Admin and Fleet Manager) */}
             <Route
-              path="/booking/:carId/addons"
-              element={<RentalAddOnPage />}
-            />
+              element={
+                <ProtectedRoleRoute
+                  allowedRoles={["ADMIN", "MANAGER", "FLEET_MANAGER"]}
+                />
+              }
+            >
+              <Route
+                path="/manager/dashboard"
+                element={<FleetDashboardPage />}
+              />
+              <Route path="/manager/fleet" element={<FleetListPage />} />
+              <Route path="/manager/fleet/:id" element={<FleetDetailPage />} />
+            </Route>
+
+            {/* Fleet Admin + Fleet Manager Eagle View */}
             <Route
-              path="/booking/:carId/driver-details"
-              element={<DriverDetailsPage />}
-            />
-            <Route path="/booking/:carId/payment" element={<PaymentPage />} />
+              element={
+                <ProtectedRoleRoute
+                  allowedRoles={["FLEET_ADMIN", "FLEET_MANAGER"]}
+                />
+              }
+            >
+              <Route path="/manager/eagle-view" element={<EagleViewPage />} />
+            </Route>
+
+            {/* Role-Specific Routes (Admin only) */}
+            <Route element={<ProtectedRoleRoute allowedRoles={["ADMIN"]} />}>
+              <Route path="/admin/console" element={<AdminConsole />} />
+            </Route>
+
+            {/* Fallback route for unauthorized access */}
+            <Route path="/access-denied" element={<AccessDeniedPage />} />
           </Routes>
         </main>
         <Footer />
