@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { MAPBOX_TOKEN } from "../config/api";
 import MockFleetSimulator, { type Vehicle } from "../services/mockFleetService";
+import { CAR_DATA } from "../data/fleetData";
 
 const HEADER_TOTAL_REM = 7.5; // role banner + navbar approx in rem -> used in calc
 
@@ -50,7 +51,9 @@ const EagleViewPage: React.FC = () => {
       );
     }
 
-    const simulator = new MockFleetSimulator(16, 2000);
+    // Initialize simulator with fleet data
+    // Replace CAR_DATA with data from your backend API
+    const simulator = new MockFleetSimulator(CAR_DATA, undefined, 2000);
 
     const sub = simulator.subscribe((vehicleData: Vehicle[]) => {
       const map = mapInstance.current;
