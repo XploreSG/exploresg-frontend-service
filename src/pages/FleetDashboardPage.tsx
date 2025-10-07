@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,7 +12,14 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-import { Line, Bar, Doughnut, Pie } from "react-chartjs-2";
+import {
+  StatCard,
+  VehicleStatusChart,
+  RevenueByModelChart,
+  MileageComparisonChart,
+  FleetCountByModelChart,
+} from "../components/fleet";
+import type { DashboardResponse } from "../types/dashboard";
 
 // Register Chart.js components
 ChartJS.register(
@@ -29,229 +36,290 @@ ChartJS.register(
 );
 
 const FleetManagerDashboard: React.FC = () => {
-  // Line Chart Data - Fleet Utilization Over Time
-  const lineChartData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    datasets: [
-      {
-        label: "Vehicles in Use",
-        data: [45, 52, 48, 60, 55, 70, 65],
-        borderColor: "rgb(59, 130, 246)",
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: "Available Vehicles",
-        data: [25, 18, 22, 10, 15, 5, 10],
-        borderColor: "rgb(34, 197, 94)",
-        backgroundColor: "rgba(34, 197, 94, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
+  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
-  const lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "Weekly Fleet Utilization",
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+  useEffect(() => {
+    // TODO: Replace with actual API call
+    // Example: fetchDashboardData().then(data => setDashboardData(data));
 
-  // Bar Chart Data - Revenue by Vehicle Type
-  const barChartData = {
-    labels: ["Sedan", "SUV", "Van", "Luxury", "Electric"],
-    datasets: [
-      {
-        label: "Revenue ($)",
-        data: [12000, 19000, 8000, 15000, 10000],
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.8)",
-          "rgba(54, 162, 235, 0.8)",
-          "rgba(255, 206, 86, 0.8)",
-          "rgba(75, 192, 192, 0.8)",
-          "rgba(153, 102, 255, 0.8)",
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-        ],
-        borderWidth: 1,
+    // Mock data for demonstration - replace with actual API call
+    const mockData: DashboardResponse = {
+      vehicleStatus: {
+        available: 47,
+        underMaintenance: 12,
+        booked: 0,
+        total: 59,
       },
-    ],
-  };
+      serviceReminders: {
+        overdue: 12,
+        dueSoon: 0,
+      },
+      workOrders: {
+        active: 12,
+        pending: 0,
+      },
+      vehicleAssignments: {
+        assigned: 0,
+        unassigned: 47,
+      },
+      statistics: {
+        totalVehicles: 59,
+        totalModels: 9,
+        averageMileage: 8081.677966101695,
+        totalMileage: 476819,
+        totalPotentialDailyRevenue: 7889.7,
+        totalRevenue: 7889.7,
+        utilizationRate: 0.0,
+      },
+      fleetByModel: [
+        {
+          manufacturer: "Peugeot",
+          model: "Peugeot 5008",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/peugeot-5008.png",
+          totalCount: 7,
+          availableCount: 0,
+          bookedCount: 0,
+          underMaintenanceCount: 7,
+          averageMileage: 14828.0,
+          averageDailyPrice: 87.73,
+        },
+        {
+          manufacturer: "Mini",
+          model: "Mini Cooper",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/mini-cooper.png",
+          totalCount: 6,
+          availableCount: 6,
+          bookedCount: 0,
+          underMaintenanceCount: 0,
+          averageMileage: 761.0,
+          averageDailyPrice: 114.71,
+        },
+        {
+          manufacturer: "Toyota",
+          model: "Toyota Prius",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/toyota-prius.png",
+          totalCount: 7,
+          availableCount: 7,
+          bookedCount: 0,
+          underMaintenanceCount: 0,
+          averageMileage: 3058.0,
+          averageDailyPrice: 98.42,
+        },
+        {
+          manufacturer: "BMW",
+          model: "BMW Z4",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/bmw-z4.png",
+          totalCount: 7,
+          availableCount: 7,
+          bookedCount: 0,
+          underMaintenanceCount: 0,
+          averageMileage: 8380.0,
+          averageDailyPrice: 154.46,
+        },
+        {
+          manufacturer: "Maserati",
+          model: "Maserati Grecale",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/maserati-grecale.png",
+          totalCount: 5,
+          availableCount: 0,
+          bookedCount: 0,
+          underMaintenanceCount: 5,
+          averageMileage: 2193.0,
+          averageDailyPrice: 155.98,
+        },
+        {
+          manufacturer: "Toyota",
+          model: "Toyota Alphard",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/toyota-alphard.png",
+          totalCount: 7,
+          availableCount: 7,
+          bookedCount: 0,
+          underMaintenanceCount: 0,
+          averageMileage: 4130.0,
+          averageDailyPrice: 87.9,
+        },
+        {
+          manufacturer: "BMW",
+          model: "BMW M440i",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/bmw-440i.png",
+          totalCount: 7,
+          availableCount: 7,
+          bookedCount: 0,
+          underMaintenanceCount: 0,
+          averageMileage: 10792.0,
+          averageDailyPrice: 204.63,
+        },
+        {
+          manufacturer: "BMW",
+          model: "BMW M240i",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/bmw-2.png",
+          totalCount: 7,
+          availableCount: 7,
+          bookedCount: 0,
+          underMaintenanceCount: 0,
+          averageMileage: 11734.0,
+          averageDailyPrice: 188.72,
+        },
+        {
+          manufacturer: "Skoda",
+          model: "Skoda Octavia",
+          imageUrl:
+            "https://exploresg-swe5001-capstone-assets-prod.s3.ap-southeast-1.amazonaws.com/cars/skoda-octavia.png",
+          totalCount: 6,
+          availableCount: 6,
+          bookedCount: 0,
+          underMaintenanceCount: 0,
+          averageMileage: 15139.0,
+          averageDailyPrice: 111.42,
+        },
+      ],
+    };
 
-  const barChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      title: {
-        display: true,
-        text: "Revenue by Vehicle Type",
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+    setDashboardData(mockData);
+    setIsLoading(false);
+  }, []);
 
-  // Doughnut Chart Data - Fleet Status
-  const doughnutChartData = {
-    labels: ["Available", "In Use", "Maintenance", "Reserved"],
-    datasets: [
-      {
-        label: "Vehicles",
-        data: [25, 45, 8, 12],
-        backgroundColor: [
-          "rgba(34, 197, 94, 0.8)",
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(251, 191, 36, 0.8)",
-        ],
-        borderColor: [
-          "rgba(34, 197, 94, 1)",
-          "rgba(59, 130, 246, 1)",
-          "rgba(239, 68, 68, 1)",
-          "rgba(251, 191, 36, 1)",
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
+  if (isLoading || !dashboardData) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-lg text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const doughnutChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-      },
-      title: {
-        display: true,
-        text: "Fleet Status Distribution",
-      },
-    },
-  };
-
-  // Pie Chart Data - Popular Destinations
-  const pieChartData = {
-    labels: [
-      "Marina Bay",
-      "Sentosa",
-      "Orchard Road",
-      "Changi Airport",
-      "Others",
-    ],
-    datasets: [
-      {
-        label: "Trips",
-        data: [300, 250, 180, 220, 150],
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.8)",
-          "rgba(54, 162, 235, 0.8)",
-          "rgba(255, 206, 86, 0.8)",
-          "rgba(75, 192, 192, 0.8)",
-          "rgba(153, 102, 255, 0.8)",
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const pieChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-      },
-      title: {
-        display: true,
-        text: "Popular Destinations",
-      },
-    },
-  };
+  const {
+    vehicleStatus,
+    statistics,
+    serviceReminders,
+    workOrders,
+    fleetByModel,
+  } = dashboardData;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-6 text-3xl font-bold">Fleet Manager Dashboard</h1>
 
-      {/* Stats Cards */}
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-          <h3 className="text-sm font-medium text-gray-500">Total Vehicles</h3>
-          <p className="mt-2 text-3xl font-bold text-blue-600">90</p>
+      {/* Vehicle Status Stats */}
+      <div className="mb-8">
+        <h2 className="mb-4 text-xl font-semibold text-gray-800">
+          Vehicle Status
+        </h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <StatCard
+            title="Total Vehicles"
+            value={vehicleStatus.total}
+            color="blue"
+          />
+          <StatCard
+            title="Available"
+            value={vehicleStatus.available}
+            color="green"
+          />
+          <StatCard
+            title="Booked"
+            value={vehicleStatus.booked}
+            color="purple"
+          />
+          <StatCard
+            title="Under Maintenance"
+            value={vehicleStatus.underMaintenance}
+            color="red"
+          />
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-          <h3 className="text-sm font-medium text-gray-500">In Use</h3>
-          <p className="mt-2 text-3xl font-bold text-green-600">45</p>
+      </div>
+
+      {/* Statistics */}
+      <div className="mb-8">
+        <h2 className="mb-4 text-xl font-semibold text-gray-800">
+          Fleet Statistics
+        </h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <StatCard
+            title="Total Models"
+            value={statistics.totalModels}
+            color="indigo"
+          />
+          <StatCard
+            title="Average Mileage"
+            value={`${Math.round(statistics.averageMileage).toLocaleString()} km`}
+            color="blue"
+          />
+          <StatCard
+            title="Daily Revenue Potential"
+            value={`$${statistics.totalPotentialDailyRevenue.toFixed(2)}`}
+            color="green"
+          />
+          <StatCard
+            title="Utilization Rate"
+            value={`${(statistics.utilizationRate * 100).toFixed(1)}%`}
+            color="yellow"
+          />
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-          <h3 className="text-sm font-medium text-gray-500">Available</h3>
-          <p className="mt-2 text-3xl font-bold text-yellow-600">25</p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-          <h3 className="text-sm font-medium text-gray-500">Maintenance</h3>
-          <p className="mt-2 text-3xl font-bold text-red-600">8</p>
+      </div>
+
+      {/* Service & Work Orders */}
+      <div className="mb-8">
+        <h2 className="mb-4 text-xl font-semibold text-gray-800">
+          Service & Operations
+        </h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <StatCard
+            title="Overdue Services"
+            value={serviceReminders.overdue}
+            color="red"
+          />
+          <StatCard
+            title="Due Soon"
+            value={serviceReminders.dueSoon}
+            color="yellow"
+          />
+          <StatCard
+            title="Active Work Orders"
+            value={workOrders.active}
+            color="blue"
+          />
+          <StatCard
+            title="Pending Work Orders"
+            value={workOrders.pending}
+            color="purple"
+          />
         </div>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Line Chart */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-          <div style={{ height: "300px" }}>
-            <Line data={lineChartData} options={lineChartOptions} />
-          </div>
-        </div>
+      <div className="mb-8">
+        <h2 className="mb-4 text-xl font-semibold text-gray-800">
+          Fleet Analytics
+        </h2>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Vehicle Status Distribution */}
+          <VehicleStatusChart
+            available={vehicleStatus.available}
+            booked={vehicleStatus.booked}
+            underMaintenance={vehicleStatus.underMaintenance}
+          />
 
-        {/* Bar Chart */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-          <div style={{ height: "300px" }}>
-            <Bar data={barChartData} options={barChartOptions} />
-          </div>
-        </div>
+          {/* Revenue by Model */}
+          <RevenueByModelChart fleetData={fleetByModel} />
 
-        {/* Doughnut Chart */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-          <div style={{ height: "300px" }}>
-            <Doughnut data={doughnutChartData} options={doughnutChartOptions} />
-          </div>
-        </div>
+          {/* Fleet Count by Model */}
+          <FleetCountByModelChart fleetData={fleetByModel} />
 
-        {/* Pie Chart */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-          <div style={{ height: "300px" }}>
-            <Pie data={pieChartData} options={pieChartOptions} />
-          </div>
+          {/* Mileage Comparison */}
+          <MileageComparisonChart fleetData={fleetByModel} />
         </div>
       </div>
     </div>
