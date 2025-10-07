@@ -1,12 +1,17 @@
 import React, { useState } from "react";
-import RentalCard from "../components/Rentals/RentalCard";
 import FleetPageHeader from "../components/FleetPageHeader";
-import { FaFilter, FaTimes, FaSpinner } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import { useFleetData } from "../hooks/useFleetData";
+import { formatCategoryName } from "../utils/rentalUtils";
 import {
-  formatCategoryName,
-  normalizeTransmission,
-} from "../utils/rentalUtils";
+  LoadingState,
+  ErrorState,
+  DesktopFilters,
+  MobileFilterButton,
+  VehicleGrid,
+  EmptyState,
+  ComingSoonSection,
+} from "../components/VehicleBrowse";
 
 const UserVehicleBrowsePage: React.FC = () => {
   const {
@@ -42,35 +47,11 @@ const UserVehicleBrowsePage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <FaSpinner className="h-12 w-12 animate-spin text-blue-600" />
-          <p className="text-lg font-medium text-gray-700">
-            Loading Vehicles...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="rounded-xl bg-white p-8 text-center shadow-lg">
-          <h2 className="mb-4 text-2xl font-bold text-red-600">
-            Something Went Wrong
-          </h2>
-          <p className="text-gray-600">{error}</p>
-          <button
-            onClick={refetch}
-            className="mt-6 rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
+    return <ErrorState error={error} onRetry={refetch} />;
   }
 
   return (
@@ -80,162 +61,34 @@ const UserVehicleBrowsePage: React.FC = () => {
         <FleetPageHeader />
 
         {/* Desktop Filter Section */}
-        <div className="mb-8 hidden rounded-lg bg-white p-6 shadow-lg md:block">
-          <div className="flex flex-wrap items-center gap-4 lg:gap-6">
-            {/* Sort By */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium whitespace-nowrap text-gray-700">
-                Sort by
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="min-w-36 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="name-az">Brand: A-Z</option>
-                <option value="name-za">Brand: Z-A</option>
-              </select>
-            </div>
-
-            {/* Operator - NEW */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium whitespace-nowrap text-gray-700">
-                Operator
-              </label>
-              <select
-                value={selectedOperator}
-                onChange={(e) => setSelectedOperator(e.target.value)}
-                className="min-w-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Operators</option>
-                {uniqueOperators.map((op) => (
-                  <option key={op.id} value={op.id.toString()}>
-                    {op.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Price Range */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium whitespace-nowrap text-gray-700">
-                Price range
-              </label>
-              <select
-                value={`${priceRange[0]}-${priceRange[1]}`}
-                onChange={(e) => {
-                  const [min, max] = e.target.value.split("-").map(Number);
-                  setPriceRange([min, max]);
-                }}
-                className="min-w-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="0-1000">All Prices</option>
-                <option value="0-100">$0 - $100</option>
-                <option value="100-300">$100 - $300</option>
-                <option value="300-500">$300 - $500</option>
-                <option value="500-1000">$500+</option>
-              </select>
-            </div>
-
-            {/* Seats */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium whitespace-nowrap text-gray-700">
-                Seats
-              </label>
-              <select
-                value={minSeats}
-                onChange={(e) => setMinSeats(e.target.value)}
-                className="min-w-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">Any</option>
-                {uniqueSeats.map((seats) => (
-                  <option key={seats} value={seats.toString()}>
-                    {seats} Seater
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Vehicle Type */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium whitespace-nowrap text-gray-700">
-                Vehicle type
-              </label>
-              <select
-                value={vehicleType}
-                onChange={(e) => setVehicleType(e.target.value)}
-                className="min-w-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Types</option>
-                {uniqueCategories.map((category) => (
-                  <option key={category} value={category}>
-                    {formatCategoryName(category)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Transmission */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium whitespace-nowrap text-gray-700">
-                Transmission
-              </label>
-              <select
-                value={transmission}
-                onChange={(e) => setTransmission(e.target.value)}
-                className="min-w-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All</option>
-                <option value="Automatic">Automatic</option>
-                <option value="Manual">Manual</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
-            <p className="text-sm font-medium text-blue-600">
-              {filteredCars.length} models found
-            </p>
-            {hasActiveFilters() && (
-              <button
-                onClick={resetFilters}
-                className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
-              >
-                <FaTimes className="text-xs" />
-                Clear Filters
-              </button>
-            )}
-          </div>
-        </div>
+        <DesktopFilters
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          selectedOperator={selectedOperator}
+          setSelectedOperator={setSelectedOperator}
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          minSeats={minSeats}
+          setMinSeats={setMinSeats}
+          vehicleType={vehicleType}
+          setVehicleType={setVehicleType}
+          transmission={transmission}
+          setTransmission={setTransmission}
+          uniqueOperators={uniqueOperators}
+          uniqueSeats={uniqueSeats}
+          uniqueCategories={uniqueCategories}
+          vehicleCount={filteredCars.length}
+          hasActiveFilters={hasActiveFilters()}
+          onClearFilters={resetFilters}
+        />
 
         {/* Mobile Filter Button */}
-        <div className="mb-6 md:hidden">
-          <div className="flex items-center justify-between rounded-lg bg-white p-4 shadow-lg">
-            <div className="flex items-center gap-3">
-              <p className="text-sm font-medium text-blue-600">
-                {filteredCars.length} models found
-              </p>
-              {hasActiveFilters() && (
-                <button
-                  onClick={resetFilters}
-                  className="flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-50"
-                >
-                  <FaTimes className="text-xs" />
-                  Clear
-                </button>
-              )}
-            </div>
-            <button
-              onClick={() => setShowMobileFilters(true)}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-            >
-              <FaFilter className="text-sm" />
-              Filter
-            </button>
-          </div>
-        </div>
+        <MobileFilterButton
+          vehicleCount={filteredCars.length}
+          hasActiveFilters={hasActiveFilters()}
+          onOpenFilters={() => setShowMobileFilters(true)}
+          onClearFilters={resetFilters}
+        />
 
         {/* Mobile Filter Popup - Add operator tab */}
         {showMobileFilters && (
@@ -576,57 +429,12 @@ const UserVehicleBrowsePage: React.FC = () => {
         <div className="rounded-lg bg-white p-6 shadow-lg md:p-12">
           <div className="text-center">
             {filteredCars.length > 0 ? (
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] justify-items-center gap-8">
-                {filteredCars.map((car) => (
-                  <RentalCard
-                    key={car.id}
-                    carId={car.id}
-                    model={car.model}
-                    seats={car.seats}
-                    luggage={car.luggage}
-                    transmission={normalizeTransmission(car.transmission)}
-                    originalPrice={undefined}
-                    price={car.price}
-                    promoText={undefined}
-                    imageUrl={car.imageUrl}
-                    operator={car.operator}
-                    operatorStyling={car.operatorStyling}
-                  />
-                ))}
-              </div>
+              <>
+                <VehicleGrid vehicles={filteredCars} />
+                <ComingSoonSection />
+              </>
             ) : (
-              <div className="py-16">
-                <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
-                  <span className="text-4xl">🔍</span>
-                </div>
-                <h2 className="mb-4 text-2xl font-semibold text-gray-900">
-                  No vehicles match your filters
-                </h2>
-                <p className="mb-6 text-gray-600">
-                  Try adjusting your search criteria to see more options.
-                </p>
-                <button
-                  onClick={resetFilters}
-                  className="rounded-lg bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
-                >
-                  Clear All Filters
-                </button>
-              </div>
-            )}
-
-            {filteredCars.length > 0 && (
-              <div className="mt-16">
-                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
-                  <span className="text-4xl">🚗</span>
-                </div>
-                <h2 className="mt-6 text-2xl font-semibold text-gray-900">
-                  More Vehicles Coming Soon
-                </h2>
-                <p className="mt-4 text-gray-600">
-                  We're working hard to bring you more rental options. Stay
-                  tuned for motorcycles, luxury cars, and more!
-                </p>
-              </div>
+              <EmptyState onClearFilters={resetFilters} />
             )}
           </div>
         </div>
