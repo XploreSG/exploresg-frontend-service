@@ -74,20 +74,29 @@ const EagleViewPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <h1 className="mb-4 text-2xl font-bold">Eagle View</h1>
-      <p className="mb-4 text-sm text-gray-600">
-        Fleet admin only map view for overseeing vehicles.
-      </p>
-
+    // Make the map immersive: full viewport height minus header (role banner + navbar)
+    <div className="relative h-full w-full">
       {!MAPBOX_TOKEN ? (
-        <div className="rounded-md border border-dashed border-red-300 bg-red-50 p-4 text-sm text-red-700">
-          MAPBOX_TOKEN is not configured. The map cannot be shown. Please set
-          VITE_MAPBOX_TOKEN.
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <h1 className="mb-4 text-2xl font-bold">Eagle View</h1>
+          <div className="rounded-md border border-dashed border-red-300 bg-red-50 p-4 text-sm text-red-700">
+            MAPBOX_TOKEN is not configured. The map cannot be shown. Please set
+            VITE_MAPBOX_TOKEN.
+          </div>
         </div>
       ) : (
-        <div className="h-[70vh] w-full overflow-hidden rounded-md border">
+        <div
+          // role banner height (3.5rem) + navbar height (4rem) = 7.5rem
+          style={{ height: "calc(100vh - 7.5rem)" }}
+          className="w-full overflow-hidden bg-gray-50"
+        >
+          {/* Map container fills the area */}
           <div ref={mapContainer} className="h-full w-full" />
+
+          {/* Overlay title in the top-left corner */}
+          <div className="pointer-events-none absolute top-4 left-4 z-20 rounded-md bg-white/70 px-3 py-2 text-sm font-semibold text-gray-800 backdrop-blur-sm">
+            Eagle View — Fleet overview
+          </div>
         </div>
       )}
     </div>
