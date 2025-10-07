@@ -67,6 +67,12 @@ export interface OperatorInfo {
   name: string;
 }
 
+// ddb04738-d252-4dcb-8d69-ecab0aee8072 : 105
+// 1c6a4a97-0608-41d4-b20d-e6cb023af975 : 104
+// ca9fd637-1c01-4ff8-9245-a0d41c910475 : 103
+// 92f04715-b828-4fc0-9013-81c3b468fcf1 : 102
+// 28dac4bd-e11a-4240-9602-c23fa8d8c510 : 101
+
 // Operator configuration with names and styling
 export const OPERATOR_NAMES: Record<number, string> = {
   101: "Sixt",

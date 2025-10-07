@@ -17,6 +17,8 @@ const FleetPage: React.FC = () => {
     setSortBy,
     vehicleType,
     setVehicleType,
+    transmission,
+    setTransmission,
     minSeats,
     setMinSeats,
     priceRange,
@@ -174,6 +176,22 @@ const FleetPage: React.FC = () => {
                 ))}
               </select>
             </div>
+
+            {/* Transmission */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium whitespace-nowrap text-gray-700">
+                Transmission
+              </label>
+              <select
+                value={transmission}
+                onChange={(e) => setTransmission(e.target.value)}
+                className="min-w-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All</option>
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+              </select>
+            </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
@@ -290,6 +308,16 @@ const FleetPage: React.FC = () => {
                   }`}
                 >
                   Type
+                </button>
+                <button
+                  onClick={() => setActiveFilterTab("transmission")}
+                  className={`flex-1 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+                    activeFilterTab === "transmission"
+                      ? "border-b-2 border-blue-600 text-blue-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Trans
                 </button>
               </div>
 
@@ -478,6 +506,49 @@ const FleetPage: React.FC = () => {
                           </span>
                         </label>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeFilterTab === "transmission" && (
+                  <div className="space-y-3">
+                    <h3 className="mb-4 font-medium text-gray-900">
+                      Filter by transmission
+                    </h3>
+                    <div className="space-y-2">
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
+                        <input
+                          type="radio"
+                          name="transmission"
+                          value="all"
+                          checked={transmission === "all"}
+                          onChange={(e) => setTransmission(e.target.value)}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="text-gray-700">All</span>
+                      </label>
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
+                        <input
+                          type="radio"
+                          name="transmission"
+                          value="Automatic"
+                          checked={transmission === "Automatic"}
+                          onChange={(e) => setTransmission(e.target.value)}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="text-gray-700">Automatic</span>
+                      </label>
+                      <label className="flex cursor-pointer items-center gap-3 rounded p-2 transition-colors hover:bg-gray-50">
+                        <input
+                          type="radio"
+                          name="transmission"
+                          value="Manual"
+                          checked={transmission === "Manual"}
+                          onChange={(e) => setTransmission(e.target.value)}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span className="text-gray-700">Manual</span>
+                      </label>
                     </div>
                   </div>
                 )}

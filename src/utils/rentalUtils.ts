@@ -9,10 +9,15 @@ import { getOperatorInfo } from "../types/rental";
 export function transformCarModelData(
   data: OperatorCarModelData[],
 ): DisplayCarData[] {
-  return data.map((item) => {
+  return data.map((item, index) => {
     const op = getOperatorInfo(item.operatorId, item.operatorName);
+    // Generate a unique ID, fallback to index if carModelId is missing
+    const uniqueId = item.carModelId
+      ? `${item.operatorId}-${item.carModelId}`
+      : `${item.operatorId}-${item.model.replace(/\s+/g, "-")}-${index}`;
+
     return {
-      id: `${item.operatorId}-${item.carModelId}`,
+      id: uniqueId,
       operatorId: item.operatorId,
       operatorName: item.operatorName,
       model: item.model,
