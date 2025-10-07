@@ -254,7 +254,7 @@ const EagleViewPage: React.FC = () => {
 
             {/* Vehicle List */}
             <div
-              className="overflow-y-auto rounded-md bg-white/90 shadow-lg backdrop-blur"
+              className="vehicle-list overflow-y-auto rounded-md bg-white/90 shadow-lg backdrop-blur"
               style={{
                 maxHeight: `calc(100vh - ${HEADER_TOTAL_REM}rem - 8rem)`,
               }}
@@ -278,11 +278,11 @@ const EagleViewPage: React.FC = () => {
                       }`}
                     >
                       {/* Vehicle Thumbnail */}
-                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white">
                         <img
                           src={vehicle.imageUrl}
                           alt={vehicle.name || "Vehicle"}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-contain p-1"
                           onError={(e) => {
                             e.currentTarget.src = "/assets/default-car.png";
                           }}
@@ -436,6 +436,26 @@ const EagleViewPage: React.FC = () => {
               font-weight: 600;
               box-shadow: 0 1px 3px rgba(0,0,0,0.1);
               transition: background-color 0.2s, color 0.2s;
+            }
+            
+            /* Minimalist scrollbar */
+            .vehicle-list::-webkit-scrollbar {
+              width: 6px;
+            }
+            .vehicle-list::-webkit-scrollbar-track {
+              background: transparent;
+            }
+            .vehicle-list::-webkit-scrollbar-thumb {
+              background: rgba(156, 163, 175, 0.4);
+              border-radius: 3px;
+            }
+            .vehicle-list::-webkit-scrollbar-thumb:hover {
+              background: rgba(156, 163, 175, 0.6);
+            }
+            /* Firefox */
+            .vehicle-list {
+              scrollbar-width: thin;
+              scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
             }
           `}</style>
         </>
