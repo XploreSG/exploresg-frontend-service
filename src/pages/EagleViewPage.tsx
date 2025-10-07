@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { MAPBOX_TOKEN } from "../config/api";
@@ -8,6 +9,7 @@ import { CAR_DATA } from "../data/fleetData";
 const HEADER_TOTAL_REM = 7.5; // role banner + navbar approx in rem -> used in calc
 
 const EagleViewPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<
@@ -257,6 +259,35 @@ const EagleViewPage: React.FC = () => {
       });
     }
   };
+
+  // Handle URL parameter for direct vehicle selection
+  useEffect(() => {
+    const vehicleParam = searchParams.get("vehicle");
+    if (vehicleParam && vehicles.length > 0) {
+      // Find vehicle by number plate
+      const vehicle = vehicles.find(
+        (v) => v.numberPlate?.toLowerCase() === vehicleParam.toLowerCase(),
+      );
+
+      if (vehicle) {
+        // Select the vehicle
+        setSelectedVehicle(vehicle);
+
+        // Zoom to the vehicle on map
+        if (mapInstance.current) {
+          mapInstance.current.flyTo({
+            center: [vehicle.lng, vehicle.lat],
+            zoom: 16,
+            duration: 1500,
+          });
+        }
+
+        // Clear the URL parameter after handling
+        searchParams.delete("vehicle");
+        setSearchParams(searchParams, { replace: true });
+      }
+    }
+  }, [searchParams, vehicles, setSearchParams]);
 
   return (
     <div className="relative h-full w-full">

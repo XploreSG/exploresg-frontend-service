@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   useReactTable,
   getCoreRowModel,
@@ -667,7 +668,11 @@ const FleetListPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-3 rounded-lg border border-gray-200 p-4">
+                    <Link
+                      to={`/manager/eagle-view?vehicle=${encodeURIComponent(selectedVehicle.numberPlate)}`}
+                      className="flex items-start gap-3 rounded-lg border border-gray-200 p-4 transition-all hover:border-indigo-500 hover:bg-indigo-50 hover:shadow-md"
+                      onClick={() => setSelectedVehicle(null)}
+                    >
                       <svg
                         className="h-5 w-5 flex-shrink-0 text-indigo-600"
                         fill="none"
@@ -691,11 +696,11 @@ const FleetListPage: React.FC = () => {
                         <p className="text-sm font-medium text-gray-900">
                           Last Known Location
                         </p>
-                        <p className="mt-1 text-sm text-gray-600">
-                          Central Singapore
+                        <p className="mt-1 text-sm font-medium text-indigo-600">
+                          View on Eagle View →
                         </p>
                       </div>
-                    </div>
+                    </Link>
 
                     {selectedVehicle.status === "Available" && (
                       <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
