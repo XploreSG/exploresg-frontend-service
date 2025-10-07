@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { IS_DEVELOPMENT } from "../config/api";
-import { getOperatorNameFromUserId } from "../types/rental";
+import { getOperatorInfoFromUserId } from "../types/rental";
 
 const Navbar: React.FC = () => {
   const { user, logout, hasRole, primaryRole } = useAuth();
@@ -12,10 +12,10 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get operator name for FLEET_MANAGER users
-  const operatorName = useMemo(() => {
+  // Get operator info (name + styling) for FLEET_MANAGER users
+  const operatorInfo = useMemo(() => {
     return hasRole("FLEET_MANAGER")
-      ? getOperatorNameFromUserId(
+      ? getOperatorInfoFromUserId(
           typeof user?.userId === "string" ? user.userId : undefined,
         )
       : null;
@@ -141,9 +141,11 @@ const Navbar: React.FC = () => {
               >
                 ExploreSG
               </Link>
-              {operatorName && (
-                <div className="hidden items-center rounded-md bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-800 sm:flex">
-                  {operatorName}
+              {operatorInfo && (
+                <div
+                  className={`hidden items-center rounded-md px-3 py-1 text-sm font-semibold sm:flex ${operatorInfo.styling.brand}`}
+                >
+                  {operatorInfo.name}
                 </div>
               )}
             </div>

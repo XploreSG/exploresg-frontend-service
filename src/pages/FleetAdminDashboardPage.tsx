@@ -22,7 +22,7 @@ import {
 import type { DashboardResponse } from "../types/dashboard";
 import { FLEET_API_BASE_URL } from "../config/api";
 import { useAuth } from "../contexts/useAuth";
-import { getOperatorNameFromUserId } from "../types/rental";
+import { getOperatorInfoFromUserId } from "../types/rental";
 
 // Register Chart.js components
 ChartJS.register(
@@ -46,9 +46,9 @@ const FleetAdminDashboardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get operator name for FLEET_MANAGER users
-  const operatorName = hasRole("FLEET_MANAGER")
-    ? getOperatorNameFromUserId(
+  // Get operator info (name + styling) for FLEET_MANAGER users
+  const operatorInfo = hasRole("FLEET_MANAGER")
+    ? getOperatorInfoFromUserId(
         typeof user?.userId === "string" ? user.userId : undefined,
       )
     : null;
@@ -168,121 +168,134 @@ const FleetAdminDashboardPage: React.FC = () => {
   } = dashboardData;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">
-        {operatorName
-          ? `${operatorName} Fleet Manager Dashboard`
-          : "Fleet Manager Dashboard"}
-      </h1>
-
-      {/* Vehicle Status Stats */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-xl font-semibold text-gray-800">
-          Vehicle Status
-        </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <StatCard
-            title="Total Vehicles"
-            value={vehicleStatus.total}
-            color="blue"
-          />
-          <StatCard
-            title="Available"
-            value={vehicleStatus.available}
-            color="green"
-          />
-          <StatCard
-            title="Booked"
-            value={vehicleStatus.booked}
-            color="purple"
-          />
-          <StatCard
-            title="Under Maintenance"
-            value={vehicleStatus.underMaintenance}
-            color="red"
-          />
+    <div
+      className={`min-h-screen ${operatorInfo ? operatorInfo.styling.background : "bg-white"}`}
+    >
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-white">
+            {operatorInfo
+              ? `${operatorInfo.name} Fleet Manager Dashboard`
+              : "Fleet Manager Dashboard"}
+          </h1>
+          {operatorInfo && (
+            <span
+              className={`rounded-md px-3 py-1 text-sm font-semibold ${operatorInfo.styling.brand}`}
+            >
+              {operatorInfo.name}
+            </span>
+          )}
         </div>
-      </div>
 
-      {/* Statistics */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-xl font-semibold text-gray-800">
-          Fleet Statistics
-        </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <StatCard
-            title="Total Models"
-            value={statistics.totalModels}
-            color="indigo"
-          />
-          <StatCard
-            title="Average Mileage"
-            value={`${Math.round(statistics.averageMileage).toLocaleString()} km`}
-            color="blue"
-          />
-          <StatCard
-            title="Daily Revenue Potential"
-            value={`$${statistics.totalPotentialDailyRevenue.toFixed(2)}`}
-            color="green"
-          />
-          <StatCard
-            title="Utilization Rate"
-            value={`${(statistics.utilizationRate * 100).toFixed(1)}%`}
-            color="yellow"
-          />
+        {/* Vehicle Status Stats */}
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-semibold text-white">
+            Vehicle Status
+          </h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <StatCard
+              title="Total Vehicles"
+              value={vehicleStatus.total}
+              color="blue"
+            />
+            <StatCard
+              title="Available"
+              value={vehicleStatus.available}
+              color="green"
+            />
+            <StatCard
+              title="Booked"
+              value={vehicleStatus.booked}
+              color="purple"
+            />
+            <StatCard
+              title="Under Maintenance"
+              value={vehicleStatus.underMaintenance}
+              color="red"
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Service & Work Orders */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-xl font-semibold text-gray-800">
-          Service & Operations
-        </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <StatCard
-            title="Overdue Services"
-            value={serviceReminders.overdue}
-            color="red"
-          />
-          <StatCard
-            title="Due Soon"
-            value={serviceReminders.dueSoon}
-            color="yellow"
-          />
-          <StatCard
-            title="Active Work Orders"
-            value={workOrders.active}
-            color="blue"
-          />
-          <StatCard
-            title="Pending Work Orders"
-            value={workOrders.pending}
-            color="purple"
-          />
+        {/* Statistics */}
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-semibold text-white">
+            Fleet Statistics
+          </h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <StatCard
+              title="Total Models"
+              value={statistics.totalModels}
+              color="indigo"
+            />
+            <StatCard
+              title="Average Mileage"
+              value={`${Math.round(statistics.averageMileage).toLocaleString()} km`}
+              color="blue"
+            />
+            <StatCard
+              title="Daily Revenue Potential"
+              value={`$${statistics.totalPotentialDailyRevenue.toFixed(2)}`}
+              color="green"
+            />
+            <StatCard
+              title="Utilization Rate"
+              value={`${(statistics.utilizationRate * 100).toFixed(1)}%`}
+              color="yellow"
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Charts Grid */}
-      <div className="mb-8">
-        <h2 className="mb-4 text-xl font-semibold text-gray-800">
-          Fleet Analytics
-        </h2>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Vehicle Status Distribution */}
-          <VehicleStatusChart
-            available={vehicleStatus.available}
-            booked={vehicleStatus.booked}
-            underMaintenance={vehicleStatus.underMaintenance}
-          />
+        {/* Service & Work Orders */}
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-semibold text-white">
+            Service & Operations
+          </h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <StatCard
+              title="Overdue Services"
+              value={serviceReminders.overdue}
+              color="red"
+            />
+            <StatCard
+              title="Due Soon"
+              value={serviceReminders.dueSoon}
+              color="yellow"
+            />
+            <StatCard
+              title="Active Work Orders"
+              value={workOrders.active}
+              color="blue"
+            />
+            <StatCard
+              title="Pending Work Orders"
+              value={workOrders.pending}
+              color="purple"
+            />
+          </div>
+        </div>
 
-          {/* Revenue by Model */}
-          <RevenueByModelChart fleetData={fleetByModel} />
+        {/* Charts Grid */}
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-semibold text-white">
+            Fleet Analytics
+          </h2>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Vehicle Status Distribution */}
+            <VehicleStatusChart
+              available={vehicleStatus.available}
+              booked={vehicleStatus.booked}
+              underMaintenance={vehicleStatus.underMaintenance}
+            />
 
-          {/* Fleet Count by Model */}
-          <FleetCountByModelChart fleetData={fleetByModel} />
+            {/* Revenue by Model */}
+            <RevenueByModelChart fleetData={fleetByModel} />
 
-          {/* Mileage Comparison */}
-          <MileageComparisonChart fleetData={fleetByModel} />
+            {/* Fleet Count by Model */}
+            <FleetCountByModelChart fleetData={fleetByModel} />
+
+            {/* Mileage Comparison */}
+            <MileageComparisonChart fleetData={fleetByModel} />
+          </div>
         </div>
       </div>
     </div>

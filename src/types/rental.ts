@@ -205,6 +205,16 @@ export function getOperatorNameFromUserId(
   return config ? config.name : null;
 }
 
+// Utility function to get full operator info (including styling) from userId
+export function getOperatorInfoFromUserId(
+  userId: string | undefined,
+): { name: string; id: number; styling: OperatorStyling } | null {
+  if (!userId) return null;
+
+  const config = OPERATOR_CONFIG[userId];
+  return config || null;
+}
+
 // Filter types
 export interface FilterState {
   sortBy: string;
