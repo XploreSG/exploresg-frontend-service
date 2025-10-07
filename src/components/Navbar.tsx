@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
+import { IS_DEVELOPMENT } from "../config/api";
 
 const Navbar: React.FC = () => {
-  const { user, logout, hasRole } = useAuth();
+  const { user, logout, hasRole, primaryRole } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -27,6 +28,11 @@ const Navbar: React.FC = () => {
     if (hasRole(["ADMIN", "MANAGER", "FLEET_MANAGER"])) {
       nav.push({ name: "Dashboard", href: "/manager/dashboard" });
       nav.push({ name: "Fleet", href: "/manager/fleet" });
+    }
+
+    // Eagle View for Fleet Admin and Fleet Manager
+    if (hasRole(["FLEET_ADMIN", "FLEET_MANAGER"])) {
+      nav.push({ name: "Eagle View", href: "/manager/eagle-view" });
     }
 
     if (hasRole("ADMIN")) {
@@ -149,6 +155,12 @@ const Navbar: React.FC = () => {
 
           {/* Right side: notification and profile */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            {/* Dev-only role badge to help debug RBAC */}
+            {IS_DEVELOPMENT && (
+              <div className="mr-4 hidden items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 sm:flex">
+                Role: <span className="ml-2 font-semibold">{primaryRole}</span>
+              </div>
+            )}
             {user && (
               <button
                 type="button"

@@ -23,6 +23,7 @@ import FleetDetailPage from "./pages/FleetDetailPage";
 import AdminConsole from "./pages/AdminConsole";
 import AccessDeniedPage from "./pages/AccessDeniedPage";
 import BookingFlow from "./pages/BookingFlow";
+import EagleViewPage from "./pages/EagleViewPage";
 // import { BookingProvider } from "./contexts/BookingContext";
 
 const App = () => {
@@ -77,6 +78,17 @@ const App = () => {
               />
               <Route path="/manager/fleet" element={<FleetListPage />} />
               <Route path="/manager/fleet/:id" element={<FleetDetailPage />} />
+            </Route>
+
+            {/* Fleet Admin + Fleet Manager Eagle View */}
+            <Route
+              element={
+                <ProtectedRoleRoute
+                  allowedRoles={["FLEET_ADMIN", "FLEET_MANAGER"]}
+                />
+              }
+            >
+              <Route path="/manager/eagle-view" element={<EagleViewPage />} />
             </Route>
 
             {/* Role-Specific Routes (Admin only) */}

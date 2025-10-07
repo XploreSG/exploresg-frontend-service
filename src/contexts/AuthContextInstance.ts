@@ -21,6 +21,7 @@ export type AppRole =
   | "SUPPORT"
   | "ADMIN"
   | "FLEET_MANAGER"
+  | "FLEET_ADMIN"
   | "MANAGER";
 
 export interface AuthContextType {
