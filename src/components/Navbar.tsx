@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { IS_DEVELOPMENT } from "../config/api";
+import { getOperatorNameFromUserId } from "../types/rental";
 
 const Navbar: React.FC = () => {
   const { user, logout, hasRole, primaryRole } = useAuth();
@@ -10,6 +11,15 @@ const Navbar: React.FC = () => {
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Get operator name for FLEET_MANAGER users
+  const operatorName = useMemo(() => {
+    return hasRole("FLEET_MANAGER")
+      ? getOperatorNameFromUserId(
+          typeof user?.userId === "string" ? user.userId : undefined,
+        )
+      : null;
+  }, [hasRole, user?.userId]);
 
   const navigation = useMemo(() => {
     // Do not show the Explore route to fleet admin users
@@ -124,13 +134,18 @@ const Navbar: React.FC = () => {
 
           {/* Logo and desktop nav */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex shrink-0 items-center">
+            <div className="flex shrink-0 items-center gap-3">
               <Link
                 to="/"
                 className="text-xl font-bold text-red-600 md:text-3xl"
               >
                 ExploreSG
               </Link>
+              {operatorName && (
+                <div className="hidden items-center rounded-md bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-800 sm:flex">
+                  {operatorName}
+                </div>
+              )}
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-2">
               {navigation.map((item) => (

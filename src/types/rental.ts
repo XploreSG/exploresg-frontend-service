@@ -195,6 +195,16 @@ export function getOperatorInfo(
   };
 }
 
+// Utility function to get operator name from userId (for FLEET_MANAGER users)
+export function getOperatorNameFromUserId(
+  userId: string | undefined,
+): string | null {
+  if (!userId) return null;
+
+  const config = OPERATOR_CONFIG[userId];
+  return config ? config.name : null;
+}
+
 // Filter types
 export interface FilterState {
   sortBy: string;

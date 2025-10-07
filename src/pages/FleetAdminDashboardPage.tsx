@@ -21,6 +21,8 @@ import {
 } from "../components/fleet";
 import type { DashboardResponse } from "../types/dashboard";
 import { FLEET_API_BASE_URL } from "../config/api";
+import { useAuth } from "../contexts/useAuth";
+import { getOperatorNameFromUserId } from "../types/rental";
 
 // Register Chart.js components
 ChartJS.register(
@@ -37,11 +39,19 @@ ChartJS.register(
 );
 
 const FleetAdminDashboardPage: React.FC = () => {
+  const { user, hasRole } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(
     null,
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get operator name for FLEET_MANAGER users
+  const operatorName = hasRole("FLEET_MANAGER")
+    ? getOperatorNameFromUserId(
+        typeof user?.userId === "string" ? user.userId : undefined,
+      )
+    : null;
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -159,7 +169,11 @@ const FleetAdminDashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">Fleet Manager Dashboard</h1>
+      <h1 className="mb-6 text-3xl font-bold">
+        {operatorName
+          ? `${operatorName} Fleet Manager Dashboard`
+          : "Fleet Manager Dashboard"}
+      </h1>
 
       {/* Vehicle Status Stats */}
       <div className="mb-8">
