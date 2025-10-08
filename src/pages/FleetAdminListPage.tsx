@@ -66,6 +66,36 @@ const FleetAdminListPage: React.FC = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<FleetTableData | null>(
     null,
   );
+  // Keep raw API items by id so we can show full backend payload in the drawer
+  const [rawById, setRawById] = useState<Record<string, ApiFleetItem>>({});
+  const [selectedVehicleRaw, setSelectedVehicleRaw] =
+    useState<ApiFleetItem | null>(null);
+
+  // Small formatting helpers
+  const formatDate = (iso?: string | null) => {
+    if (!iso) return "—";
+    try {
+      return new Date(iso).toLocaleString();
+    } catch {
+      return iso;
+    }
+  };
+
+  const formatCurrency = (n?: number | null) => {
+    if (n == null) return "—";
+    try {
+      return new Intl.NumberFormat("en-SG", {
+        style: "currency",
+        currency: "SGD",
+        maximumFractionDigits: 2,
+      }).format(n);
+    } catch {
+      return String(n);
+    }
+  };
+
+  const formatNumber = (n?: number | null, unit = "km") =>
+    n == null ? "—" : `${n.toLocaleString()} ${unit}`;
 
   // Define table columns
   const columns = useMemo<ColumnDef<FleetTableData>[]>(
@@ -210,6 +240,9 @@ const FleetAdminListPage: React.FC = () => {
 
         setData(mapped);
         setTotalCount(result.totalElements || 0);
+        const map: Record<string, ApiFleetItem> = {};
+        content.forEach((it) => (map[it.id] = it));
+        setRawById(map);
       })
       .catch((err) => {
         setError(err?.message || "Failed to load fleet data");
@@ -409,7 +442,11 @@ const FleetAdminListPage: React.FC = () => {
                     <tr
                       key={row.id}
                       className="cursor-pointer transition-colors hover:bg-gray-50"
-                      onClick={() => setSelectedVehicle(row.original)}
+                      onClick={() => {
+                        setSelectedVehicle(row.original);
+                        const raw = rawById[row.original.id];
+                        setSelectedVehicleRaw(raw ?? null);
+                      }}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <td
@@ -662,41 +699,308 @@ const FleetAdminListPage: React.FC = () => {
                   })()}
                 </div>
 
-                {/* Details Grid */}
-                <div className="space-y-4">
+                {/* Details Table - prefer raw API fields when available */}
+                <div className="mt-2 grid gap-3">
+                  {/** Helper to render a label/value row with icon */}
                   <div className="rounded-lg bg-gray-50 p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-500">
-                        Number Plate
-                      </span>
-                      <span className="font-mono text-lg font-bold text-gray-900">
-                        {selectedVehicle.licensePlate}
-                      </span>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 7v4a1 1 0 001 1h3m10-6v4a1 1 0 01-1 1h-3M7 21h10M7 3h10"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Number Plate
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right font-mono text-lg font-bold text-gray-900">
+                        {selectedVehicleRaw?.licensePlate ??
+                          selectedVehicle.licensePlate}
+                      </div>
                     </div>
                   </div>
 
                   <div className="rounded-lg bg-gray-50 p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-500">
-                        Vehicle ID
-                      </span>
-                      <span className="font-mono text-sm text-gray-900">
-                        {selectedVehicle.id}
-                      </span>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.31.448 6.122 1.243M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Vehicle ID
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right font-mono text-sm text-gray-900">
+                        {selectedVehicleRaw?.id ?? selectedVehicle.id}
+                      </div>
                     </div>
                   </div>
 
                   <div className="rounded-lg bg-gray-50 p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-500">
-                        Model
-                      </span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {selectedVehicle.model}
-                      </span>
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 7h18M3 12h18M3 17h18"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Model
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-sm font-semibold text-gray-900">
+                        {selectedVehicleRaw?.carModel?.model ??
+                          selectedVehicle.model ??
+                          "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 7h18M12 3v18"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Manufacturer
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-sm text-gray-900">
+                        {selectedVehicleRaw?.carModel?.manufacturer ??
+                          selectedVehicle.manufacturer ??
+                          "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h2"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Location
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-sm text-gray-900">
+                        {selectedVehicleRaw?.currentLocation ??
+                          selectedVehicle.currentLocation ??
+                          "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 14v7"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Mileage
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-sm text-gray-900">
+                        {formatNumber(
+                          selectedVehicleRaw?.mileageKm ??
+                            selectedVehicle.mileageKm,
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8c-3.314 0-6 1.343-6 3v4h12v-4c0-1.657-2.686-3-6-3z"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Daily Price
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-sm text-gray-900">
+                        {formatCurrency(
+                          selectedVehicleRaw?.dailyPrice ??
+                            selectedVehicle.dailyPrice,
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2v-7H3v7a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Available From
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-sm text-gray-900">
+                        {formatDate(
+                          selectedVehicleRaw?.availableFrom ??
+                            selectedVehicle.availableFrom,
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="grid grid-cols-3 items-center gap-4">
+                      <div className="col-span-1 flex items-center gap-3">
+                        <svg
+                          className="h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2v-7H3v7a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Available Until
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-sm text-gray-900">
+                        {formatDate(
+                          selectedVehicleRaw?.availableUntil ??
+                            selectedVehicle.availableUntil,
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="grid grid-cols-3 items-start gap-4">
+                      <div className="col-span-1 flex items-start gap-3">
+                        <svg
+                          className="mt-1 h-5 w-5 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m2 0a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2h.01"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">
+                          Maintenance Note
+                        </span>
+                      </div>
+                      <div className="col-span-2 text-right text-sm whitespace-pre-wrap text-gray-900">
+                        {selectedVehicleRaw?.maintenanceNote ??
+                          selectedVehicle.maintenanceNote ??
+                          "—"}
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Full backend payload (collapsible) */}
+                {selectedVehicleRaw && (
+                  <div className="mt-6">
+                    <h4 className="mb-2 text-sm font-semibold text-gray-700">
+                      Full backend payload
+                    </h4>
+                    <pre className="max-h-64 overflow-auto rounded-md bg-gray-800 p-3 text-xs text-white">
+                      {JSON.stringify(selectedVehicleRaw, null, 2)}
+                    </pre>
+                  </div>
+                )}
 
                 {/* Additional Information Section */}
                 <div className="mt-8">
