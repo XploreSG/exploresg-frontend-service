@@ -141,13 +141,13 @@ const Navbar: React.FC = () => {
               >
                 ExploreSG
               </Link>
-              {operatorInfo && (
+              {/* {operatorInfo && (
                 <div
                   className={`hidden items-center rounded-md px-3 py-1 text-sm font-semibold sm:flex ${operatorInfo.styling.brand}`}
                 >
                   {operatorInfo.name}
                 </div>
-              )}
+              )} */}
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-2">
               {navigation.map((item) => (
@@ -168,6 +168,16 @@ const Navbar: React.FC = () => {
                 </Link>
               ))}
             </div>
+          </div>
+
+          <div className="">
+            {operatorInfo && (
+              <div
+                className={`m-3 hidden items-center rounded-md bg-white px-4 py-1 text-sm font-semibold shadow-lg shadow-gray-700/40 sm:flex ${operatorInfo.styling.brand}`}
+              >
+                {operatorInfo.name}
+              </div>
+            )}
           </div>
 
           {/* Right side: notification and profile */}

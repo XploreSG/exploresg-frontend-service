@@ -169,7 +169,7 @@ const FleetAdminDashboardPage: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen ${operatorInfo ? operatorInfo.styling.background : "bg-white"}`}
+      className={`min-h-screen bg-gradient-to-br from-10% via-white via-20% to-gray-800 to-55% ${operatorInfo ? operatorInfo.styling.background : "bg-white"}`}
     >
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6 flex items-center gap-3">

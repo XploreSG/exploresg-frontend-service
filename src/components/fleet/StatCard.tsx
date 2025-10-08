@@ -23,7 +23,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   subtitle,
 }) => {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-md transition-shadow hover:shadow-xl hover:shadow-red-400">
+    <div className="transform rounded-lg border border-gray-200 bg-white p-6 shadow-md transition-all duration-300 ease-in-out will-change-transform hover:-translate-y-1 hover:scale-105 hover:shadow-xl">
       <h3 className="text-sm font-medium text-gray-500">{title}</h3>
       <p className={`mt-2 text-3xl font-bold ${colorClasses[color]}`}>
         {typeof value === "number" ? value.toLocaleString() : value}
