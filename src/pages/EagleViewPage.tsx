@@ -3,8 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { MAPBOX_TOKEN } from "../config/api";
-import MockFleetSimulator, { type Vehicle } from "../services/mockFleetService";
+import MockFleetSimulator, {
+  type Vehicle,
+  type CarData,
+} from "../services/mockFleetService";
 import { CAR_DATA } from "../data/fleetData";
+import { useFleetContext, type ApiFleetItem } from "../contexts/FleetContext";
 
 const HEADER_TOTAL_REM = 7.5; // role banner + navbar approx in rem -> used in calc
 
@@ -32,6 +36,9 @@ const EagleViewPage: React.FC = () => {
     "All" | "Available" | "In Use" | "Maintenance"
   >("All");
 
+  // Consume shared fleet data (published by FleetAdminListPage)
+  const { fleet } = useFleetContext();
+
   useEffect(() => {
     if (!MAPBOX_TOKEN) {
       console.warn("MAPBOX_TOKEN is not set. Map will not initialize.");
@@ -53,9 +60,75 @@ const EagleViewPage: React.FC = () => {
       );
     }
 
-    // Initialize simulator with fleet data
-    // Replace CAR_DATA with data from your backend API
+    // Helper: deterministic scatter function around a base lat/lng in Singapore
+    const baseLng = 103.82;
+    const baseLat = 1.35;
+    const scatter = (id: string, index: number) => {
+      // create a pseudo-random but deterministic offset from id
+      let h = 0;
+      for (let i = 0; i < id.length; i++) h = (h << 5) - h + id.charCodeAt(i);
+      const rnd = (Math.abs(h) % 1000) / 1000; // 0..0.999
+      const angle = (index * 137.508) % 360; // golden angle spacing
+      const radius = 0.005 + rnd * 0.02; // ~0.005 - 0.025 degrees
+      const rad = (angle * Math.PI) / 180;
+      return {
+        lng: baseLng + Math.cos(rad) * radius,
+        lat: baseLat + Math.sin(rad) * radius,
+      };
+    };
+    // Build seed vehicles from shared fleet (ApiFleetItem) or fallback to CAR_DATA
+    type SourceItem = ApiFleetItem | CarData;
+    const source = fleet && fleet.length > 0 ? (fleet as ApiFleetItem[]) : null;
+    const sourceItems: SourceItem[] =
+      source ?? (CAR_DATA as unknown as SourceItem[]);
+
+    const isApiFleetItem = (it: SourceItem): it is ApiFleetItem =>
+      (it as ApiFleetItem).licensePlate !== undefined ||
+      (it as ApiFleetItem).id !== undefined;
+
+    const seedVehicles: Vehicle[] = sourceItems.map((item, idx) => {
+      const id = isApiFleetItem(item) ? item.id : `sim-${idx}`;
+      const plate = isApiFleetItem(item)
+        ? item.licensePlate
+        : (item as CarData).numberPlate;
+      const model = isApiFleetItem(item)
+        ? (item.carModel?.model ??
+          item.carModel?.manufacturer ??
+          item.licensePlate ??
+          "Vehicle")
+        : ((item as CarData).model ?? (item as CarData).name ?? "Vehicle");
+      const img = isApiFleetItem(item)
+        ? (item.carModel?.imageUrl ?? "/assets/default-car.png")
+        : `/assets/cars-logo/${(item as CarData).file}`;
+      const rawStatus = (
+        isApiFleetItem(item) ? item.status : (item as CarData).status
+      ) as string | undefined;
+      const status =
+        rawStatus === "AVAILABLE" || rawStatus === "Available"
+          ? "Available"
+          : rawStatus === "IN_USE" || rawStatus === "In Use"
+            ? "In Use"
+            : (rawStatus ?? "Available");
+      const { lng, lat } = scatter(String(id), idx);
+      return {
+        id: String(id),
+        numberPlate: plate,
+        name: model,
+        model: model,
+        imageUrl: img,
+        status: status as Vehicle["status"],
+        lat,
+        lng,
+      } as Vehicle;
+    });
+
+    // Instantiate simulator (constructor expects CarData[]); use CAR_DATA then override vehicles
     const simulator = new MockFleetSimulator(CAR_DATA, undefined, 2000);
+    // override internal vehicles snapshot (use unknown cast to avoid 'any')
+    (simulator as unknown as { vehicles: Vehicle[] }).vehicles = seedVehicles;
+    // Note: don't call private emit method directly (loses `this` binding).
+    // subscribe() will immediately receive the current snapshot and start() will
+    // trigger periodic updates.
 
     const sub = simulator.subscribe((vehicleData: Vehicle[]) => {
       const map = mapInstance.current;
@@ -139,7 +212,7 @@ const EagleViewPage: React.FC = () => {
       mapInstance.current = null;
       markers.clear();
     };
-  }, []);
+  }, [fleet]);
 
   useEffect(() => {
     markersRef.current.forEach((entry, id) => {

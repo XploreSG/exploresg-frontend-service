@@ -11,6 +11,7 @@ import {
   type PaginationState,
 } from "@tanstack/react-table";
 import { FLEET_API_BASE_URL } from "../config/api";
+import { useFleetContext } from "../contexts/FleetContext";
 // import { CAR_DATA } from "../data/fleetData";
 // import type { CarData } from "../services/mockFleetService";
 
@@ -70,6 +71,7 @@ const FleetAdminListPage: React.FC = () => {
   const [rawById, setRawById] = useState<Record<string, ApiFleetItem>>({});
   const [selectedVehicleRaw, setSelectedVehicleRaw] =
     useState<ApiFleetItem | null>(null);
+  const { setFleet } = useFleetContext();
 
   // Small formatting helpers
   const formatDate = (iso?: string | null) => {
@@ -243,6 +245,8 @@ const FleetAdminListPage: React.FC = () => {
         const map: Record<string, ApiFleetItem> = {};
         content.forEach((it) => (map[it.id] = it));
         setRawById(map);
+        // publish to shared context so other pages can consume
+        setFleet(content);
       })
       .catch((err) => {
         setError(err?.message || "Failed to load fleet data");
@@ -257,6 +261,7 @@ const FleetAdminListPage: React.FC = () => {
     searchModel,
     searchManufacturer,
     searchLocation,
+    setFleet,
   ]);
 
   // Create the table instance (manual pagination/sorting)

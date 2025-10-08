@@ -4,13 +4,16 @@ import "./index.css";
 
 import App from "./App.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
+import { FleetProvider } from "./contexts/FleetContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <AuthProvider>
-        <App />
+        <FleetProvider>
+          <App />
+        </FleetProvider>
       </AuthProvider>
     </GoogleOAuthProvider>
   </StrictMode>,
