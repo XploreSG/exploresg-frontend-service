@@ -18,7 +18,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ExplorePage from "./pages/ExplorePage";
 import ProtectedRoleRoute from "./components/Auth/ProtectedRoleRoute";
 import FleetAdminDashboardPage from "./pages/FleetAdminDashboardPage";
-import FleetListPage from "./pages/FleetListPage";
+import FleetAdminListPage from "./pages/FleetAdminListPage";
 import FleetDetailPage from "./pages/FleetDetailPage";
 import AdminConsole from "./pages/AdminConsole";
 import AccessDeniedPage from "./pages/AccessDeniedPage";
@@ -76,7 +76,7 @@ const App = () => {
                 path="/manager/dashboard"
                 element={<FleetAdminDashboardPage />}
               />
-              <Route path="/manager/fleet" element={<FleetListPage />} />
+              <Route path="/manager/fleet" element={<FleetAdminListPage />} />
               <Route path="/manager/fleet/:id" element={<FleetDetailPage />} />
             </Route>
 
