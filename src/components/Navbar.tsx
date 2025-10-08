@@ -135,7 +135,7 @@ const Navbar: React.FC = () => {
           {/* Logo and desktop nav */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center gap-3">
-              <img className="h-8" src="./icon_s.png" alt="" />
+              <img className="h-8" src="/icon_s.png" alt="ExploreSG logo" />
               <Link
                 to="/"
                 className="text-xl font-bold text-red-600 md:text-3xl"

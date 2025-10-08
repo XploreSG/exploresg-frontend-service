@@ -9,7 +9,11 @@ const Footer: React.FC = () => {
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
               <div className="justify-center-center flex">
-                <img className="h-10 pr-2" src="./icon_s.png" alt="" />
+                <img
+                  className="h-10 pr-2"
+                  src="/icon_s.png"
+                  alt="ExploreSG logo"
+                />
                 <h1 className="pb-4 text-4xl font-bold text-red-600">
                   ExploreSG
                 </h1>
