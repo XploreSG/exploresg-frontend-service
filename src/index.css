@@ -52,6 +52,19 @@
     rotate 1.2s linear infinite,
     gentle-bounce 1.2s ease-in-out infinite;
 }
+
+@keyframes bounce-logo {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6%);
+  }
+}
+.animate-bounce-logo {
+  animation: bounce-logo 1s ease-in-out infinite;
+}
 /* a {
   font-weight: 500;
   color: #646cff;

@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
+import InlineLogoLoader from "../components/InlineLogoLoader";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -126,8 +127,8 @@ const FleetAdminDashboardPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex h-64 items-center justify-center">
-          <p className="text-lg text-gray-600">Loading dashboard...</p>
+        <div className="sha flex h-64 items-center justify-center">
+          <InlineLogoLoader size={56} />
         </div>
       </div>
     );
