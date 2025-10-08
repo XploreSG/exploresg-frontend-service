@@ -63,7 +63,7 @@ export default function WeatherWidget() {
   const [data, setData] = useState<WeatherResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
+  // Always show forecast by default; no expanded toggle required
 
   // Try geolocation first, fall back to DEFAULT_LOCATION
   useEffect(() => {
@@ -172,15 +172,9 @@ export default function WeatherWidget() {
             </div>
             <div className="text-xs text-gray-500">{condition.text}</div>
             <div className="text-xs text-gray-500">{localTime}</div>
-            <button
-              onClick={() => setExpanded((s) => !s)}
-              className="mt-1 text-xs text-blue-600 hover:underline"
-            >
-              {expanded ? "Hide" : "View 5-day forecast"}
-            </button>
+            {/* Forecast is always shown below when available */}
           </div>
-
-          {expanded && data.daily ? (
+          {data.daily ? (
             <div className="ml-4 flex gap-2">
               {data.daily.time.map((d, i) => {
                 const code = data.daily?.weathercode?.[i];
