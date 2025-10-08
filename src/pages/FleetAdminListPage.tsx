@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { StatCard } from "../components/fleet/StatCard";
 import { Link } from "react-router-dom";
 import {
   useReactTable,
@@ -173,30 +174,30 @@ const FleetAdminListPage: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm font-medium text-gray-500">Total Fleet</div>
-          <div className="mt-1 text-3xl font-bold text-gray-900">
-            {stats.total}
-          </div>
-        </div>
-        <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm font-medium text-gray-500">Available</div>
-          <div className="mt-1 text-3xl font-bold text-green-600">
-            {stats.available}
-          </div>
-        </div>
-        <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm font-medium text-gray-500">In Use</div>
-          <div className="mt-1 text-3xl font-bold text-amber-600">
-            {stats.inUse}
-          </div>
-        </div>
-        <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm font-medium text-gray-500">Maintenance</div>
-          <div className="mt-1 text-3xl font-bold text-red-600">
-            {stats.maintenance}
-          </div>
-        </div>
+        <StatCard
+          title="Total Fleet"
+          value={stats.total}
+          color="blue"
+          subtitle="All vehicles in the fleet"
+        />
+        <StatCard
+          title="Available"
+          value={stats.available}
+          color="green"
+          subtitle="Ready for rental"
+        />
+        <StatCard
+          title="In Use"
+          value={stats.inUse}
+          color="yellow"
+          subtitle="Currently rented"
+        />
+        <StatCard
+          title="Maintenance"
+          value={stats.maintenance}
+          color="red"
+          subtitle="Being serviced"
+        />
       </div>
 
       {/* Main Table Card */}
