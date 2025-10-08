@@ -114,7 +114,7 @@ interface RentalCardSummaryProps {
 ## 🔄 Integration Flow
 
 ```
-FleetPage (RentalCard)
+UserVehicleBrowsePage (RentalCard)
     ↓ [Select Car]
 AddOnsPage
     ↓ [Choose Add-ons]

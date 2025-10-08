@@ -96,7 +96,7 @@ This refactoring extracts reusable interfaces and utilities for rental car compo
 - Now extends `BaseCarDetails` interface
 - Maintains additional optional properties
 
-#### `src/pages/FleetPage.tsx`
+#### `src/pages/UserVehicleBrowsePage.tsx`
 
 - Dramatically simplified by using `useFleetData` hook
 - Removed ~150 lines of state management and data processing

@@ -1,12 +1,12 @@
 import React from "react";
 
-interface FleetPageHeaderProps {
+interface VehicleBrowseHeaderProps {
   title?: string;
   subtitle?: string;
   carImages?: string[];
 }
 
-const FleetPageHeader: React.FC<FleetPageHeaderProps> = ({
+const VehicleBrowseHeader: React.FC<VehicleBrowseHeaderProps> = ({
   title = "WHICH CAR DO YOU WANT TO DRIVE?",
   subtitle = "Two or Four Wheels, Discover Singapore, Your Way!",
   carImages = [
@@ -49,7 +49,7 @@ const FleetPageHeader: React.FC<FleetPageHeaderProps> = ({
       {/* Content */}
       <div className="relative z-10 flex h-full min-h-[400px] items-center justify-center px-4 text-center">
         <div className="max-w-4xl">
-          <h1 className="mb-4 mt-60 text-4xl font-bold text-gray-900 md:text-5xl">
+          <h1 className="mt-60 mb-4 text-4xl font-bold text-gray-900 md:text-5xl">
             {title}
           </h1>
           <p className="text-xl text-gray-700 md:text-2xl">{subtitle}</p>
@@ -59,4 +59,4 @@ const FleetPageHeader: React.FC<FleetPageHeaderProps> = ({
   );
 };
 
-export default FleetPageHeader;
+export default VehicleBrowseHeader;

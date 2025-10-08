@@ -1,14 +1,22 @@
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import LoadingOverlay from "./components/LoadingOverlay";
+import { useLoading } from "./hooks/useLoading";
+import { useEffect } from "react";
 import { RoleBanner } from "./components/RoleBanner";
 import HomePage from "./pages/HomePage";
 import AttractionsPage from "./pages/AttractionsPage";
 import FoodPage from "./pages/FoodPage";
 import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
-import FleetPage from "./pages/FleetPage";
+import UserVehicleBrowsePage from "./pages/UserVehicleBrowsePage";
 import SignInPage from "./pages/SignInPage";
 import YourDayPage from "./pages/YourDayPage";
 import TestPage from "./pages/TestPage";
@@ -17,8 +25,8 @@ import type { SignupDetails } from "./components/Auth/SignUpForm";
 import ProfilePage from "./pages/ProfilePage";
 import ExplorePage from "./pages/ExplorePage";
 import ProtectedRoleRoute from "./components/Auth/ProtectedRoleRoute";
-import FleetDashboardPage from "./pages/FleetDashboardPage";
-import FleetListPage from "./pages/FleetListPage";
+import FleetAdminDashboardPage from "./pages/FleetAdminDashboardPage";
+import FleetAdminListPage from "./pages/FleetAdminListPage";
 import FleetDetailPage from "./pages/FleetDetailPage";
 import AdminConsole from "./pages/AdminConsole";
 import AccessDeniedPage from "./pages/AccessDeniedPage";
@@ -30,14 +38,17 @@ const App = () => {
   return (
     // <BookingProvider>
     <Router>
+      {/* RouteChangeHandler must be inside Router so useLocation() is valid */}
+      <RouteChangeHandler />
       <div className="flex min-h-screen flex-col">
         <RoleBanner />
         <Navbar />
+        <LoadingOverlay />
         <main className="flex-1">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/rentals" element={<FleetPage />} />
+            <Route path="/rentals" element={<UserVehicleBrowsePage />} />
             <Route path="/attractions" element={<AttractionsPage />} />
             <Route path="/food" element={<FoodPage />} />
             <Route path="/events" element={<EventsPage />} />
@@ -74,9 +85,9 @@ const App = () => {
             >
               <Route
                 path="/manager/dashboard"
-                element={<FleetDashboardPage />}
+                element={<FleetAdminDashboardPage />}
               />
-              <Route path="/manager/fleet" element={<FleetListPage />} />
+              <Route path="/manager/fleet" element={<FleetAdminListPage />} />
               <Route path="/manager/fleet/:id" element={<FleetDetailPage />} />
             </Route>
 
@@ -108,3 +119,16 @@ const App = () => {
 };
 
 export default App;
+
+function RouteChangeHandler() {
+  const { hide } = useLoading();
+  const location = useLocation();
+
+  useEffect(() => {
+    // hide any loader once route finishes mounting
+    hide();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  return null;
+}

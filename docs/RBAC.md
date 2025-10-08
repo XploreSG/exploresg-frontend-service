@@ -149,7 +149,7 @@ const App = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/rentals" element={<FleetPage />} />
+        <Route path="/rentals" element={<UserVehicleBrowsePage />} />
 
         {/* Protected Routes - Only for logged-in users (all roles) */}
         <Route element={<ProtectedRoleRoute />}>

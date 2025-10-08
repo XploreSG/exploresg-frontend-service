@@ -8,9 +8,16 @@ const Footer: React.FC = () => {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
-              <h1 className="pb-4 text-4xl font-bold text-red-600">
-                ExploreSG
-              </h1>
+              <div className="justify-center-center flex">
+                <img
+                  className="h-10 pr-2"
+                  src="/icon_s.png"
+                  alt="ExploreSG logo"
+                />
+                <h1 className="pb-4 text-4xl font-bold text-red-600">
+                  ExploreSG
+                </h1>
+              </div>
 
               <p className="mt-2 text-gray-700">
                 <span className="font-">Discover</span> the best of Beautiful{" "}

@@ -2,7 +2,7 @@
 
 // Backend response type for operator car model data
 export interface OperatorCarModelData {
-  operatorId: number;
+  operatorId: number | string; // Now supports both UUID (from backend) and numeric ID
   operatorName: string;
   carModelId: number;
   model: string;
@@ -67,7 +67,55 @@ export interface OperatorInfo {
   name: string;
 }
 
-// Operator configuration with names and styling
+// Direct UUID to Operator configuration
+// Maps backend UUIDs directly to operator names and styling
+export const OPERATOR_CONFIG: Record<
+  string,
+  { name: string; id: number; styling: OperatorStyling }
+> = {
+  "28dac4bd-e11a-4240-9602-c23fa8d8c510": {
+    name: "Sixt",
+    id: 101,
+    styling: {
+      brand: "text-orange-600 bg-gray-200",
+      background: "bg-black bg-blend-overlay bg-orange-800/70",
+    },
+  },
+  "92f04715-b828-4fc0-9013-81c3b468fcf1": {
+    name: "Hertz",
+    id: 102,
+    styling: {
+      brand: "text-yellow-600 bg-gray-200",
+      background: "bg-black bg-blend-overlay bg-yellow-900/60",
+    },
+  },
+  "ca9fd637-1c01-4ff8-9245-a0d41c910475": {
+    name: "Lylo",
+    id: 103,
+    styling: {
+      brand: "text-blue-600 bg-gray-200",
+      background: "bg-black bg-blend-overlay bg-blue-900/80",
+    },
+  },
+  "1c6a4a97-0608-41d4-b20d-e6cb023af975": {
+    name: "Budget",
+    id: 104,
+    styling: {
+      brand: "text-red-600 bg-gray-200",
+      background: "bg-black bg-blend-overlay bg-red-900/80",
+    },
+  },
+  "ddb04738-d252-4dcb-8d69-ecab0aee8072": {
+    name: "Avis",
+    id: 105,
+    styling: {
+      brand: "text-indigo-600 bg-indigo-200",
+      background: "bg-black bg-blend-overlay bg-indigo-900/80",
+    },
+  },
+};
+
+// Legacy: Operator configuration with names (kept for backward compatibility)
 export const OPERATOR_NAMES: Record<number, string> = {
   101: "Sixt",
   102: "Hertz",
@@ -104,15 +152,67 @@ export const OPERATOR_STYLES: Record<number, OperatorStyling> = {
   },
 };
 
-// Utility function to get operator information
-export function getOperatorInfo(operatorId: number, fallbackName?: string) {
+// Utility function to get operator information from UUID or numeric ID
+export function getOperatorInfo(
+  operatorId: number | string,
+  fallbackName?: string,
+) {
+  // If it's a UUID string, look it up in OPERATOR_CONFIG
+  if (typeof operatorId === "string" && operatorId.includes("-")) {
+    const config = OPERATOR_CONFIG[operatorId];
+    if (config) {
+      return {
+        id: config.id,
+        name: config.name,
+        styling: config.styling,
+      };
+    }
+  }
+
+  // If it's a numeric ID, use legacy OPERATOR_NAMES and OPERATOR_STYLES
+  const numericId =
+    typeof operatorId === "number" ? operatorId : parseInt(operatorId);
+  if (!isNaN(numericId)) {
+    return {
+      id: numericId,
+      name: OPERATOR_NAMES[numericId] || fallbackName || String(operatorId),
+      styling: OPERATOR_STYLES[numericId] || {
+        brand: "text-blue-600 bg-gray-200",
+        background: "bg-black bg-blend-overlay bg-blue-900/80",
+      },
+    };
+  }
+
+  // Fallback for unknown operators
+  console.warn(`Unknown operator ID: ${operatorId}`);
   return {
-    name: OPERATOR_NAMES[operatorId] || fallbackName || String(operatorId),
-    styling: OPERATOR_STYLES[operatorId] || {
+    id: 0,
+    name: fallbackName || String(operatorId),
+    styling: {
       brand: "text-blue-600 bg-gray-200",
       background: "bg-black bg-blend-overlay bg-blue-900/80",
     },
   };
+}
+
+// Utility function to get operator name from userId (for FLEET_MANAGER users)
+export function getOperatorNameFromUserId(
+  userId: string | undefined,
+): string | null {
+  if (!userId) return null;
+
+  const config = OPERATOR_CONFIG[userId];
+  return config ? config.name : null;
+}
+
+// Utility function to get full operator info (including styling) from userId
+export function getOperatorInfoFromUserId(
+  userId: string | undefined,
+): { name: string; id: number; styling: OperatorStyling } | null {
+  if (!userId) return null;
+
+  const config = OPERATOR_CONFIG[userId];
+  return config || null;
 }
 
 // Filter types

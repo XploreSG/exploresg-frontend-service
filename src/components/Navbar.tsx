@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { IS_DEVELOPMENT } from "../config/api";
+import { getOperatorInfoFromUserId } from "../types/rental";
 
 const Navbar: React.FC = () => {
   const { user, logout, hasRole, primaryRole } = useAuth();
@@ -10,6 +11,15 @@ const Navbar: React.FC = () => {
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Get operator info (name + styling) for FLEET_MANAGER users
+  const operatorInfo = useMemo(() => {
+    return hasRole("FLEET_MANAGER")
+      ? getOperatorInfoFromUserId(
+          typeof user?.userId === "string" ? user.userId : undefined,
+        )
+      : null;
+  }, [hasRole, user?.userId]);
 
   const navigation = useMemo(() => {
     // Do not show the Explore route to fleet admin users
@@ -124,13 +134,21 @@ const Navbar: React.FC = () => {
 
           {/* Logo and desktop nav */}
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex shrink-0 items-center">
+            <div className="flex shrink-0 items-center gap-3">
+              <img className="h-8" src="/icon_s.png" alt="ExploreSG logo" />
               <Link
                 to="/"
                 className="text-xl font-bold text-red-600 md:text-3xl"
               >
                 ExploreSG
               </Link>
+              {/* {operatorInfo && (
+                <div
+                  className={`hidden items-center rounded-md px-3 py-1 text-sm font-semibold sm:flex ${operatorInfo.styling.brand}`}
+                >
+                  {operatorInfo.name}
+                </div>
+              )} */}
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-2">
               {navigation.map((item) => (
@@ -151,6 +169,16 @@ const Navbar: React.FC = () => {
                 </Link>
               ))}
             </div>
+          </div>
+
+          <div className="">
+            {operatorInfo && (
+              <div
+                className={`m-3 hidden items-center rounded-md bg-white px-4 py-1 text-sm font-semibold shadow-lg shadow-gray-700/40 sm:flex ${operatorInfo.styling.brand}`}
+              >
+                {operatorInfo.name}
+              </div>
+            )}
           </div>
 
           {/* Right side: notification and profile */}

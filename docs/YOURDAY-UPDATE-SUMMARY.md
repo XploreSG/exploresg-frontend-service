@@ -122,7 +122,7 @@ Added to `src/utils/rentalUtils.ts`:
 
 ### ✅ **Consistency**
 
-- Uses the same operator styling system as FleetPage
+- Uses the same operator styling system as UserVehicleBrowsePage
 - Consistent data formatting across components
 - Shared interfaces ensure uniform data structures
 

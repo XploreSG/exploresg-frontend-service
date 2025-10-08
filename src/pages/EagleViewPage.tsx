@@ -3,8 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { MAPBOX_TOKEN } from "../config/api";
-import MockFleetSimulator, { type Vehicle } from "../services/mockFleetService";
+import MockFleetSimulator, {
+  type Vehicle,
+  type CarData,
+} from "../services/mockFleetService";
 import { CAR_DATA } from "../data/fleetData";
+import { useFleetContext, type ApiFleetItem } from "../contexts/FleetContext";
 
 const HEADER_TOTAL_REM = 7.5; // role banner + navbar approx in rem -> used in calc
 
@@ -32,6 +36,9 @@ const EagleViewPage: React.FC = () => {
     "All" | "Available" | "In Use" | "Maintenance"
   >("All");
 
+  // Consume shared fleet data (published by FleetAdminListPage)
+  const { fleet } = useFleetContext();
+
   useEffect(() => {
     if (!MAPBOX_TOKEN) {
       console.warn("MAPBOX_TOKEN is not set. Map will not initialize.");
@@ -53,9 +60,112 @@ const EagleViewPage: React.FC = () => {
       );
     }
 
-    // Initialize simulator with fleet data
-    // Replace CAR_DATA with data from your backend API
+    // Curated land-safe coordinates around Singapore (avoid sea areas)
+    // These are representative points around Orchard, Marina Bay, Tiong Bahru, Toa Payoh, Bishan, Kallang
+    const SINGAPORE_LAND_COORDS: { lat: number; lng: number }[] = [
+      { lat: 1.3048, lng: 103.8318 }, // Tiong Bahru
+      { lat: 1.3006, lng: 103.8414 }, // Outram Park
+      { lat: 1.2903, lng: 103.852 }, // Chinatown area
+      { lat: 1.2833, lng: 103.8607 }, // Marina Bay Sands
+      { lat: 1.3039, lng: 103.8339 }, // Redhill
+      { lat: 1.3228, lng: 103.8436 }, // Toa Payoh
+      { lat: 1.3521, lng: 103.8198 }, // Bishan
+      { lat: 1.3078, lng: 103.831 }, // Outram/Lower Delta
+      { lat: 1.3, lng: 103.847 }, // Kampong Glam
+      { lat: 1.2921, lng: 103.7764 }, // Sentosa (coast but safe)
+      { lat: 1.311, lng: 103.8636 }, // Kallang
+      { lat: 1.2956, lng: 103.8583 }, // Marina Boulevard
+      { lat: 1.3157, lng: 103.8314 }, // Alexandra
+      { lat: 1.333, lng: 103.7036 }, // West area (near Jurong East)
+    ];
+
+    // Deterministic chooser: pick one of the land coords by hashing id + index
+    const pickLandCoord = (id: string, index: number) => {
+      let h = 0;
+      const key = `${id}-${index}`;
+      for (let i = 0; i < key.length; i++) h = (h << 5) - h + key.charCodeAt(i);
+      const idx = Math.abs(h) % SINGAPORE_LAND_COORDS.length;
+      const base = SINGAPORE_LAND_COORDS[idx];
+      // small jitter to avoid perfect overlap
+      const jitter = ((Math.abs(h) % 100) / 10000) * 0.005; // tiny jitter
+      return { lat: base.lat + jitter, lng: base.lng + jitter };
+    };
+    // Build seed vehicles from shared fleet (ApiFleetItem) or fallback to CAR_DATA
+    type SourceItem = ApiFleetItem | CarData;
+    const source = fleet && fleet.length > 0 ? (fleet as ApiFleetItem[]) : null;
+    const sourceItems: SourceItem[] =
+      source ?? (CAR_DATA as unknown as SourceItem[]);
+
+    const isApiFleetItem = (it: SourceItem): it is ApiFleetItem =>
+      (it as ApiFleetItem).licensePlate !== undefined ||
+      (it as ApiFleetItem).id !== undefined;
+
+    const seedVehicles: Vehicle[] = sourceItems.map((item, idx) => {
+      const id = isApiFleetItem(item) ? item.id : `sim-${idx}`;
+      const plate = isApiFleetItem(item)
+        ? item.licensePlate
+        : (item as CarData).numberPlate;
+      const model = isApiFleetItem(item)
+        ? (item.carModel?.model ??
+          item.carModel?.manufacturer ??
+          item.licensePlate ??
+          "Vehicle")
+        : ((item as CarData).model ?? (item as CarData).name ?? "Vehicle");
+      const img = isApiFleetItem(item)
+        ? (item.carModel?.imageUrl ?? "/assets/default-car.png")
+        : `/assets/cars-logo/${(item as CarData).file}`;
+      const rawStatus = (
+        isApiFleetItem(item) ? item.status : (item as CarData).status
+      ) as string | undefined;
+      const normalize = (s?: string | null) => {
+        const c = (s || "").toString();
+        if (c === "AVAILABLE" || c === "Available") return "Available";
+        if (
+          c === "IN_USE" ||
+          c === "In Use" ||
+          c === "BOOKED" ||
+          c === "Booked"
+        )
+          return "In Use";
+        return c || "Available";
+      };
+      const status = normalize(rawStatus) as Vehicle["status"];
+      // If API provided a location string with coordinates, try to parse it as "lat,lng"
+      let lat: number;
+      let lng: number;
+      const supplied = isApiFleetItem(item) ? item.currentLocation : undefined;
+      if (supplied && typeof supplied === "string" && supplied.includes(",")) {
+        const parts = supplied.split(",").map((p) => p.trim());
+        const maybeLat = Number(parts[0]);
+        const maybeLng = Number(parts[1]);
+        if (!Number.isNaN(maybeLat) && !Number.isNaN(maybeLng)) {
+          lat = maybeLat;
+          lng = maybeLng;
+        } else {
+          ({ lng, lat } = pickLandCoord(String(id), idx));
+        }
+      } else {
+        ({ lng, lat } = pickLandCoord(String(id), idx));
+      }
+      return {
+        id: String(id),
+        numberPlate: plate,
+        name: model,
+        model: model,
+        imageUrl: img,
+        status: status as Vehicle["status"],
+        lat,
+        lng,
+      } as Vehicle;
+    });
+
+    // Instantiate simulator (constructor expects CarData[]); use CAR_DATA then override vehicles
     const simulator = new MockFleetSimulator(CAR_DATA, undefined, 2000);
+    // override internal vehicles snapshot (use unknown cast to avoid 'any')
+    (simulator as unknown as { vehicles: Vehicle[] }).vehicles = seedVehicles;
+    // Note: don't call private emit method directly (loses `this` binding).
+    // subscribe() will immediately receive the current snapshot and start() will
+    // trigger periodic updates.
 
     const sub = simulator.subscribe((vehicleData: Vehicle[]) => {
       const map = mapInstance.current;
@@ -139,7 +249,7 @@ const EagleViewPage: React.FC = () => {
       mapInstance.current = null;
       markers.clear();
     };
-  }, []);
+  }, [fleet]);
 
   useEffect(() => {
     markersRef.current.forEach((entry, id) => {

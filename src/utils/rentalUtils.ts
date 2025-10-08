@@ -5,16 +5,24 @@ import { getOperatorInfo } from "../types/rental";
 
 /**
  * Transforms backend car model data into display format for UI components
+ * Handles both UUID-based and numeric operator IDs from backend
  */
 export function transformCarModelData(
   data: OperatorCarModelData[],
 ): DisplayCarData[] {
-  return data.map((item) => {
+  return data.map((item, index) => {
+    // Get operator info (automatically handles UUID to numeric conversion)
     const op = getOperatorInfo(item.operatorId, item.operatorName);
+
+    // Generate a unique ID using the normalized numeric operator ID
+    const uniqueId = item.carModelId
+      ? `${op.id}-${item.carModelId}`
+      : `${op.id}-${item.model.replace(/\s+/g, "-")}-${index}`;
+
     return {
-      id: `${item.operatorId}-${item.carModelId}`,
-      operatorId: item.operatorId,
-      operatorName: item.operatorName,
+      id: uniqueId,
+      operatorId: op.id, // Use normalized numeric ID
+      operatorName: op.name, // Use mapped operator name
       model: item.model,
       manufacturer: item.manufacturer,
       seats: item.seats,
@@ -72,18 +80,15 @@ export function filterCarData(
 ): DisplayCarData[] {
   let filtered = [...cars];
 
-  // Filter by price range
   filtered = filtered.filter(
     (car) =>
       car.price >= filters.priceRange[0] && car.price <= filters.priceRange[1],
   );
 
-  // Filter by vehicle type/category
   if (filters.vehicleType !== "all") {
     filtered = filtered.filter((car) => car.category === filters.vehicleType);
   }
 
-  // Filter by minimum seats
   if (filters.minSeats !== "all") {
     filtered = filtered.filter(
       (car) => car.seats >= parseInt(filters.minSeats),
