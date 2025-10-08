@@ -1,7 +1,15 @@
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import LoadingOverlay from "./components/LoadingOverlay";
+import { useLoading } from "./hooks/useLoading";
+import { useEffect } from "react";
 import { RoleBanner } from "./components/RoleBanner";
 import HomePage from "./pages/HomePage";
 import AttractionsPage from "./pages/AttractionsPage";
@@ -30,9 +38,12 @@ const App = () => {
   return (
     // <BookingProvider>
     <Router>
+      {/* RouteChangeHandler must be inside Router so useLocation() is valid */}
+      <RouteChangeHandler />
       <div className="flex min-h-screen flex-col">
         <RoleBanner />
         <Navbar />
+        <LoadingOverlay />
         <main className="flex-1">
           <Routes>
             {/* Public Routes */}
@@ -108,3 +119,16 @@ const App = () => {
 };
 
 export default App;
+
+function RouteChangeHandler() {
+  const { hide } = useLoading();
+  const location = useLocation();
+
+  useEffect(() => {
+    // hide any loader once route finishes mounting
+    hide();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  return null;
+}

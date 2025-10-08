@@ -5,6 +5,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { FleetProvider } from "./contexts/FleetContext";
+import { LoadingProvider } from "./contexts/LoadingContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 createRoot(document.getElementById("root")!).render(
@@ -12,7 +13,9 @@ createRoot(document.getElementById("root")!).render(
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <FleetProvider>
-          <App />
+          <LoadingProvider>
+            <App />
+          </LoadingProvider>
         </FleetProvider>
       </AuthProvider>
     </GoogleOAuthProvider>

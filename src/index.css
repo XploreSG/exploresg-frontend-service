@@ -28,6 +28,30 @@
 .bg-zoom-animate {
   animation: gentle-zoom 16s ease-in-out infinite;
 }
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gentle-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8%);
+  }
+}
+
+.animate-rotate-bounce {
+  animation:
+    rotate 1.2s linear infinite,
+    gentle-bounce 1.2s ease-in-out infinite;
+}
 /* a {
   font-weight: 500;
   color: #646cff;
