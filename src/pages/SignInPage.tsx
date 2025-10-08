@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
+import { getUserRole } from "../utils/jwtUtils";
 import SignInForm from "../components/Auth/SignInForm";
 import type { SignInFormData } from "../components/Auth/SignInForm";
 import SocialLoginButtons from "../components/Auth/SocialLoginButtons";
@@ -58,9 +59,25 @@ const SignInPage: React.FC = () => {
       login(userInfo, token);
 
       if (requiresProfileSetup) {
+        // If the backend asks for profile setup, always send user to signup flow first
         navigate("/signup", { state: { user: userInfo } });
       } else {
-        navigate("/yourday");
+        // Determine role from token and redirect role-specific users
+        const rawRole = getUserRole(token);
+        const role = rawRole
+          ? String(rawRole).replace("ROLE_", "").toUpperCase()
+          : null;
+
+        if (role === "ADMIN") {
+          navigate("/admin/console");
+        } else if (
+          ["FLEET_MANAGER", "FLEET_ADMIN", "MANAGER"].includes(role || "")
+        ) {
+          // Fleet-related users land on the manager dashboard
+          navigate("/manager/dashboard");
+        } else {
+          navigate("/yourday");
+        }
       }
     } catch (err: unknown) {
       console.error("Authentication failed:", err);
