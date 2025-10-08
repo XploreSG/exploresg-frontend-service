@@ -3,50 +3,81 @@ import { Link } from "react-router-dom";
 import {
   useReactTable,
   getCoreRowModel,
-  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   flexRender,
   type ColumnDef,
   type SortingState,
-  type ColumnFiltersState,
+  type PaginationState,
 } from "@tanstack/react-table";
-import { CAR_DATA } from "../data/fleetData";
-import type { CarData } from "../services/mockFleetService";
+import { FLEET_API_BASE_URL } from "../config/api";
+// import { CAR_DATA } from "../data/fleetData";
+// import type { CarData } from "../services/mockFleetService";
 
-// Extend CarData with ID for table usage
-type FleetTableData = CarData & { id: string };
+// API Fleet Data type
+type FleetTableData = {
+  id: string;
+  licensePlate: string;
+  status: string;
+  model?: string;
+  manufacturer?: string;
+  currentLocation?: string;
+  imageUrl?: string;
+  mileageKm?: number;
+  dailyPrice?: number;
+  availableFrom?: string | null;
+  availableUntil?: string | null;
+  maintenanceNote?: string | null;
+  expectedReturnDate?: string | null;
+};
+
+// API response item shape (partial)
+type ApiFleetItem = {
+  id: string;
+  licensePlate: string;
+  status: string;
+  carModel?: {
+    model?: string;
+    manufacturer?: string;
+    imageUrl?: string;
+  };
+  currentLocation?: string;
+  mileageKm?: number;
+  dailyPrice?: number;
+  availableFrom?: string | null;
+  availableUntil?: string | null;
+  maintenanceNote?: string | null;
+  expectedReturnDate?: string | null;
+};
 
 const FleetAdminListPage: React.FC = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [data, setData] = useState<FleetTableData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchLicensePlate, setSearchLicensePlate] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [searchModel, setSearchModel] = useState("");
+  const [searchManufacturer, setSearchManufacturer] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState<FleetTableData | null>(
     null,
-  );
-
-  // Transform CAR_DATA to include IDs
-  const data = useMemo<FleetTableData[]>(
-    () =>
-      CAR_DATA.map((car, index) => ({
-        ...car,
-        id: `fleet-${index + 1}`,
-      })),
-    [],
   );
 
   // Define table columns
   const columns = useMemo<ColumnDef<FleetTableData>[]>(
     () => [
       {
-        accessorKey: "file",
+        accessorKey: "imageUrl",
         header: "Image",
         cell: (info) => (
           <div className="flex h-16 w-20 items-center justify-center overflow-hidden rounded-md border border-gray-200 bg-white">
             <img
-              src={`/assets/cars-logo/${info.getValue() as string}`}
-              alt={info.row.original.name}
+              src={(info.getValue() as string) || "/assets/default-car.png"}
+              alt={info.row.original.model || info.row.original.licensePlate}
               className="h-full w-full object-contain p-1"
               onError={(e) => {
                 e.currentTarget.src = "/assets/default-car.png";
@@ -58,21 +89,7 @@ const FleetAdminListPage: React.FC = () => {
         enableColumnFilter: false,
       },
       {
-        accessorKey: "name",
-        header: "Vehicle Name",
-        cell: (info) => (
-          <div>
-            <div className="font-semibold text-gray-900">
-              {info.getValue() as string}
-            </div>
-            <div className="text-sm text-gray-500">
-              {info.row.original.model}
-            </div>
-          </div>
-        ),
-      },
-      {
-        accessorKey: "numberPlate",
+        accessorKey: "licensePlate",
         header: "Number Plate",
         cell: (info) => (
           <span className="font-mono text-sm font-semibold text-gray-900">
@@ -90,6 +107,24 @@ const FleetAdminListPage: React.FC = () => {
         ),
       },
       {
+        accessorKey: "manufacturer",
+        header: "Manufacturer",
+        cell: (info) => (
+          <span className="text-sm text-gray-700">
+            {info.getValue() as string}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "currentLocation",
+        header: "Location",
+        cell: (info) => (
+          <span className="text-sm text-gray-700">
+            {info.getValue() as string}
+          </span>
+        ),
+      },
+      {
         accessorKey: "status",
         header: "Status",
         cell: (info) => {
@@ -97,18 +132,18 @@ const FleetAdminListPage: React.FC = () => {
           return (
             <span
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-                status === "Available"
+                status === "AVAILABLE"
                   ? "bg-green-100 text-green-800"
-                  : status === "In Use"
+                  : status === "IN_USE"
                     ? "bg-amber-100 text-amber-800"
                     : "bg-red-100 text-red-800"
               }`}
             >
               <span
                 className={`h-2 w-2 rounded-full ${
-                  status === "Available"
+                  status === "AVAILABLE"
                     ? "bg-green-500"
-                    : status === "In Use"
+                    : status === "IN_USE"
                       ? "bg-amber-500"
                       : "bg-red-500"
                 }`}
@@ -117,49 +152,109 @@ const FleetAdminListPage: React.FC = () => {
             </span>
           );
         },
-        filterFn: "equals",
       },
     ],
     [],
   );
 
-  // Apply status filter before creating table
-  const filteredData = useMemo(() => {
-    if (statusFilter === "all") return data;
-    return data.filter((item) => item.status === statusFilter);
-  }, [data, statusFilter]);
+  // Fetch fleet data from API (use same auth/header pattern as dashboard)
+  React.useEffect(() => {
+    setLoading(true);
+    setError(null);
 
+    const params: Record<string, string | number | boolean | undefined> = {
+      page: pageIndex,
+      size: pageSize,
+      sortBy: (sorting[0]?.id as string) || "licensePlate",
+      sortDirection: sorting[0]?.desc ? "desc" : "asc",
+      licensePlate: searchLicensePlate,
+      status: selectedStatus,
+      model: searchModel,
+      manufacturer: searchManufacturer,
+      location: searchLocation,
+    };
+
+    const query = Object.entries(params)
+      .filter(([, value]) => value !== undefined && value !== "")
+      .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
+      .join("&");
+
+    const apiUrl = `${FLEET_API_BASE_URL}/api/v1/fleet/operators/fleet/all/paginated${query ? `?${query}` : ""}`;
+
+    const token = localStorage.getItem("token");
+    const headers: HeadersInit = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    fetch(apiUrl, { method: "GET", headers, credentials: "include" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch fleet data");
+        return res.json();
+      })
+      .then((result) => {
+        const content = (result.content || []) as ApiFleetItem[];
+        const mapped: FleetTableData[] = content.map((item) => ({
+          id: item.id,
+          licensePlate: item.licensePlate,
+          status: item.status,
+          model: item.carModel?.model,
+          manufacturer: item.carModel?.manufacturer,
+          imageUrl: item.carModel?.imageUrl,
+          currentLocation: item.currentLocation,
+          mileageKm: item.mileageKm,
+          dailyPrice: item.dailyPrice,
+          availableFrom: item.availableFrom,
+          availableUntil: item.availableUntil,
+          maintenanceNote: item.maintenanceNote,
+          expectedReturnDate: item.expectedReturnDate,
+        }));
+
+        setData(mapped);
+        setTotalCount(result.totalElements || 0);
+      })
+      .catch((err) => {
+        setError(err?.message || "Failed to load fleet data");
+      })
+      .finally(() => setLoading(false));
+  }, [
+    pageIndex,
+    pageSize,
+    sorting,
+    searchLicensePlate,
+    selectedStatus,
+    searchModel,
+    searchManufacturer,
+    searchLocation,
+  ]);
+
+  // Create the table instance (manual pagination/sorting)
   const table = useReactTable({
-    data: filteredData,
+    data,
     columns,
     state: {
       sorting,
-      columnFilters,
-      globalFilter,
+      pagination: { pageIndex, pageSize } as PaginationState,
     },
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: (
+      updater: PaginationState | ((old: PaginationState) => PaginationState),
+    ) => {
+      const next =
+        typeof updater === "function"
+          ? updater({ pageIndex, pageSize })
+          : updater;
+      if (next) {
+        if (typeof next.pageIndex === "number") setPageIndex(next.pageIndex);
+        if (typeof next.pageSize === "number") setPageSize(next.pageSize);
+      }
+    },
+    manualPagination: true,
+    pageCount: Math.max(1, Math.ceil(totalCount / pageSize)),
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
   });
 
-  // Calculate stats
-  const stats = useMemo(() => {
-    return {
-      total: data.length,
-      available: data.filter((v) => v.status === "Available").length,
-      inUse: data.filter((v) => v.status === "In Use").length,
-      maintenance: data.filter((v) => v.status === "Maintenance").length,
-    };
-  }, [data]);
+  // ...existing code...
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -175,186 +270,179 @@ const FleetAdminListPage: React.FC = () => {
         {/* Search and Filters */}
         <div className="border-b border-gray-200 bg-gray-50 p-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            {/* Search Bar */}
-            <div className="flex-1 md:max-w-md">
-              <label htmlFor="search" className="sr-only">
-                Search fleet
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  id="search"
-                  type="text"
-                  placeholder="Search by name, model, or plate..."
-                  value={globalFilter ?? ""}
-                  onChange={(e) => setGlobalFilter(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 py-2 pr-3 pl-10 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-
-            {/* Status Filter Buttons */}
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setStatusFilter("all")}
-                className={`rounded-md px-4 py-2 text-sm font-semibold transition-all ${
-                  statusFilter === "all"
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
+            {/* Search Inputs */}
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+              <input
+                type="text"
+                placeholder="License Plate"
+                value={searchLicensePlate}
+                onChange={(e) => {
+                  setSearchLicensePlate(e.target.value);
+                  setPageIndex(0);
+                }}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+              <input
+                type="text"
+                placeholder="Model"
+                value={searchModel}
+                onChange={(e) => {
+                  setSearchModel(e.target.value);
+                  setPageIndex(0);
+                }}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+              <input
+                type="text"
+                placeholder="Manufacturer"
+                value={searchManufacturer}
+                onChange={(e) => {
+                  setSearchManufacturer(e.target.value);
+                  setPageIndex(0);
+                }}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+              <input
+                type="text"
+                placeholder="Location"
+                value={searchLocation}
+                onChange={(e) => {
+                  setSearchLocation(e.target.value);
+                  setPageIndex(0);
+                }}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+              <select
+                value={selectedStatus}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value);
+                  setPageIndex(0);
+                }}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
               >
-                All ({stats.total})
-              </button>
-              <button
-                onClick={() => setStatusFilter("Available")}
-                className={`rounded-md px-4 py-2 text-sm font-semibold transition-all ${
-                  statusFilter === "Available"
-                    ? "bg-green-600 text-white shadow-sm"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                Available ({stats.available})
-              </button>
-              <button
-                onClick={() => setStatusFilter("In Use")}
-                className={`rounded-md px-4 py-2 text-sm font-semibold transition-all ${
-                  statusFilter === "In Use"
-                    ? "bg-amber-600 text-white shadow-sm"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                In Use ({stats.inUse})
-              </button>
-              <button
-                onClick={() => setStatusFilter("Maintenance")}
-                className={`rounded-md px-4 py-2 text-sm font-semibold transition-all ${
-                  statusFilter === "Maintenance"
-                    ? "bg-red-600 text-white shadow-sm"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                Maintenance ({stats.maintenance})
-              </button>
+                <option value="">All Status</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="IN_USE">In Use</option>
+                <option value="MAINTENANCE">Maintenance</option>
+              </select>
             </div>
           </div>
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-                    >
-                      {header.isPlaceholder ? null : (
-                        <div
-                          className={
-                            header.column.getCanSort()
-                              ? "flex cursor-pointer items-center gap-2 select-none hover:text-gray-700"
-                              : ""
-                          }
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                          {header.column.getCanSort() && (
-                            <span className="text-gray-400">
-                              {{
-                                asc: "↑",
-                                desc: "↓",
-                              }[header.column.getIsSorted() as string] ?? "↕"}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="px-6 py-12 text-center text-sm text-gray-500"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      <svg
-                        className="h-12 w-12 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+          {loading ? (
+            <div className="p-8 text-center text-gray-500">
+              Loading fleet data...
+            </div>
+          ) : error ? (
+            <div className="p-8 text-center text-red-500">{error}</div>
+          ) : (
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th
+                        key={header.id}
+                        className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <p className="font-medium">No vehicles found</p>
-                      <p className="text-xs">
-                        Try adjusting your search or filters
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="cursor-pointer transition-colors hover:bg-gray-50"
-                    onClick={() => setSelectedVehicle(row.original)}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
+                        {header.isPlaceholder ? null : (
+                          <div
+                            className={
+                              header.column.getCanSort()
+                                ? "flex cursor-pointer items-center gap-2 select-none hover:text-gray-700"
+                                : ""
+                            }
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                            {header.column.getCanSort() && (
+                              <span className="text-gray-400">
+                                {{
+                                  asc: "↑",
+                                  desc: "↓",
+                                }[header.column.getIsSorted() as string] ??
+                                  "↕"}
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </td>
+                      </th>
                     ))}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {data.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length}
+                      className="px-6 py-12 text-center text-sm text-gray-500"
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <svg
+                          className="h-12 w-12 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <p className="font-medium">No vehicles found</p>
+                        <p className="text-xs">
+                          Try adjusting your search or filters
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="cursor-pointer transition-colors hover:bg-gray-50"
+                      onClick={() => setSelectedVehicle(row.original)}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="px-6 py-4 whitespace-nowrap"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
           <div className="flex flex-1 justify-between sm:hidden">
             <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
+              disabled={pageIndex === 0}
               className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Previous
             </button>
             <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={() => setPageIndex((prev) => prev + 1)}
+              disabled={(pageIndex + 1) * pageSize >= totalCount}
               className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Next
@@ -363,36 +451,21 @@ const FleetAdminListPage: React.FC = () => {
           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <p className="text-sm text-gray-700">
-                Showing{" "}
-                <span className="font-medium">
-                  {table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    1}
-                </span>{" "}
-                to{" "}
-                <span className="font-medium">
-                  {Math.min(
-                    (table.getState().pagination.pageIndex + 1) *
-                      table.getState().pagination.pageSize,
-                    table.getFilteredRowModel().rows.length,
-                  )}
-                </span>{" "}
-                of{" "}
-                <span className="font-medium">
-                  {table.getFilteredRowModel().rows.length}
-                </span>{" "}
-                results
+                Showing {pageIndex * pageSize + 1} to{" "}
+                {Math.min((pageIndex + 1) * pageSize, totalCount)} of{" "}
+                {totalCount} results
               </p>
               <select
-                value={table.getState().pagination.pageSize}
+                value={pageSize}
                 onChange={(e) => {
-                  table.setPageSize(Number(e.target.value));
+                  setPageSize(Number(e.target.value));
+                  setPageIndex(0);
                 }}
                 className="rounded-md border border-gray-300 py-1 pr-8 pl-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
               >
-                {[5, 10, 20, 50].map((pageSize) => (
-                  <option key={pageSize} value={pageSize}>
-                    Show {pageSize}
+                {[5, 10, 20, 50].map((size) => (
+                  <option key={size} value={size}>
+                    Show {size}
                   </option>
                 ))}
               </select>
@@ -403,8 +476,8 @@ const FleetAdminListPage: React.FC = () => {
                 aria-label="Pagination"
               >
                 <button
-                  onClick={() => table.setPageIndex(0)}
-                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => setPageIndex(0)}
+                  disabled={pageIndex === 0}
                   className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="sr-only">First</span>
@@ -421,8 +494,8 @@ const FleetAdminListPage: React.FC = () => {
                   </svg>
                 </button>
                 <button
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
+                  disabled={pageIndex === 0}
                   className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="sr-only">Previous</span>
@@ -439,12 +512,12 @@ const FleetAdminListPage: React.FC = () => {
                   </svg>
                 </button>
                 <span className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700">
-                  Page {table.getState().pagination.pageIndex + 1} of{" "}
-                  {table.getPageCount()}
+                  Page {pageIndex + 1} of{" "}
+                  {Math.max(1, Math.ceil(totalCount / pageSize))}
                 </span>
                 <button
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
+                  onClick={() => setPageIndex((prev) => prev + 1)}
+                  disabled={(pageIndex + 1) * pageSize >= totalCount}
                   className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="sr-only">Next</span>
@@ -461,8 +534,12 @@ const FleetAdminListPage: React.FC = () => {
                   </svg>
                 </button>
                 <button
-                  onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                  disabled={!table.getCanNextPage()}
+                  onClick={() =>
+                    setPageIndex(
+                      Math.max(0, Math.ceil(totalCount / pageSize) - 1),
+                    )
+                  }
+                  disabled={(pageIndex + 1) * pageSize >= totalCount}
                   className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="sr-only">Last</span>
@@ -529,8 +606,8 @@ const FleetAdminListPage: React.FC = () => {
                 {/* Vehicle Image */}
                 <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-gray-50 to-gray-100">
                   <img
-                    src={`/assets/cars-logo/${selectedVehicle.file}`}
-                    alt={selectedVehicle.name}
+                    src={selectedVehicle.imageUrl ?? "/assets/default-car.png"}
+                    alt={selectedVehicle.model ?? selectedVehicle.licensePlate}
                     className="h-64 w-full object-contain p-6"
                     onError={(e) => {
                       e.currentTarget.src = "/assets/default-car.png";
@@ -541,35 +618,48 @@ const FleetAdminListPage: React.FC = () => {
                 {/* Vehicle Name & Model */}
                 <div className="mb-6">
                   <h3 className="text-2xl font-bold text-gray-900">
-                    {selectedVehicle.name}
+                    {selectedVehicle.model ?? selectedVehicle.licensePlate}
                   </h3>
                   <p className="mt-1 text-lg text-gray-600">
-                    {selectedVehicle.model}
+                    {selectedVehicle.manufacturer}
                   </p>
                 </div>
 
-                {/* Status Badge */}
+                {/* Status Badge (map API codes to friendly labels/colors) */}
                 <div className="mb-6">
-                  <span
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
-                      selectedVehicle.status === "Available"
+                  {(() => {
+                    const code = (selectedVehicle.status || "").toString();
+                    const label =
+                      code === "AVAILABLE"
+                        ? "Available"
+                        : code === "IN_USE"
+                          ? "In Use"
+                          : code === "UNDER_MAINTENANCE" ||
+                              code === "MAINTENANCE"
+                            ? "Under Maintenance"
+                            : code;
+                    const colorClass =
+                      code === "AVAILABLE"
                         ? "bg-green-100 text-green-800"
-                        : selectedVehicle.status === "In Use"
+                        : code === "IN_USE"
                           ? "bg-amber-100 text-amber-800"
-                          : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    <span
-                      className={`h-3 w-3 rounded-full ${
-                        selectedVehicle.status === "Available"
-                          ? "bg-green-500"
-                          : selectedVehicle.status === "In Use"
-                            ? "bg-amber-500"
-                            : "bg-red-500"
-                      }`}
-                    />
-                    {selectedVehicle.status}
-                  </span>
+                          : "bg-red-100 text-red-800";
+                    const dotClass =
+                      code === "AVAILABLE"
+                        ? "bg-green-500"
+                        : code === "IN_USE"
+                          ? "bg-amber-500"
+                          : "bg-red-500";
+
+                    return (
+                      <span
+                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${colorClass}`}
+                      >
+                        <span className={`h-3 w-3 rounded-full ${dotClass}`} />
+                        {label}
+                      </span>
+                    );
+                  })()}
                 </div>
 
                 {/* Details Grid */}
@@ -580,7 +670,7 @@ const FleetAdminListPage: React.FC = () => {
                         Number Plate
                       </span>
                       <span className="font-mono text-lg font-bold text-gray-900">
-                        {selectedVehicle.numberPlate}
+                        {selectedVehicle.licensePlate}
                       </span>
                     </div>
                   </div>
@@ -639,7 +729,9 @@ const FleetAdminListPage: React.FC = () => {
                     </div>
 
                     <Link
-                      to={`/manager/eagle-view?vehicle=${encodeURIComponent(selectedVehicle.numberPlate)}`}
+                      to={`/manager/eagle-view?vehicle=${encodeURIComponent(
+                        selectedVehicle.licensePlate ?? "",
+                      )}`}
                       className="flex items-start gap-3 rounded-lg border border-gray-200 p-4 transition-all hover:border-indigo-500 hover:bg-indigo-50 hover:shadow-md"
                       onClick={() => setSelectedVehicle(null)}
                     >
@@ -672,7 +764,7 @@ const FleetAdminListPage: React.FC = () => {
                       </div>
                     </Link>
 
-                    {selectedVehicle.status === "Available" && (
+                    {selectedVehicle.status === "AVAILABLE" && (
                       <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
                         <svg
                           className="h-5 w-5 flex-shrink-0 text-green-600"
@@ -698,7 +790,7 @@ const FleetAdminListPage: React.FC = () => {
                       </div>
                     )}
 
-                    {selectedVehicle.status === "In Use" && (
+                    {selectedVehicle.status === "IN_USE" && (
                       <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
                         <svg
                           className="h-5 w-5 flex-shrink-0 text-amber-600"
@@ -724,7 +816,7 @@ const FleetAdminListPage: React.FC = () => {
                       </div>
                     )}
 
-                    {selectedVehicle.status === "Maintenance" && (
+                    {selectedVehicle.status === "MAINTENANCE" && (
                       <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
                         <svg
                           className="h-5 w-5 flex-shrink-0 text-red-600"
@@ -754,7 +846,7 @@ const FleetAdminListPage: React.FC = () => {
 
                 {/* Action Buttons */}
                 <div className="mt-8 space-y-3">
-                  {selectedVehicle.status === "Available" && (
+                  {selectedVehicle.status === "AVAILABLE" && (
                     <button className="w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none">
                       Book This Vehicle
                     </button>
