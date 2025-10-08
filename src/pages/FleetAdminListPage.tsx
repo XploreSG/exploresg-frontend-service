@@ -224,10 +224,25 @@ const FleetAdminListPage: React.FC = () => {
       })
       .then((result) => {
         const content = (result.content || []) as ApiFleetItem[];
+        const normalizeStatus = (s?: string | null) => {
+          const code = (s || "").toString();
+          if (code === "AVAILABLE" || code === "Available") return "AVAILABLE";
+          if (
+            code === "IN_USE" ||
+            code === "In Use" ||
+            code === "BOOKED" ||
+            code === "Booked"
+          )
+            return "IN_USE";
+          if (code === "MAINTENANCE" || code === "UNDER_MAINTENANCE")
+            return "MAINTENANCE";
+          return code.toUpperCase();
+        };
+
         const mapped: FleetTableData[] = content.map((item) => ({
           id: item.id,
           licensePlate: item.licensePlate,
-          status: item.status,
+          status: normalizeStatus(item.status),
           model: item.carModel?.model,
           manufacturer: item.carModel?.manufacturer,
           imageUrl: item.carModel?.imageUrl,

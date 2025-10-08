@@ -60,21 +60,35 @@ const EagleViewPage: React.FC = () => {
       );
     }
 
-    // Helper: deterministic scatter function around a base lat/lng in Singapore
-    const baseLng = 103.82;
-    const baseLat = 1.35;
-    const scatter = (id: string, index: number) => {
-      // create a pseudo-random but deterministic offset from id
+    // Curated land-safe coordinates around Singapore (avoid sea areas)
+    // These are representative points around Orchard, Marina Bay, Tiong Bahru, Toa Payoh, Bishan, Kallang
+    const SINGAPORE_LAND_COORDS: { lat: number; lng: number }[] = [
+      { lat: 1.3048, lng: 103.8318 }, // Tiong Bahru
+      { lat: 1.3006, lng: 103.8414 }, // Outram Park
+      { lat: 1.2903, lng: 103.852 }, // Chinatown area
+      { lat: 1.2833, lng: 103.8607 }, // Marina Bay Sands
+      { lat: 1.3039, lng: 103.8339 }, // Redhill
+      { lat: 1.3228, lng: 103.8436 }, // Toa Payoh
+      { lat: 1.3521, lng: 103.8198 }, // Bishan
+      { lat: 1.3078, lng: 103.831 }, // Outram/Lower Delta
+      { lat: 1.3, lng: 103.847 }, // Kampong Glam
+      { lat: 1.2921, lng: 103.7764 }, // Sentosa (coast but safe)
+      { lat: 1.311, lng: 103.8636 }, // Kallang
+      { lat: 1.2956, lng: 103.8583 }, // Marina Boulevard
+      { lat: 1.3157, lng: 103.8314 }, // Alexandra
+      { lat: 1.333, lng: 103.7036 }, // West area (near Jurong East)
+    ];
+
+    // Deterministic chooser: pick one of the land coords by hashing id + index
+    const pickLandCoord = (id: string, index: number) => {
       let h = 0;
-      for (let i = 0; i < id.length; i++) h = (h << 5) - h + id.charCodeAt(i);
-      const rnd = (Math.abs(h) % 1000) / 1000; // 0..0.999
-      const angle = (index * 137.508) % 360; // golden angle spacing
-      const radius = 0.005 + rnd * 0.02; // ~0.005 - 0.025 degrees
-      const rad = (angle * Math.PI) / 180;
-      return {
-        lng: baseLng + Math.cos(rad) * radius,
-        lat: baseLat + Math.sin(rad) * radius,
-      };
+      const key = `${id}-${index}`;
+      for (let i = 0; i < key.length; i++) h = (h << 5) - h + key.charCodeAt(i);
+      const idx = Math.abs(h) % SINGAPORE_LAND_COORDS.length;
+      const base = SINGAPORE_LAND_COORDS[idx];
+      // small jitter to avoid perfect overlap
+      const jitter = ((Math.abs(h) % 100) / 10000) * 0.005; // tiny jitter
+      return { lat: base.lat + jitter, lng: base.lng + jitter };
     };
     // Build seed vehicles from shared fleet (ApiFleetItem) or fallback to CAR_DATA
     type SourceItem = ApiFleetItem | CarData;
@@ -103,13 +117,36 @@ const EagleViewPage: React.FC = () => {
       const rawStatus = (
         isApiFleetItem(item) ? item.status : (item as CarData).status
       ) as string | undefined;
-      const status =
-        rawStatus === "AVAILABLE" || rawStatus === "Available"
-          ? "Available"
-          : rawStatus === "IN_USE" || rawStatus === "In Use"
-            ? "In Use"
-            : (rawStatus ?? "Available");
-      const { lng, lat } = scatter(String(id), idx);
+      const normalize = (s?: string | null) => {
+        const c = (s || "").toString();
+        if (c === "AVAILABLE" || c === "Available") return "Available";
+        if (
+          c === "IN_USE" ||
+          c === "In Use" ||
+          c === "BOOKED" ||
+          c === "Booked"
+        )
+          return "In Use";
+        return c || "Available";
+      };
+      const status = normalize(rawStatus) as Vehicle["status"];
+      // If API provided a location string with coordinates, try to parse it as "lat,lng"
+      let lat: number;
+      let lng: number;
+      const supplied = isApiFleetItem(item) ? item.currentLocation : undefined;
+      if (supplied && typeof supplied === "string" && supplied.includes(",")) {
+        const parts = supplied.split(",").map((p) => p.trim());
+        const maybeLat = Number(parts[0]);
+        const maybeLng = Number(parts[1]);
+        if (!Number.isNaN(maybeLat) && !Number.isNaN(maybeLng)) {
+          lat = maybeLat;
+          lng = maybeLng;
+        } else {
+          ({ lng, lat } = pickLandCoord(String(id), idx));
+        }
+      } else {
+        ({ lng, lat } = pickLandCoord(String(id), idx));
+      }
       return {
         id: String(id),
         numberPlate: plate,

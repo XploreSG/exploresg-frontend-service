@@ -191,9 +191,10 @@ export class MockFleetSimulator {
    */
   private tick(): void {
     this.vehicles = this.vehicles.map((v) => {
-      if (v.status !== "In Use") {
-        return v;
-      }
+      const st = (v.status || "").toString().toLowerCase();
+      const shouldMove =
+        st === "in use" || st === "in_use" || st === "booked" || st === "book";
+      if (!shouldMove) return v;
 
       const dLat = rand(-MOVEMENT_DELTA, MOVEMENT_DELTA);
       const dLng = rand(-MOVEMENT_DELTA, MOVEMENT_DELTA);
