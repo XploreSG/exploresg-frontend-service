@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import BookingProgress from "../components/Rentals/BookingProgress";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 import { FaCreditCard, FaLock, FaShieldAlt, FaCheck } from "react-icons/fa";
-import InlineLogoLoader from "../components/InlineLogoLoader";
+// import InlineLogoLoader from "../components/InlineLogoLoader";
 
 interface AddOnSelection {
   id: string;
