@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import BookingProgress from "../components/Rentals/BookingProgress";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 import { FaCreditCard, FaLock, FaShieldAlt, FaCheck } from "react-icons/fa";
+import InlineLogoLoader from "../components/InlineLogoLoader";
 
 interface AddOnSelection {
   id: string;
@@ -313,6 +314,11 @@ const PaymentPage: React.FC = () => {
                         Processing Payment...
                       </div>
                     ) : (
+                      //                 <div className="flex items-center justify-center">
+                      //   {/* Inline brand loader */}
+                      //   <InlineLogoLoader size={20} />
+                      //   <span className="ml-2">Processing Payment...</span>
+                      // </div>
                       "Complete Booking"
                     )}
                   </button>
