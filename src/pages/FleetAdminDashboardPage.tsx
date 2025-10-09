@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
-import InlineLogoLoader from "../components/InlineLogoLoader";
+// import InlineLogoLoader from "../components/InlineLogoLoader";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -308,10 +308,10 @@ const FleetAdminDashboardPage: React.FC = () => {
           <div
             className={`absolute inset-0 flex flex-col items-center justify-start gap-6 rounded-lg bg-white/70 p-4 transition-opacity duration-300 ${isLoading ? "opacity-100" : "pointer-events-none opacity-0"}`}
           >
-            <div className="flex items-center gap-3">
-              <InlineLogoLoader size={36} />
-              <div className="h-6 w-64 rounded bg-gray-200" />
-            </div>
+            {/* <div className="flex items-center gap-3"> */}
+            {/* <InlineLogoLoader size={36} /> */}
+            {/* <div className="h-6 w-64 rounded bg-gray-200" /> */}
+            {/* </div> */}
 
             <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (

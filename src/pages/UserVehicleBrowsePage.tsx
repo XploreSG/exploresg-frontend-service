@@ -3,7 +3,6 @@ import { FaTimes } from "react-icons/fa";
 import { useFleetData } from "../hooks/useFleetData";
 import { formatCategoryName } from "../utils/rentalUtils";
 import {
-  LoadingState,
   ErrorState,
   DesktopFilters,
   MobileFilterButton,
@@ -423,7 +422,10 @@ const UserVehicleBrowsePage: React.FC = () => {
         <div className="rounded-lg bg-white p-6 shadow-lg md:p-12">
           <div className="text-center">
             {isLoading ? (
-              <LoadingState />
+              // Minimal inline loading indicator (no overlay)
+              <div className="py-6 text-sm text-gray-600">
+                Loading vehicles...
+              </div>
             ) : error ? (
               <ErrorState error={error} onRetry={refetch} />
             ) : filteredCars.length > 0 ? (
