@@ -1,6 +1,7 @@
 import { useAuth } from "../contexts/useAuth";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 import { useMemo } from "react";
+import WeatherWidget from "../components/Weather/WeatherWidget";
 import type { BookingInfo } from "../types/rental";
 import { getOperatorInfo } from "../types/rental";
 import {
@@ -106,18 +107,7 @@ const YourDayPage = () => {
         <div className="mb-6 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-3xl font-bold text-gray-900">Your Day</h1>
-            <div className="flex items-center gap-3 rounded-xl bg-blue-50 px-4 py-2">
-              <span className="text-2xl">{emoji}</span>
-              <div>
-                <div className="text-lg font-semibold text-blue-700">30°C</div>
-                <div className="text-xs text-gray-500">
-                  Sunny with a chance of afternoon showers
-                </div>
-                <a href="#" className="text-xs text-blue-600 hover:underline">
-                  View 5-day forecast
-                </a>
-              </div>
-            </div>
+            <WeatherWidget />
           </div>
 
           {/* Greeting */}
@@ -132,8 +122,8 @@ const YourDayPage = () => {
               }}
             />
             <span>
-              {greeting}, {user.givenName || fullName || user.email}! Here's
-              what's planned for your day
+              {emoji} {greeting}, {user.givenName || fullName || user.email}!
+              Here's what's planned for your day
             </span>
           </div>
         </div>
