@@ -5,7 +5,11 @@ import type { CarDetailsWithPricing } from "../../types/rental";
 
 type RentalCardProps = CarDetailsWithPricing;
 
-const RentalCard: React.FC<RentalCardProps> = ({
+interface Props extends RentalCardProps {
+  isLoading?: boolean;
+}
+
+const RentalCard: React.FC<Props> = ({
   model,
   seats,
   luggage,
@@ -17,10 +21,12 @@ const RentalCard: React.FC<RentalCardProps> = ({
   operator,
   operatorStyling,
   carId = "alphard-1",
+  isLoading = false,
 }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
+    if (isLoading) return; // disable navigation while loading
     // Navigate to add-ons page with car details in state
     navigate(`/booking/${carId}/addons`, {
       state: {
@@ -41,10 +47,13 @@ const RentalCard: React.FC<RentalCardProps> = ({
     });
   };
 
+  // track image load so we can cross-fade from skeleton to content when image is ready
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+
   return (
     <div
       onClick={handleCardClick}
-      className="group relative h-96 w-80 cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"
+      className={`group relative h-96 w-80 ${isLoading ? "cursor-default" : "cursor-pointer hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"} overflow-hidden rounded-xl shadow-lg transition-all duration-300`}
     >
       {/* Main Gradient Background */}
       <div
@@ -59,8 +68,10 @@ const RentalCard: React.FC<RentalCardProps> = ({
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-slate-600/10 to-indigo-600/0 transition-opacity duration-500 group-hover:opacity-200" />
       </div> */}
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full flex-col p-6">
+      {/* Content (cross-fades with skeleton) */}
+      <div
+        className={`relative z-10 flex h-full flex-col p-6 transition-opacity duration-500 ease-out ${isLoading || !imageLoaded ? "opacity-0" : "opacity-100"}`}
+      >
         {/* Promo Badge */}
         {promoText && (
           <div className="absolute top-0 -right-4 mr-2 rotate-12 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-700 px-3 py-1 text-xs font-bold text-white shadow-lg drop-shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-0 group-hover:from-red-600">
@@ -125,6 +136,7 @@ const RentalCard: React.FC<RentalCardProps> = ({
               alt={model}
               className="h-full w-full object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-110"
               onError={(e) => (e.currentTarget.style.display = "none")}
+              onLoad={() => setImageLoaded(true)}
             />
 
             {/* Shimmer Effect */}
@@ -148,6 +160,37 @@ const RentalCard: React.FC<RentalCardProps> = ({
 
           {/* Animated Border */}
           <div className="absolute -bottom-6 left-0 h-1 w-0 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-500 group-hover:w-full" />
+        </div>
+      </div>
+
+      {/* Skeleton overlay */}
+      <div
+        className={`absolute inset-0 z-20 flex flex-col p-6 transition-opacity duration-500 ease-out ${isLoading || !imageLoaded ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        aria-hidden={true}
+      >
+        <div className="mb-4 h-20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="h-6 w-36 animate-pulse rounded bg-gray-300/80" />
+              <div className="ml-2 h-3 w-20 animate-pulse rounded bg-gray-300/70" />
+            </div>
+            <div className="h-6 w-16 animate-pulse rounded bg-gray-300/80" />
+          </div>
+
+          <div className="mt-3 flex gap-4">
+            <div className="h-4 w-10 animate-pulse rounded bg-gray-300/70" />
+            <div className="h-4 w-10 animate-pulse rounded bg-gray-300/70" />
+            <div className="h-4 w-16 animate-pulse rounded bg-gray-300/70" />
+          </div>
+        </div>
+
+        <div className="relative mb-4 flex flex-1 items-center justify-center">
+          <div className="h-50 w-full animate-pulse rounded-md bg-gray-200/80" />
+        </div>
+
+        <div className="relative mt-auto space-y-2">
+          <div className="h-4 w-20 animate-pulse rounded bg-gray-300/70" />
+          <div className="h-6 w-28 animate-pulse rounded bg-gray-300/80" />
         </div>
       </div>
 

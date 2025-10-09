@@ -422,10 +422,11 @@ const UserVehicleBrowsePage: React.FC = () => {
         <div className="rounded-lg bg-white p-6 shadow-lg md:p-12">
           <div className="text-center">
             {isLoading ? (
-              // Minimal inline loading indicator (no overlay)
-              <div className="py-6 text-sm text-gray-600">
-                Loading vehicles...
-              </div>
+              // Show skeleton placeholders inside the grid for graceful cross-fade
+              <>
+                <VehicleGrid vehicles={[]} isLoading placeholderCount={6} />
+                <ComingSoonSection />
+              </>
             ) : error ? (
               <ErrorState error={error} onRetry={refetch} />
             ) : filteredCars.length > 0 ? (
