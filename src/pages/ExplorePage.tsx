@@ -1,5 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react";
-import { useLoading } from "../hooks/useLoading";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./Explore.css";
@@ -40,7 +39,8 @@ const ExplorePage: React.FC = () => {
   const activeMarkerRef = useRef<MarkerData | null>(null);
   const hoveredMarkerRef = useRef<MarkerData | null>(null);
   const hoverTimeoutRef = useRef<number | null>(null);
-  const { show, hide } = useLoading();
+  // Local map loading state (use a small inline loader instead of the global overlay)
+  const [isMapLoading, setIsMapLoading] = useState(true);
 
   // Function to handle marker hover (show popup)
   const handleMarkerHover = useCallback((markerData: MarkerData) => {
@@ -220,12 +220,8 @@ const ExplorePage: React.FC = () => {
   useEffect(() => {
     if (!mapContainer.current || mapInstance.current) return;
 
-    // show global loader while map initializes
-    try {
-      show();
-    } catch {
-      // ignore if loader unavailable
-    }
+    // mark local map loader visible while map initializes
+    setIsMapLoading(true);
 
     try {
       const map = new mapboxgl.Map({
@@ -264,12 +260,8 @@ const ExplorePage: React.FC = () => {
 
       // Handle map load event
       map.on("load", () => {
-        // hide global loader when map finished loading
-        try {
-          hide();
-        } catch {
-          /* ignore */
-        }
+        // hide local loader when map finished loading
+        setIsMapLoading(false);
 
         // Add markers after map is loaded
         places.features.forEach((feature, index) => {
@@ -300,22 +292,14 @@ const ExplorePage: React.FC = () => {
       // Handle errors
       map.on("error", (e) => {
         console.error("Mapbox error:", e);
-        try {
-          hide();
-        } catch {
-          /* ignore */
-        }
+        setIsMapLoading(false);
       });
 
       mapInstance.current = map;
     } catch (error) {
       console.error("Failed to initialize map:", error);
-      // hide loader on any thrown error
-      try {
-        hide();
-      } catch {
-        /* ignore */
-      }
+      // hide local loader on any thrown error
+      setIsMapLoading(false);
     }
 
     // Cleanup function
@@ -343,18 +327,30 @@ const ExplorePage: React.FC = () => {
         mapInstance.current = null;
       }
 
-      // ensure global loader is hidden on unmount
-      try {
-        hide();
-      } catch {
-        /* ignore */
-      }
+      // ensure local loader is hidden on unmount
+      setIsMapLoading(false);
     };
-  }, [createMarker, updateMarkerSizes, show, hide]);
+  }, [createMarker, updateMarkerSizes]);
 
   return (
-    <div className="explore-page">
+    <div className="explore-page relative">
       <div ref={mapContainer} className="map-container" />
+
+      {/* Small, local inline loader centered over the map while it initializes */}
+      {isMapLoading && (
+        <div className="pointer-events-auto absolute inset-0 z-40 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2 rounded-lg bg-white/70 p-3 shadow backdrop-blur-sm">
+            <div className="animate-rotate-bounce">
+              <img
+                src="/icon_s.png"
+                alt="Loading map"
+                className="h-12 w-12 rounded-full bg-white p-2 shadow"
+              />
+            </div>
+            <div className="text-sm text-gray-700">Loading map…</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

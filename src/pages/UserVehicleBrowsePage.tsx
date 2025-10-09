@@ -46,13 +46,7 @@ const UserVehicleBrowsePage: React.FC = () => {
     setShowMobileFilters(false);
   };
 
-  if (isLoading) {
-    return <LoadingState />;
-  }
-
-  if (error) {
-    return <ErrorState error={error} onRetry={refetch} />;
-  }
+  // Always render page shell (keeps navbar/footer visible). Show loader/error inline in content area.
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -428,7 +422,11 @@ const UserVehicleBrowsePage: React.FC = () => {
         {/* Rental Cars Grid */}
         <div className="rounded-lg bg-white p-6 shadow-lg md:p-12">
           <div className="text-center">
-            {filteredCars.length > 0 ? (
+            {isLoading ? (
+              <LoadingState />
+            ) : error ? (
+              <ErrorState error={error} onRetry={refetch} />
+            ) : filteredCars.length > 0 ? (
               <>
                 <VehicleGrid vehicles={filteredCars} />
                 <ComingSoonSection />

@@ -7,7 +7,8 @@ const LoadingOverlay: React.FC = () => {
   if (!isLoading) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+    // absolute so it fills the nearest positioned parent (we'll place this inside <main className="relative">)
+    <div className="pointer-events-auto absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
       <div className="flex flex-col items-center gap-4">
         <div className="animate-rotate-bounce">
           <img

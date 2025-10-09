@@ -7,7 +7,7 @@ interface ErrorStateProps {
 
 const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex w-full items-center justify-center py-12">
       <div className="rounded-xl bg-white p-8 text-center shadow-lg">
         <h2 className="mb-4 text-2xl font-bold text-red-600">
           Something Went Wrong
