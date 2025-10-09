@@ -9,7 +9,7 @@ interface VehicleGridProps {
 
 const VehicleGrid: React.FC<VehicleGridProps> = ({ vehicles }) => {
   return (
-    <div className="grid grid-cols-1 justify-items-center gap-8 md:[grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
+    <div className="grid grid-cols-1 justify-center justify-items-center gap-10 md:[grid-template-columns:repeat(auto-fit,minmax(320px,320px))] lg:gap-12">
       {vehicles.map((car) => (
         <RentalCard
           key={car.id}
