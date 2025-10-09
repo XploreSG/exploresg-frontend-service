@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo, useState, useRef, useCallback } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   useReactTable,
   getCoreRowModel,
@@ -189,8 +189,8 @@ const FleetAdminListPage: React.FC = () => {
     [],
   );
 
-  // Fetch fleet data from API (use same auth/header pattern as dashboard)
-  React.useEffect(() => {
+  // Extracted fetch so we can call it on demand (e.g. when returning to the page)
+  const fetchFleet = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -217,56 +217,64 @@ const FleetAdminListPage: React.FC = () => {
     const headers: HeadersInit = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    fetch(apiUrl, { method: "GET", headers, credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch fleet data");
-        return res.json();
-      })
-      .then((result) => {
-        const content = (result.content || []) as ApiFleetItem[];
-        const normalizeStatus = (s?: string | null) => {
-          const code = (s || "").toString();
-          if (code === "AVAILABLE" || code === "Available") return "AVAILABLE";
-          if (
-            code === "IN_USE" ||
-            code === "In Use" ||
-            code === "BOOKED" ||
-            code === "Booked"
-          )
-            return "IN_USE";
-          if (code === "MAINTENANCE" || code === "UNDER_MAINTENANCE")
-            return "MAINTENANCE";
-          return code.toUpperCase();
-        };
+    try {
+      const res = await fetch(apiUrl, {
+        method: "GET",
+        headers,
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to fetch fleet data");
+      const result = await res.json();
 
-        const mapped: FleetTableData[] = content.map((item) => ({
-          id: item.id,
-          licensePlate: item.licensePlate,
-          status: normalizeStatus(item.status),
-          model: item.carModel?.model,
-          manufacturer: item.carModel?.manufacturer,
-          imageUrl: item.carModel?.imageUrl,
-          currentLocation: item.currentLocation,
-          mileageKm: item.mileageKm,
-          dailyPrice: item.dailyPrice,
-          availableFrom: item.availableFrom,
-          availableUntil: item.availableUntil,
-          maintenanceNote: item.maintenanceNote,
-          expectedReturnDate: item.expectedReturnDate,
-        }));
+      const content = (result.content || []) as ApiFleetItem[];
+      const normalizeStatus = (s?: string | null) => {
+        const code = (s || "").toString();
+        if (code === "AVAILABLE" || code === "Available") return "AVAILABLE";
+        if (
+          code === "IN_USE" ||
+          code === "In Use" ||
+          code === "BOOKED" ||
+          code === "Booked"
+        )
+          return "IN_USE";
+        if (code === "MAINTENANCE" || code === "UNDER_MAINTENANCE")
+          return "MAINTENANCE";
+        return code.toUpperCase();
+      };
 
-        setData(mapped);
-        setTotalCount(result.totalElements || 0);
-        const map: Record<string, ApiFleetItem> = {};
-        content.forEach((it) => (map[it.id] = it));
-        setRawById(map);
-        // publish to shared context so other pages can consume
-        setFleet(content);
-      })
-      .catch((err) => {
-        setError(err?.message || "Failed to load fleet data");
-      })
-      .finally(() => setLoading(false));
+      const mapped: FleetTableData[] = content.map((item) => ({
+        id: item.id,
+        licensePlate: item.licensePlate,
+        status: normalizeStatus(item.status),
+        model: item.carModel?.model,
+        manufacturer: item.carModel?.manufacturer,
+        imageUrl: item.carModel?.imageUrl,
+        currentLocation: item.currentLocation,
+        mileageKm: item.mileageKm,
+        dailyPrice: item.dailyPrice,
+        availableFrom: item.availableFrom,
+        availableUntil: item.availableUntil,
+        maintenanceNote: item.maintenanceNote,
+        expectedReturnDate: item.expectedReturnDate,
+      }));
+
+      setData(mapped);
+      setTotalCount(result.totalElements || 0);
+      const map: Record<string, ApiFleetItem> = {};
+      content.forEach((it) => (map[it.id] = it));
+      setRawById(map);
+      // publish to shared context so other pages can consume
+      setFleet(content);
+    } catch (err: unknown) {
+      let message = String(err);
+      if (err && typeof err === "object") {
+        const maybeErr = err as { message?: unknown };
+        if (typeof maybeErr.message === "string") message = maybeErr.message;
+      }
+      setError(message || "Failed to load fleet data");
+    } finally {
+      setLoading(false);
+    }
   }, [
     pageIndex,
     pageSize,
@@ -278,6 +286,41 @@ const FleetAdminListPage: React.FC = () => {
     searchLocation,
     setFleet,
   ]);
+
+  // Run fetch on initial load and when dependencies change
+  React.useEffect(() => {
+    void fetchFleet();
+  }, [fetchFleet]);
+
+  // Navigation-aware refresh: if we leave the fleet page while a vehicle is 'IN_USE',
+  // mark that we need to refresh when returning. When we return, trigger a fetch.
+  const location = useLocation();
+  const myPathRef = useRef(location.pathname);
+  const prevPathRef = useRef(location.pathname);
+
+  React.useEffect(() => {
+    const prev = prevPathRef.current;
+    const current = location.pathname;
+
+    const hasActiveCall =
+      data.some((v) => v.status === "IN_USE") ||
+      selectedVehicle?.status === "IN_USE";
+
+    // leaving the page
+    if (prev === myPathRef.current && current !== myPathRef.current) {
+      if (hasActiveCall) sessionStorage.setItem("fleet-refresh-needed", "1");
+    }
+
+    // returning to the page
+    if (prev !== myPathRef.current && current === myPathRef.current) {
+      if (sessionStorage.getItem("fleet-refresh-needed")) {
+        void fetchFleet();
+        sessionStorage.removeItem("fleet-refresh-needed");
+      }
+    }
+
+    prevPathRef.current = current;
+  }, [location.pathname, data, selectedVehicle, fetchFleet]);
 
   // Create the table instance (manual pagination/sorting)
   const table = useReactTable({
@@ -382,16 +425,16 @@ const FleetAdminListPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Table */}
+        {/* Table with skeleton overlay and cross-fade transition */}
         <div className="overflow-x-auto">
-          {loading ? (
-            <div className="p-8 text-center text-gray-500">
-              Loading fleet data...
-            </div>
-          ) : error ? (
-            <div className="p-8 text-center text-red-500">{error}</div>
-          ) : (
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="relative">
+            {/* Real table (fades in when not loading) */}
+            <table
+              className={`min-w-full divide-y divide-gray-200 transition-opacity duration-300 ${
+                loading ? "opacity-0" : "opacity-100"
+              }`}
+              aria-hidden={loading}
+            >
               <thead className="bg-gray-50">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
@@ -484,7 +527,44 @@ const FleetAdminListPage: React.FC = () => {
                 )}
               </tbody>
             </table>
-          )}
+
+            {/* Skeleton overlay (absolute) */}
+            <div
+              className={`absolute inset-0 bg-white transition-opacity duration-300 ${
+                loading ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+            >
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    {columns.map((_, idx) => (
+                      <th
+                        key={idx}
+                        className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+                      >
+                        <div className="h-3 w-24 rounded bg-gray-200" />
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  {Array.from({ length: Math.min(pageSize || 5, 10) }).map(
+                    (_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        {columns.map((_, c) => (
+                          <td key={c} className="px-6 py-4">
+                            <div className="h-4 rounded bg-gray-200" />
+                          </td>
+                        ))}
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {/* End skeleton overlay */}
+          </div>
+          {error && <div className="p-4 text-sm text-red-500">{error}</div>}
         </div>
 
         {/* Pagination */}
