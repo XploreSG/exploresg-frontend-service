@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useFleetData } from "../hooks/useFleetData";
 import { formatCategoryName } from "../utils/rentalUtils";
@@ -36,6 +36,26 @@ const UserVehicleBrowsePage: React.FC = () => {
     hasActiveFilters,
     refetch,
   } = useFleetData();
+
+  // Local snapshot of cars to animate transitions when filters change
+  const [displayedCars, setDisplayedCars] = useState(filteredCars);
+  const prevFilteredRef = useRef(filteredCars);
+  const [gridVisible, setGridVisible] = useState(true);
+
+  useEffect(() => {
+    // Only animate when the filteredCars array reference changes
+    if (prevFilteredRef.current === filteredCars) return;
+
+    // Fade out, swap data, fade in
+    setGridVisible(false);
+    const t = window.setTimeout(() => {
+      setDisplayedCars(filteredCars);
+      setGridVisible(true);
+      prevFilteredRef.current = filteredCars;
+    }, 160); // short fade duration
+
+    return () => window.clearTimeout(t);
+  }, [filteredCars]);
 
   // Mobile filter popup state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -431,8 +451,16 @@ const UserVehicleBrowsePage: React.FC = () => {
               <ErrorState error={error} onRetry={refetch} />
             ) : filteredCars.length > 0 ? (
               <>
-                <VehicleGrid vehicles={filteredCars} />
-                <ComingSoonSection />
+                <div
+                  className={`transition-all duration-200 ${gridVisible ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"}`}
+                >
+                  <VehicleGrid vehicles={displayedCars} />
+                </div>
+                <div
+                  className={`transition-opacity duration-300 ${gridVisible ? "opacity-100" : "opacity-0"}`}
+                >
+                  <ComingSoonSection />
+                </div>
               </>
             ) : (
               <EmptyState onClearFilters={resetFilters} />
