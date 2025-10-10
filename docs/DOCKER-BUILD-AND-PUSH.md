@@ -25,7 +25,6 @@ Replace `YOUR_DOCKERHUB_USERNAME` with your actual Docker Hub username:
 ```powershell
 # Build for Docker Hub
 docker build -t YOUR_DOCKERHUB_USERNAME/exploresg-frontend-service:latest .
-docker build -t sreerajrone/exploresg-frontend-service:latest .
 
 # Example:
 # docker build -t sreerajrone/exploresg-frontend-service:latest .
