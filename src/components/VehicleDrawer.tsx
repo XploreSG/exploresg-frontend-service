@@ -1,40 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-type ApiItem = {
-  id: string;
-  licensePlate: string;
-  status: string;
-  carModel?: { model?: string; manufacturer?: string; imageUrl?: string };
-  currentLocation?: string;
-  mileageKm?: number;
-  dailyPrice?: number;
-  availableFrom?: string | null;
-  availableUntil?: string | null;
-  maintenanceNote?: string | null;
-  expectedReturnDate?: string | null;
-};
-
-type RowItem = {
-  id: string;
-  licensePlate: string;
-  status: string;
-  model?: string;
-  manufacturer?: string;
-  currentLocation?: string;
-  imageUrl?: string;
-  mileageKm?: number;
-  dailyPrice?: number;
-  availableFrom?: string | null;
-  availableUntil?: string | null;
-  maintenanceNote?: string | null;
-  expectedReturnDate?: string | null;
-  hasActiveBooking?: boolean;
-};
+import type { ApiFleetItem, VehicleRow } from "../types/vehicle";
 
 type Props = {
-  selectedVehicle: RowItem | null;
-  selectedVehicleRaw: ApiItem | null;
+  selectedVehicle: VehicleRow | null;
+  selectedVehicleRaw: ApiFleetItem | null;
   onClose: () => void;
 };
 
