@@ -5,14 +5,16 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  flexRender,
   type ColumnDef,
   type SortingState,
   type PaginationState,
 } from "@tanstack/react-table";
+import FleetSearchFilters from "../components/FleetSearchFilters";
+import FleetTable from "../components/FleetTable";
+import FleetPagination from "../components/FleetPagination";
+// Vehicle drawer markup remains inline in this page (keeps behavior identical)
 import { FLEET_API_BASE_URL } from "../config/api";
 import { useFleetContext } from "../contexts/FleetContext";
-
 // API Fleet Data type
 type FleetTableData = {
   id: string;
@@ -170,16 +172,10 @@ const FleetAdminListPage: React.FC = () => {
           const status = info.getValue() as string;
           return (
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-                status === "AVAILABLE"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${status === "AVAILABLE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
             >
               <span
-                className={`h-2 w-2 rounded-full ${
-                  status === "AVAILABLE" ? "bg-green-500" : "bg-red-500"
-                }`}
+                className={`h-2 w-2 rounded-full ${status === "AVAILABLE" ? "bg-green-500" : "bg-red-500"}`}
               />
               {status === "AVAILABLE" ? "Available" : "Maintenance"}
             </span>
@@ -276,7 +272,7 @@ const FleetAdminListPage: React.FC = () => {
               availableUntil: item.availableUntil,
               maintenanceNote: item.maintenanceNote,
               expectedReturnDate: item.expectedReturnDate,
-              hasActiveBooking, // NEW: Include booking status
+              hasActiveBooking,
             };
           }),
         );
@@ -341,303 +337,42 @@ const FleetAdminListPage: React.FC = () => {
       </div>
 
       <div className="overflow-hidden rounded-lg bg-white shadow">
-        {/* Search and Filters */}
-        <div className="border-b border-gray-200 bg-gray-50 p-4">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-              <input
-                type="text"
-                placeholder="License Plate"
-                value={searchLicensePlate}
-                onChange={(e) => {
-                  setSearchLicensePlate(e.target.value);
-                  setPageIndex(0);
-                }}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-              />
-              <input
-                type="text"
-                placeholder="Model"
-                value={searchModel}
-                onChange={(e) => {
-                  setSearchModel(e.target.value);
-                  setPageIndex(0);
-                }}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-              />
-              <input
-                type="text"
-                placeholder="Manufacturer"
-                value={searchManufacturer}
-                onChange={(e) => {
-                  setSearchManufacturer(e.target.value);
-                  setPageIndex(0);
-                }}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-              />
-              <input
-                type="text"
-                placeholder="Location"
-                value={searchLocation}
-                onChange={(e) => {
-                  setSearchLocation(e.target.value);
-                  setPageIndex(0);
-                }}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-              />
-              <select
-                value={selectedStatus}
-                onChange={(e) => {
-                  setSelectedStatus(e.target.value);
-                  setPageIndex(0);
-                }}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-              >
-                <option value="">All Status</option>
-                <option value="AVAILABLE">Available</option>
-                <option value="UNDER_MAINTENANCE">Maintenance</option>
-              </select>
-            </div>
-          </div>
-        </div>
+        <FleetSearchFilters
+          searchLicensePlate={searchLicensePlate}
+          setSearchLicensePlate={setSearchLicensePlate}
+          searchModel={searchModel}
+          setSearchModel={setSearchModel}
+          searchManufacturer={searchManufacturer}
+          setSearchManufacturer={setSearchManufacturer}
+          searchLocation={searchLocation}
+          setSearchLocation={setSearchLocation}
+          selectedStatus={selectedStatus}
+          setSelectedStatus={setSelectedStatus}
+          setPageIndex={setPageIndex}
+        />
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="p-8 text-center text-gray-500">
-              Loading fleet data...
-            </div>
-          ) : error ? (
-            <div className="p-8 text-center text-red-500">{error}</div>
-          ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-                      >
-                        {header.isPlaceholder ? null : (
-                          <div
-                            className={
-                              header.column.getCanSort()
-                                ? "flex cursor-pointer items-center gap-2 select-none hover:text-gray-700"
-                                : ""
-                            }
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                            {header.column.getCanSort() && (
-                              <span className="text-gray-400">
-                                {{
-                                  asc: "↑",
-                                  desc: "↓",
-                                }[header.column.getIsSorted() as string] ??
-                                  "↕"}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {data.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={columns.length}
-                      className="px-6 py-12 text-center text-sm text-gray-500"
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <svg
-                          className="h-12 w-12 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <p className="font-medium">No vehicles found</p>
-                        <p className="text-xs">
-                          Try adjusting your search or filters
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      className="cursor-pointer transition-colors hover:bg-gray-50"
-                      onClick={() => {
-                        setSelectedVehicle(row.original);
-                        const raw = rawById[row.original.id];
-                        setSelectedVehicleRaw(raw ?? null);
-                      }}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <td
-                          key={cell.id}
-                          className="px-6 py-4 whitespace-nowrap"
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
+        <FleetTable
+          table={table}
+          data={data}
+          columnsCount={columns.length}
+          loading={loading}
+          error={error}
+          onRowClick={(row) => {
+            setSelectedVehicle(row.original as FleetTableData);
+            const raw = rawById[(row.original as FleetTableData).id];
+            setSelectedVehicleRaw(raw ?? null);
+          }}
+        />
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-          <div className="flex flex-1 justify-between sm:hidden">
-            <button
-              onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
-              disabled={pageIndex === 0}
-              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPageIndex((prev) => prev + 1)}
-              disabled={(pageIndex + 1) * pageSize >= totalCount}
-              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              <p className="text-sm text-gray-700">
-                Showing {pageIndex * pageSize + 1} to{" "}
-                {Math.min((pageIndex + 1) * pageSize, totalCount)} of{" "}
-                {totalCount} results
-              </p>
-              <select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setPageIndex(0);
-                }}
-                className="rounded-md border border-gray-300 py-1 pr-8 pl-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-              >
-                {[5, 10, 20, 50].map((size) => (
-                  <option key={size} value={size}>
-                    Show {size}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <nav
-                className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                aria-label="Pagination"
-              >
-                <button
-                  onClick={() => setPageIndex(0)}
-                  disabled={pageIndex === 0}
-                  className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="sr-only">First</span>
-                  <svg
-                    className="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M15.79 14.77a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L11.832 10l3.938 3.71a.75.75 0 01.02 1.06zm-6 0a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L5.832 10l3.938 3.71a.75.75 0 01.02 1.06z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
-                  disabled={pageIndex === 0}
-                  className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="sr-only">Previous</span>
-                  <svg
-                    className="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-                <span className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700">
-                  Page {pageIndex + 1} of{" "}
-                  {Math.max(1, Math.ceil(totalCount / pageSize))}
-                </span>
-                <button
-                  onClick={() => setPageIndex((prev) => prev + 1)}
-                  disabled={(pageIndex + 1) * pageSize >= totalCount}
-                  className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="sr-only">Next</span>
-                  <svg
-                    className="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={() =>
-                    setPageIndex(
-                      Math.max(0, Math.ceil(totalCount / pageSize) - 1),
-                    )
-                  }
-                  disabled={(pageIndex + 1) * pageSize >= totalCount}
-                  className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="sr-only">Last</span>
-                  <svg
-                    className="h-5 w-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10.21 14.77a.75.75 0 01.02-1.06L14.168 10 10.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02zm-6 0a.75.75 0 01.02-1.06L8.168 10 4.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </nav>
-            </div>
-          </div>
-        </div>
+        <FleetPagination
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          totalCount={totalCount}
+          setPageIndex={setPageIndex}
+          setPageSize={setPageSize}
+        />
       </div>
 
-      {/* Vehicle Details Drawer - UNCHANGED except small booking badge */}
       {selectedVehicle && (
         <>
           <div
