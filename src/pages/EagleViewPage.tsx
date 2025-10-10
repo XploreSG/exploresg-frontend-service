@@ -436,7 +436,8 @@ const EagleViewPage: React.FC = () => {
           <h1 className="mb-4 text-2xl font-bold">Eagle View</h1>
           <div className="rounded-md border border-dashed border-red-300 bg-red-50 p-4 text-sm text-red-700">
             MAPBOX_TOKEN is not configured. The map cannot be shown. Please set
-            VITE_MAPBOX_TOKEN in your environment.
+            MAPBOX_TOKEN in your environment (runtime: window._env_ or
+            build-time: VITE_MAPBOX_TOKEN).
           </div>
         </div>
       ) : (
