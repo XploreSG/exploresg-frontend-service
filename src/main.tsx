@@ -7,7 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { FleetProvider } from "./contexts/FleetContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { getGoogleClientId, getResolvedEnv } from "./config/runtimeEnv";
+import { getEnvVar, getResolvedEnv } from "./config/runtimeEnv";
 
 // Log resolved env (mask sensitive tokens)
 try {
@@ -33,7 +33,7 @@ try {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={getGoogleClientId()}>
+    <GoogleOAuthProvider clientId={getEnvVar("GOOGLE_CLIENT_ID")}>
       <AuthProvider>
         <FleetProvider>
           <LoadingProvider>

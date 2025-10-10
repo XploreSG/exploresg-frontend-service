@@ -4,33 +4,7 @@
  * Supports both build-time (Vite) and runtime (Docker-injected env.js) environments.
  */
 
-// -----------------------------------------
-// ✅ Helper: Get Environment Variable (Runtime + Build-time)
-// -----------------------------------------
-interface EnvWindow extends Window {
-  _env_?: Record<string, string>;
-}
-
-const getEnvVar = (key: string, fallback = ""): string => {
-  // 1. Runtime-injected env (from window._env_)
-  if (
-    typeof window !== "undefined" &&
-    (window as EnvWindow)._env_ &&
-    (window as EnvWindow)._env_![key]
-  ) {
-    return (window as EnvWindow)._env_![key];
-  }
-
-  // 2. Build-time Vite env (from import.meta.env)
-  const viteKey = `VITE_${key}`;
-  const viteValue = (import.meta.env as Record<string, string | undefined>)[
-    viteKey
-  ];
-  if (viteValue) return viteValue;
-
-  // 3. Default fallback
-  return fallback;
-};
+import { getEnvVar } from "./runtimeEnv";
 
 // -----------------------------------------
 // ✅ Required Environment Variables Validation
