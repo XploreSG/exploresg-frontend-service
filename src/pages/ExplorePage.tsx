@@ -3,12 +3,10 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./Explore.css";
 import { places } from "../data/places.geojson";
+import { MAPBOX_TOKEN } from "../config/api";
 
-// Move token to environment variable for security
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
-// mapboxgl.accessToken =
-//   import.meta.env.VITE_MAPBOX_TOKEN ||
-//   "pk.eyJ1Ijoic3JlZS1yLW9uZSIsImEiOiJjbTY1OTJjemQxc25zMmpvdWQ2MWN2aDlvIn0.VMrL_nkV5-W7-T4AcEY3qA";
+// Use centralized MAPBOX_TOKEN that supports runtime env injection
+mapboxgl.accessToken = MAPBOX_TOKEN;
 
 // Constants for better maintainability
 const MAP_CONFIG = {
