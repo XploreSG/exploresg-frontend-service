@@ -48,11 +48,20 @@ if (Test-Path ".\frontend.env") {
     # Display env vars (masked)
     Write-Host ""
     Write-Host "Environment variables in frontend.env:" -ForegroundColor Cyan
+    # Define sensitive keywords (case-insensitive)
+    $sensitiveKeywords = @("TOKEN", "CLIENT_ID", "SECRET", "PASSWORD", "API_KEY", "ACCESS_KEY", "PRIVATE_KEY", "AUTH", "KEY", "SESSION", "JWT", "CERT", "CREDENTIAL", "ID_TOKEN")
     Get-Content ".\frontend.env" | ForEach-Object {
         if ($_ -match '^([^=]+)=(.*)$') {
             $key = $matches[1]
             $value = $matches[2]
-            if ($key -like "*TOKEN*" -or $key -like "*CLIENT_ID*") {
+            $isSensitive = $false
+            foreach ($kw in $sensitiveKeywords) {
+                if ($key.ToUpper().Contains($kw)) {
+                    $isSensitive = $true
+                    break
+                }
+            }
+            if ($isSensitive) {
                 if ($value.Length -gt 20) {
                     $masked = $value.Substring(0, 10) + "..." + $value.Substring($value.Length - 6)
                     Write-Host "  $key=$masked" -ForegroundColor Gray
