@@ -318,7 +318,8 @@ const FleetAdminListPage: React.FC = () => {
         <VehicleDrawer
           selectedVehicle={selectedVehicle}
           selectedVehicleRaw={selectedVehicleRaw}
-          onClose={() => {
+          onRequestClose={() => {
+            // clear selection after drawer requests close
             setSelectedVehicle(null);
             setSelectedVehicleRaw(null);
           }}

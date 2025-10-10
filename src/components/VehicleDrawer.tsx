@@ -5,7 +5,9 @@ import type { ApiFleetItem, VehicleRow } from "../types/vehicle";
 type Props = {
   selectedVehicle: VehicleRow | null;
   selectedVehicleRaw: ApiFleetItem | null;
-  onClose: () => void;
+  // Parent should supply a callback that clears selection; the drawer
+  // will animate closed and call this after the animation completes.
+  onRequestClose: () => void;
 };
 
 const formatDate = (iso?: string | null) => {
@@ -36,22 +38,42 @@ const formatNumber = (n?: number | null, unit = "km") =>
 const VehicleDrawer: React.FC<Props> = ({
   selectedVehicle,
   selectedVehicleRaw,
-  onClose,
+  onRequestClose,
 }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isClosing, setIsClosing] = React.useState(false);
+
+  React.useEffect(() => {
+    // open when mounted with a tick so the enter transition runs
+    setIsClosing(false);
+    const t = setTimeout(() => setIsOpen(true), 10);
+    return () => clearTimeout(t);
+  }, [selectedVehicle]);
+
+  const startClose = React.useCallback(() => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setIsOpen(false);
+    // match the duration in the CSS transition (300ms)
+    setTimeout(() => onRequestClose(), 300);
+  }, [isClosing, onRequestClose]);
+
   if (!selectedVehicle) return null;
 
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
-        onClick={onClose}
+        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 ${isOpen && !isClosing ? "opacity-100" : "opacity-0"}`}
+        onClick={startClose}
       />
 
-      <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md transform overflow-hidden bg-white shadow-xl transition-transform duration-300 ease-in-out sm:max-w-lg">
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-full max-w-md transform overflow-hidden bg-white shadow-xl transition-transform duration-300 ease-in-out sm:max-w-lg ${isOpen && !isClosing ? "translate-x-0" : "-translate-x-full"}`}
+      >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
           <h2 className="text-xl font-bold text-gray-900">Vehicle Details</h2>
           <button
-            onClick={onClose}
+            onClick={startClose}
             className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
             aria-label="Close drawer"
           >
@@ -457,7 +479,16 @@ const VehicleDrawer: React.FC<Props> = ({
                 <Link
                   to={`/manager/eagle-view?vehicle=${encodeURIComponent(selectedVehicle.licensePlate ?? "")}`}
                   className="flex items-start gap-3 rounded-lg border border-gray-200 p-4 transition-all hover:border-indigo-500 hover:bg-indigo-50 hover:shadow-md"
-                  onClick={onClose}
+                  onClick={(e) => {
+                    // close drawer gracefully before navigating
+                    e.preventDefault();
+                    const href = `/manager/eagle-view?vehicle=${encodeURIComponent(selectedVehicle.licensePlate ?? "")}`;
+                    startClose();
+                    // navigate after animation completes
+                    setTimeout(() => {
+                      window.location.href = href;
+                    }, 320);
+                  }}
                 >
                   <svg
                     className="h-5 w-5 flex-shrink-0 text-indigo-600"
