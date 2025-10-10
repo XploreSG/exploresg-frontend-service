@@ -27,8 +27,8 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY public/env.template.js /usr/share/nginx/html/env.template.js
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-# Make entrypoint executable
-RUN chmod +x /docker-entrypoint.sh
+# Fix line endings and make entrypoint executable
+RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
 
 # Expose the frontend port
 EXPOSE 3000
