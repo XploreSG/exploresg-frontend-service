@@ -7,8 +7,6 @@ import {
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import LoadingOverlay from "./components/LoadingOverlay";
-import { useLoading } from "./hooks/useLoading";
 import { useEffect } from "react";
 import { RoleBanner } from "./components/RoleBanner";
 import HomePage from "./pages/HomePage";
@@ -43,8 +41,7 @@ const App = () => {
       <div className="flex min-h-screen flex-col">
         <RoleBanner />
         <Navbar />
-        <LoadingOverlay />
-        <main className="flex-1">
+        <main className="relative flex-1">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
@@ -121,13 +118,11 @@ const App = () => {
 export default App;
 
 function RouteChangeHandler() {
-  const { hide } = useLoading();
+  // No global loader in use; keep handler for future needs (e.g., analytics) and to ensure Router usage
   const location = useLocation();
 
   useEffect(() => {
-    // hide any loader once route finishes mounting
-    hide();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // placeholder side-effect when route changes
   }, [location.pathname]);
 
   return null;

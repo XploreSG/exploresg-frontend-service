@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
-import InlineLogoLoader from "../components/InlineLogoLoader";
+// import InlineLogoLoader from "../components/InlineLogoLoader";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -124,16 +124,6 @@ const FleetAdminDashboardPage: React.FC = () => {
     fetchDashboardData();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="sha flex h-64 items-center justify-center">
-          <InlineLogoLoader size={56} />
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -150,152 +140,190 @@ const FleetAdminDashboardPage: React.FC = () => {
     );
   }
 
-  if (!dashboardData) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex h-64 items-center justify-center">
-          <p className="text-lg text-gray-600">No dashboard data available.</p>
-        </div>
-      </div>
-    );
-  }
+  // Provide safe defaults so the page can render during loading/fallback
+  const vehicleStatus = dashboardData?.vehicleStatus ?? {
+    available: 0,
+    underMaintenance: 0,
+    booked: 0,
+    total: 0,
+  };
 
-  const {
-    vehicleStatus,
-    statistics,
-    serviceReminders,
-    workOrders,
-    fleetByModel,
-  } = dashboardData;
+  const statistics = dashboardData?.statistics ?? {
+    totalVehicles: 0,
+    totalModels: 0,
+    averageMileage: 0,
+    totalMileage: 0,
+    totalPotentialDailyRevenue: 0,
+    totalRevenue: 0,
+    utilizationRate: 0,
+  };
+
+  const serviceReminders = dashboardData?.serviceReminders ?? {
+    overdue: 0,
+    dueSoon: 0,
+  };
+
+  const workOrders = dashboardData?.workOrders ?? { active: 0, pending: 0 };
+
+  const fleetByModel = dashboardData?.fleetByModel ?? [];
 
   return (
     <div
       className={`min-h-screen bg-gradient-to-br from-10% via-white via-20% to-gray-800 to-55% ${operatorInfo ? operatorInfo.styling.background : "bg-white"}`}
     >
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-white">
-            {operatorInfo
-              ? `${operatorInfo.name} Fleet Manager Dashboard`
-              : "Fleet Manager Dashboard"}
-          </h1>
-          {operatorInfo && (
-            <span
-              className={`rounded-md px-3 py-1 text-sm font-semibold ${operatorInfo.styling.brand}`}
-            >
-              {operatorInfo.name}
-            </span>
-          )}
-        </div>
+        {/* Make the content area relative so we can place an absolute skeleton overlay */}
+        <div className="relative">
+          <div
+            className={`transition-opacity duration-300 ${isLoading ? "opacity-50" : "opacity-100"}`}
+          >
+            <div className="mb-6 flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-white">
+                {operatorInfo
+                  ? `${operatorInfo.name} Fleet Manager Dashboard`
+                  : "Fleet Manager Dashboard"}
+              </h1>
+              {operatorInfo && (
+                <span
+                  className={`rounded-md px-3 py-1 text-sm font-semibold ${operatorInfo.styling.brand}`}
+                >
+                  {operatorInfo.name}
+                </span>
+              )}
+            </div>
 
-        {/* Vehicle Status Stats */}
-        <div className="mb-8">
-          <h2 className="mb-4 text-xl font-semibold text-white">
-            Vehicle Status
-          </h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <StatCard
-              title="Total Vehicles"
-              value={vehicleStatus.total}
-              color="blue"
-            />
-            <StatCard
-              title="Available"
-              value={vehicleStatus.available}
-              color="green"
-            />
-            <StatCard
-              title="Booked"
-              value={vehicleStatus.booked}
-              color="purple"
-            />
-            <StatCard
-              title="Under Maintenance"
-              value={vehicleStatus.underMaintenance}
-              color="red"
-            />
+            {/* Vehicle Status Stats */}
+            <div className="mb-8">
+              <h2 className="mb-4 text-xl font-semibold text-white">
+                Vehicle Status
+              </h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <StatCard
+                  title="Total Vehicles"
+                  value={vehicleStatus.total}
+                  color="blue"
+                />
+                <StatCard
+                  title="Available"
+                  value={vehicleStatus.available}
+                  color="green"
+                />
+                <StatCard
+                  title="Booked"
+                  value={vehicleStatus.booked}
+                  color="purple"
+                />
+                <StatCard
+                  title="Under Maintenance"
+                  value={vehicleStatus.underMaintenance}
+                  color="red"
+                />
+              </div>
+            </div>
+
+            {/* Statistics */}
+            <div className="mb-8">
+              <h2 className="mb-4 text-xl font-semibold text-white">
+                Fleet Statistics
+              </h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <StatCard
+                  title="Total Models"
+                  value={statistics.totalModels}
+                  color="indigo"
+                />
+                <StatCard
+                  title="Average Mileage"
+                  value={`${Math.round(statistics.averageMileage).toLocaleString()} km`}
+                  color="blue"
+                />
+                <StatCard
+                  title="Daily Revenue Potential"
+                  value={`$${statistics.totalPotentialDailyRevenue.toFixed(2)}`}
+                  color="green"
+                />
+                <StatCard
+                  title="Utilization Rate"
+                  value={`${(statistics.utilizationRate * 100).toFixed(1)}%`}
+                  color="yellow"
+                />
+              </div>
+            </div>
+
+            {/* Service & Work Orders */}
+            <div className="mb-8">
+              <h2 className="mb-4 text-xl font-semibold text-white">
+                Service & Operations
+              </h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <StatCard
+                  title="Overdue Services"
+                  value={serviceReminders.overdue}
+                  color="red"
+                />
+                <StatCard
+                  title="Due Soon"
+                  value={serviceReminders.dueSoon}
+                  color="yellow"
+                />
+                <StatCard
+                  title="Active Work Orders"
+                  value={workOrders.active}
+                  color="blue"
+                />
+                <StatCard
+                  title="Pending Work Orders"
+                  value={workOrders.pending}
+                  color="purple"
+                />
+              </div>
+            </div>
+
+            {/* Charts Grid */}
+            <div className="mb-8">
+              <h2 className="mb-4 text-xl font-semibold text-white">
+                Fleet Analytics
+              </h2>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {/* Vehicle Status Distribution */}
+                <VehicleStatusChart
+                  available={vehicleStatus.available}
+                  booked={vehicleStatus.booked}
+                  underMaintenance={vehicleStatus.underMaintenance}
+                />
+
+                {/* Revenue by Model */}
+                <RevenueByModelChart fleetData={fleetByModel} />
+
+                {/* Fleet Count by Model */}
+                <FleetCountByModelChart fleetData={fleetByModel} />
+
+                {/* Mileage Comparison */}
+                <MileageComparisonChart fleetData={fleetByModel} />
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Statistics */}
-        <div className="mb-8">
-          <h2 className="mb-4 text-xl font-semibold text-white">
-            Fleet Statistics
-          </h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <StatCard
-              title="Total Models"
-              value={statistics.totalModels}
-              color="indigo"
-            />
-            <StatCard
-              title="Average Mileage"
-              value={`${Math.round(statistics.averageMileage).toLocaleString()} km`}
-              color="blue"
-            />
-            <StatCard
-              title="Daily Revenue Potential"
-              value={`$${statistics.totalPotentialDailyRevenue.toFixed(2)}`}
-              color="green"
-            />
-            <StatCard
-              title="Utilization Rate"
-              value={`${(statistics.utilizationRate * 100).toFixed(1)}%`}
-              color="yellow"
-            />
-          </div>
-        </div>
+          {/* Skeleton overlay */}
+          <div
+            className={`absolute inset-0 flex flex-col items-center justify-start gap-6 rounded-lg bg-white/70 p-4 transition-opacity duration-300 ${isLoading ? "opacity-100" : "pointer-events-none opacity-0"}`}
+          >
+            {/* <div className="flex items-center gap-3"> */}
+            {/* <InlineLogoLoader size={36} /> */}
+            {/* <div className="h-6 w-64 rounded bg-gray-200" /> */}
+            {/* </div> */}
 
-        {/* Service & Work Orders */}
-        <div className="mb-8">
-          <h2 className="mb-4 text-xl font-semibold text-white">
-            Service & Operations
-          </h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <StatCard
-              title="Overdue Services"
-              value={serviceReminders.overdue}
-              color="red"
-            />
-            <StatCard
-              title="Due Soon"
-              value={serviceReminders.dueSoon}
-              color="yellow"
-            />
-            <StatCard
-              title="Active Work Orders"
-              value={workOrders.active}
-              color="blue"
-            />
-            <StatCard
-              title="Pending Work Orders"
-              value={workOrders.pending}
-              color="purple"
-            />
-          </div>
-        </div>
+            <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-28 rounded-lg bg-gray-200" />
+              ))}
+            </div>
 
-        {/* Charts Grid */}
-        <div className="mb-8">
-          <h2 className="mb-4 text-xl font-semibold text-white">
-            Fleet Analytics
-          </h2>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Vehicle Status Distribution */}
-            <VehicleStatusChart
-              available={vehicleStatus.available}
-              booked={vehicleStatus.booked}
-              underMaintenance={vehicleStatus.underMaintenance}
-            />
-
-            {/* Revenue by Model */}
-            <RevenueByModelChart fleetData={fleetByModel} />
-
-            {/* Fleet Count by Model */}
-            <FleetCountByModelChart fleetData={fleetByModel} />
-
-            {/* Mileage Comparison */}
-            <MileageComparisonChart fleetData={fleetByModel} />
+            <div className="grid w-full grid-cols-1 gap-6 lg:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-48 rounded-lg bg-gray-200" />
+              ))}
+            </div>
           </div>
         </div>
       </div>

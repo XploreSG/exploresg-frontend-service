@@ -9,6 +9,8 @@ import MockFleetSimulator, {
 } from "../services/mockFleetService";
 import { CAR_DATA } from "../data/fleetData";
 import { useFleetContext, type ApiFleetItem } from "../contexts/FleetContext";
+import VehicleDrawer from "../components/VehicleDrawer";
+import type { VehicleRow } from "../types/vehicle";
 
 const HEADER_TOTAL_REM = 7.5; // role banner + navbar approx in rem -> used in calc
 
@@ -370,6 +372,34 @@ const EagleViewPage: React.FC = () => {
     }
   };
 
+  const mapToVehicleRow = (v: Vehicle): VehicleRow => {
+    const normalizeStatus = (s: string | undefined) => {
+      if (!s) return "AVAILABLE";
+      if (s === "Available" || s.toUpperCase() === "AVAILABLE")
+        return "AVAILABLE";
+      if (s === "Maintenance" || s.toUpperCase() === "MAINTENANCE")
+        return "UNDER_MAINTENANCE";
+      return "UNDER_MAINTENANCE";
+    };
+
+    return {
+      id: String(v.id),
+      licensePlate: v.numberPlate ?? "",
+      status: normalizeStatus(v.status) as string,
+      model: v.model ?? v.name,
+      manufacturer: undefined,
+      currentLocation: `${v.lat},${v.lng}`,
+      imageUrl: v.imageUrl,
+      mileageKm: undefined,
+      dailyPrice: undefined,
+      availableFrom: null,
+      availableUntil: null,
+      maintenanceNote: undefined,
+      expectedReturnDate: null,
+      hasActiveBooking: false,
+    };
+  };
+
   // Handle URL parameter for direct vehicle selection
   useEffect(() => {
     const vehicleParam = searchParams.get("vehicle");
@@ -572,80 +602,20 @@ const EagleViewPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Vehicle Detail Overlay */}
+          {/* Vehicle Detail Drawer (slide-in) */}
           {selectedVehicle && (
-            <div className="absolute bottom-6 left-6 z-30 w-80 rounded-lg bg-white/80 p-4 shadow-lg backdrop-blur-md">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">
-                    {selectedVehicle.name}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {selectedVehicle.model}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedVehicle(null)}
-                  className="text-gray-500 hover:text-gray-800"
-                  aria-label="Close vehicle details"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="mt-4">
-                <img
-                  src={selectedVehicle.imageUrl}
-                  alt={`Image of ${selectedVehicle.name}`}
-                  className="h-auto w-full rounded-md object-cover"
-                />
-              </div>
-
-              <div className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-600">
-                    Number Plate
-                  </span>
-                  <span className="font-mono text-gray-800">
-                    {selectedVehicle.numberPlate}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold text-gray-600">Status</span>
-                  <span
-                    className={`font-bold ${
-                      selectedVehicle.status === "Available"
-                        ? "text-green-600"
-                        : selectedVehicle.status === "In Use"
-                          ? "text-amber-600"
-                          : "text-red-600"
-                    }`}
-                  >
-                    {selectedVehicle.status}
-                  </span>
-                </div>
-                {selectedVehicle.driver && (
-                  <div className="flex justify-between">
-                    <span className="font-semibold text-gray-600">Driver</span>
-                    <span className="text-gray-800">
-                      {selectedVehicle.driver}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
+            <VehicleDrawer
+              selectedVehicle={mapToVehicleRow(selectedVehicle)}
+              selectedVehicleRaw={
+                // try to find matching backend item by licensePlate
+                ((fleet || []).find(
+                  (it) =>
+                    (it.licensePlate || "").toLowerCase() ===
+                    (selectedVehicle.numberPlate || "").toLowerCase(),
+                ) as ApiFleetItem | undefined) || null
+              }
+              onRequestClose={() => setSelectedVehicle(null)}
+            />
           )}
 
           <style>{`
