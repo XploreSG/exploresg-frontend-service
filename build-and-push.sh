@@ -49,7 +49,8 @@ if [ -f "./frontend.env" ]; then
     echo ""
     echo "Environment variables in frontend.env:"
     while IFS='=' read -r key value; do
-        if [[ $key == *"TOKEN"* ]] || [[ $key == *"CLIENT_ID"* ]]; then
+        # Mask if key matches any common sensitive patterns
+        if [[ $key == *"TOKEN"* ]] || [[ $key == *"CLIENT_ID"* ]] || [[ $key == *"API_KEY"* ]] || [[ $key == *"SECRET"* ]] || [[ $key == *"PASSWORD"* ]] || [[ $key == *"KEY"* ]] || [[ $key == *"ACCESS"* ]] || [[ $key == *"PRIVATE"* ]] || [[ $key == *"AUTH"* ]]; then
             if [ ${#value} -gt 20 ]; then
                 masked="${value:0:10}...${value: -6}"
                 echo "  $key=$masked"
