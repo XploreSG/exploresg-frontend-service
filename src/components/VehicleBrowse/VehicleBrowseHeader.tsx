@@ -105,52 +105,46 @@ const VehicleBrowseHeader: React.FC<VehicleBrowseHeaderProps> = ({
     };
   }, []);
   return (
-    <div className="relative mb-6 min-h-[250px] overflow-hidden rounded-xl sm:mb-8 sm:min-h-[300px] md:mb-12 md:min-h-[400px] md:rounded-2xl">
-      {/* Car Carousel Background with GSAP */}
-      <div className="absolute inset-0 opacity-90">
-        <div className="h-full overflow-hidden">
-          <div
-            ref={marqueeRef}
-            className="flex h-full items-center"
-            style={{ willChange: "transform" }}
-          >
-            {/* Duplicate images for seamless loop */}
-            {[...carImages, ...carImages].map((img, idx) => (
-              <div
-                key={idx}
-                className="h-20 flex-shrink-0 sm:h-28 md:h-36 lg:h-40"
-              >
-                <img
-                  src={img}
-                  alt=""
-                  className="h-full w-full object-contain px-3 transition-transform duration-300 hover:scale-110 sm:px-4 md:px-6"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Gradient overlay for text readability */}
-      {/* <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/80" /> */}
-
-      {/* Content with GSAP entrance animations */}
-      <div className="relative z-10 flex h-full min-h-[250px] items-center justify-center px-4 text-center sm:min-h-[300px] sm:px-6 md:min-h-[400px]">
-        <div className="max-w-4xl">
+    <div className="relative mb-6 min-h-[180px] overflow-hidden rounded-xl sm:mb-8 sm:min-h-[220px] md:mb-12 md:min-h-[280px] md:rounded-2xl">
+      {/* Text Background Layer - Behind Cars */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center px-4 text-center sm:px-6">
+        <div className="max-w-6xl">
           <h1
             ref={titleRef}
-            className="mt-60 mb-3 font-bold text-gray-900 sm:mt-40 sm:mb-4 md:mt-60"
-            style={{ fontSize: "clamp(1.5rem, 5vw, 3rem)" }}
+            className="mb-2 font-bold text-gray-800 sm:mb-3 md:mb-4"
+            style={{ fontSize: "clamp(1.5rem, 5vw, 4rem)" }}
           >
             {title}
           </h1>
           <p
             ref={subtitleRef}
-            className="text-gray-700"
-            style={{ fontSize: "clamp(1rem, 2.5vw, 1.5rem)" }}
+            className="text-gray-600"
+            style={{ fontSize: "clamp(0.875rem, 2.5vw, 1.75rem)" }}
           >
             {subtitle}
           </p>
+        </div>
+      </div>
+
+      {/* Car Carousel - In Front of Text */}
+      <div className="relative z-10 flex h-full min-h-[180px] items-center sm:min-h-[220px] md:min-h-[280px]">
+        <div className="h-24 w-full overflow-hidden sm:h-20 md:h-24 lg:h-56">
+          <div
+            ref={marqueeRef}
+            className="flex h-full items-center gap-4 sm:gap-6 md:gap-8 lg:gap-12"
+            style={{ willChange: "transform" }}
+          >
+            {/* Duplicate images for seamless loop */}
+            {[...carImages, ...carImages].map((img, idx) => (
+              <div key={idx} className="h-full flex-shrink-0">
+                <img
+                  src={img}
+                  alt=""
+                  className="h-full w-auto object-contain transition-transform duration-300 hover:scale-110"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
