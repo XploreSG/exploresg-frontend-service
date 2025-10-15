@@ -210,7 +210,7 @@ const SignInPage: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
         {/* Branding or tagline on video */}
-        <div className="absolute bottom-6 left-6 text-white sm:bottom-10 sm:left-10">
+        <div className="hero-animate absolute bottom-6 left-6 text-white delay-200 sm:bottom-10 sm:left-10">
           <h2
             className="font-light tracking-wide"
             style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)" }}
