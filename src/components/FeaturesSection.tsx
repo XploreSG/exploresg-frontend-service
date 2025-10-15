@@ -3,21 +3,34 @@ import React from "react";
 const FeaturesSection: React.FC = () => {
   return (
     <section className="mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-      <div className="grid gap-12 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-2 md:gap-12">
         <div className="lg:w-3/4">
-          <h2 className="text-3xl font-bold text-gray-800 lg:text-4xl">
+          <h2
+            className="font-bold text-gray-800"
+            style={{
+              fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
+              lineHeight: "1.3",
+            }}
+          >
             Rent a car, plan an itinerary, and see Singapore your way
           </h2>
-          <p className="mt-3 text-gray-700">
+          <p
+            className="mt-3 text-gray-700"
+            style={{
+              fontSize: "clamp(0.875rem, 1.5vw, 1rem)",
+              lineHeight: "1.6",
+            }}
+          >
             ExploreSG's car rental platform makes it simple to book the right
             vehicle for your trip and build day-by-day routes. From short
             weekend getaways to multi-day island drives, plan, schedule and
             navigate with confidence.
           </p>
-          <p className="mt-5">
+          <p className="mt-4 sm:mt-5">
             <a
-              className="inline-flex items-center gap-x-2 text-sm font-medium text-teal-600 decoration-2 hover:underline focus:outline-none"
+              className="inline-flex items-center gap-x-2 font-medium text-teal-600 decoration-2 hover:underline focus:outline-none"
               href="/rentals"
+              style={{ fontSize: "clamp(0.875rem, 1.5vw, 0.875rem)" }}
             >
               Browse cars or contact our fleet team
               <svg
@@ -38,9 +51,9 @@ const FeaturesSection: React.FC = () => {
           </p>
         </div>
 
-        <div className="space-y-6 lg:space-y-10">
-          <div className="flex gap-x-5 sm:gap-x-8">
-            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm">
+        <div className="space-y-6 md:space-y-8 lg:space-y-10">
+          <div className="flex gap-x-4 sm:gap-x-5 md:gap-x-8">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm sm:h-11 sm:w-11">
               <svg
                 className="h-5 w-5"
                 xmlns="http://www.w3.org/2000/svg"
@@ -56,10 +69,19 @@ const FeaturesSection: React.FC = () => {
               </svg>
             </span>
             <div className="grow">
-              <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
+              <h3
+                className="font-semibold text-gray-800"
+                style={{ fontSize: "clamp(0.9375rem, 1.5vw, 1.125rem)" }}
+              >
                 Smart itinerary builder
               </h3>
-              <p className="mt-1 text-gray-600">
+              <p
+                className="mt-1 text-gray-600"
+                style={{
+                  fontSize: "clamp(0.8125rem, 1.5vw, 0.9375rem)",
+                  lineHeight: "1.6",
+                }}
+              >
                 Create day-by-day routes that combine attractions, meals and
                 drive time. The builder automatically optimises routing and
                 suggests nearby stops so you can make the most of every trip.
@@ -84,10 +106,19 @@ const FeaturesSection: React.FC = () => {
               </svg>
             </span>
             <div className="grow">
-              <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
+              <h3
+                className="font-semibold text-gray-800"
+                style={{ fontSize: "clamp(0.9375rem, 1.5vw, 1.125rem)" }}
+              >
                 Nationwide fleet & trusted partners
               </h3>
-              <p className="mt-1 text-gray-600">
+              <p
+                className="mt-1 text-gray-600"
+                style={{
+                  fontSize: "clamp(0.8125rem, 1.5vw, 0.9375rem)",
+                  lineHeight: "1.6",
+                }}
+              >
                 Choose from a wide selection of well-maintained vehicles and
                 optional add-ons (GPS, child seats, insurance). Our partner
                 garages and support network keep you moving.
@@ -112,10 +143,19 @@ const FeaturesSection: React.FC = () => {
               </svg>
             </span>
             <div className="grow">
-              <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
+              <h3
+                className="font-semibold text-gray-800"
+                style={{ fontSize: "clamp(0.9375rem, 1.5vw, 1.125rem)" }}
+              >
                 Flexible pricing & roadside support
               </h3>
-              <p className="mt-1 text-gray-600">
+              <p
+                className="mt-1 text-gray-600"
+                style={{
+                  fontSize: "clamp(0.8125rem, 1.5vw, 0.9375rem)",
+                  lineHeight: "1.6",
+                }}
+              >
                 Transparent daily and hourly rates, easy upgrades, and 24/7
                 roadside assistance mean you can plan with certainty and enjoy
                 the ride.

@@ -68,7 +68,7 @@ const testimonials = [
 
 const TestimonialsSection: React.FC = () => {
   return (
-    <section className="bg-slate-50/10 py-12 drop-shadow-2xl">
+    <section className="bg-slate-50/10 py-8 drop-shadow-2xl sm:py-12">
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* marquee container with fixed card height to ensure equal heights */}
         <div className="marquee">
@@ -77,7 +77,7 @@ const TestimonialsSection: React.FC = () => {
             {testimonials.map((t, idx) => (
               <div
                 key={`orig-${idx}`}
-                className="h-[240px] max-w-[320px] min-w-[280px] flex-shrink-0"
+                className="h-[220px] max-w-[300px] min-w-[260px] flex-shrink-0 sm:h-[240px] sm:max-w-[320px] sm:min-w-[280px]"
               >
                 <TestimonialCard
                   quote={t.quote}
@@ -92,7 +92,7 @@ const TestimonialsSection: React.FC = () => {
             {testimonials.map((t, idx) => (
               <div
                 key={`dup-${idx}`}
-                className="h-[240px] max-w-[320px] min-w-[280px] flex-shrink-0"
+                className="h-[220px] max-w-[300px] min-w-[260px] flex-shrink-0 sm:h-[240px] sm:max-w-[320px] sm:min-w-[280px]"
               >
                 <TestimonialCard
                   quote={t.quote}

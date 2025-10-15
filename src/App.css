@@ -8,6 +8,47 @@
       var(--tw-gradient-to)
     );
   }
+
+  /* Fluid typography utilities */
+  .text-fluid-xs {
+    font-size: clamp(0.75rem, 1.5vw, 0.8125rem);
+  }
+
+  .text-fluid-sm {
+    font-size: clamp(0.8125rem, 1.5vw, 0.875rem);
+  }
+
+  .text-fluid-base {
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+  }
+
+  .text-fluid-lg {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+  }
+
+  .text-fluid-xl {
+    font-size: clamp(1.125rem, 2.5vw, 1.25rem);
+  }
+
+  .text-fluid-2xl {
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+  }
+
+  .text-fluid-3xl {
+    font-size: clamp(1.5rem, 4vw, 1.875rem);
+  }
+
+  .text-fluid-4xl {
+    font-size: clamp(1.875rem, 5vw, 2.25rem);
+  }
+
+  .text-fluid-5xl {
+    font-size: clamp(2.25rem, 6vw, 3rem);
+  }
+
+  .text-fluid-6xl {
+    font-size: clamp(2.5rem, 7vw, 3.75rem);
+  }
 }
 
 @keyframes shimmer {
