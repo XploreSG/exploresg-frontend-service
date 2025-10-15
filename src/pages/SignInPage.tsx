@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { getUserRole } from "../utils/jwtUtils";
-import SignInForm from "../components/Auth/SignInForm";
-import type { SignInFormData } from "../components/Auth/SignInForm";
 import SocialLoginButtons from "../components/Auth/SocialLoginButtons";
 import InlineLogoLoader from "../components/InlineLogoLoader";
 import type { UserInfo } from "../contexts/AuthContextInstance";
@@ -23,15 +21,6 @@ const SignInPage: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const handleFormSubmit = (data: SignInFormData) => {
-    console.debug("Form submit (local)", data);
-    login(
-      { userId: 0, email: data.email, givenName: "Local", familyName: "User" },
-      null,
-    );
-    navigate("/yourday");
-  };
 
   const handleGoogleSuccess = async (idToken: string | undefined) => {
     if (!idToken) {
@@ -124,24 +113,6 @@ const SignInPage: React.FC = () => {
             onGoogleSuccess={handleGoogleSuccess}
             onGoogleError={handleGoogleError}
           />
-
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
-            </div>
-            <div className="relative flex justify-center">
-              <span
-                className="bg-white px-3 text-gray-500"
-                style={{ fontSize: "clamp(0.8125rem, 1.5vw, 0.875rem)" }}
-              >
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          {/* Email Form */}
-          <SignInForm onSubmit={handleFormSubmit} />
 
           {/* Error & Loading Feedback */}
           <div className="min-h-[2.5rem]">
