@@ -113,7 +113,7 @@ const SignInPage: React.FC = () => {
       <div className="relative z-10 flex w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:w-1/2 lg:bg-white lg:px-8">
         <div className="w-full max-w-md space-y-6 rounded-xl border border-white/30 bg-white/5 p-6 shadow-2xl backdrop-blur-md sm:space-y-8 sm:p-8 lg:rounded-none lg:border-none lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none">
           {/* Header */}
-          <div className="">
+          <div className="hero-animate">
             <h1
               className="flex w-full justify-center pb-4 font-light text-white sm:pb-6 lg:text-gray-900"
               style={{ fontSize: "clamp(2rem, 6vw, 3.75rem)" }}
@@ -135,13 +135,15 @@ const SignInPage: React.FC = () => {
           </div>
 
           {/* Social Login */}
-          <SocialLoginButtons
-            onGoogleSuccess={handleGoogleSuccess}
-            onGoogleError={handleGoogleError}
-          />
+          <div className="hero-animate delay-100">
+            <SocialLoginButtons
+              onGoogleSuccess={handleGoogleSuccess}
+              onGoogleError={handleGoogleError}
+            />
+          </div>
 
           {/* Error & Loading Feedback */}
-          <div className="min-h-[2.5rem]">
+          <div className="hero-animate min-h-[2.5rem] delay-200">
             {error && (
               <div
                 className="rounded-md border border-red-400/50 bg-red-500/20 p-2.5 text-center text-red-100 backdrop-blur-sm sm:p-3 lg:border-red-300 lg:bg-red-50 lg:text-red-700 lg:backdrop-blur-none"
@@ -163,7 +165,7 @@ const SignInPage: React.FC = () => {
 
           {/* Footer Text */}
           <p
-            className="text-center text-white/80 lg:text-gray-500"
+            className="hero-animate text-center text-white/80 delay-300 lg:text-gray-500"
             style={{ fontSize: "clamp(0.6875rem, 1.5vw, 0.75rem)" }}
           >
             By continuing, you agree to our{" "}
