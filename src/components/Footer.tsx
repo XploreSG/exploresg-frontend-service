@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
 
               <p className="mt-2 text-gray-700">
                 <span className="font-">Discover</span> the best of Beautiful{" "}
-                <span className="font-bold text-red-500">Singapore</span>— from
+                <span className="font-bold text-red-500">Singapore</span>. From
                 iconic attractions to hidden neighbourhood gems, great food, and
                 local experiences.
               </p>
