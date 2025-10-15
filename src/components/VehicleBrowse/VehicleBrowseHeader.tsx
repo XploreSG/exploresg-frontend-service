@@ -20,7 +20,6 @@ const VehicleBrowseHeader: React.FC<VehicleBrowseHeaderProps> = ({
     "/assets/cars/merc-sl63.png",
     "/assets/cars/bmw-z4.png",
     "/assets/cars/mini-cooper.png",
-    // "/assets/cars/peugeot-5008.png",
     "/assets/cars/bmw-x3.png",
     "/assets/cars/skoda-octavia.png",
     "/assets/cars/nissan-sentra.png",
