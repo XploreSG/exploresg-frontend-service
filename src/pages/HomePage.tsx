@@ -24,14 +24,14 @@ const HomePage: React.FC = () => {
         <div className="absolute inset-0 -z-10" />
         <div className="mx-auto w-full max-w-3xl rounded-xl bg-white/40 p-6 drop-shadow-2xl backdrop-blur-sm sm:rounded-2xl sm:p-8 md:p-10">
           {/* Announcement bar */}
-          <div className="scroll-animate animate-fade-in mb-4 flex items-center justify-center sm:mb-6">
+          <div className="hero-animate mb-4 flex items-center justify-center sm:mb-6">
             <span className="rounded-full bg-white/80 px-3 py-1 text-[clamp(0.625rem,2vw,0.75rem)] font-medium text-gray-700 sm:px-4">
               Discover Singapore, Your Way!
             </span>
           </div>
           {/* Headline */}
           <h1
-            className="scroll-animate animate-fade-in-up mb-4 text-center font-extrabold text-gray-100 drop-shadow-lg delay-100 sm:mb-6"
+            className="hero-animate mb-4 text-center font-extrabold text-gray-100 drop-shadow-lg delay-100 sm:mb-6"
             style={{
               fontSize: "clamp(1.75rem, 5vw, 3.75rem)",
               lineHeight: "1.2",
@@ -46,7 +46,7 @@ const HomePage: React.FC = () => {
           </h1>
           {/* Subheadline */}
           <p
-            className="scroll-animate animate-fade-in-up mx-auto mb-6 max-w-2xl text-center text-gray-200 delay-200 sm:mb-8"
+            className="hero-animate mx-auto mb-6 max-w-2xl text-center text-gray-200 delay-200 sm:mb-8"
             style={{
               fontSize: "clamp(0.875rem, 2vw, 1.125rem)",
               lineHeight: "1.6",
@@ -58,7 +58,7 @@ const HomePage: React.FC = () => {
             adventures, food, and experiences that make Singapore truly special.
           </p>
           {/* CTA Buttons */}
-          <div className="scroll-animate animate-fade-in-up mb-8 flex flex-col items-center gap-3 delay-300 sm:mb-12 sm:flex-row sm:justify-center sm:gap-4">
+          <div className="hero-animate mb-8 flex flex-col items-center gap-3 delay-300 sm:mb-12 sm:flex-row sm:justify-center sm:gap-4">
             <button
               className="w-full rounded-md bg-indigo-600 px-6 py-2.5 font-semibold text-white shadow hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none sm:w-auto sm:px-8 sm:py-3"
               style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}
@@ -79,7 +79,7 @@ const HomePage: React.FC = () => {
       <div
         ref={featuresAnimation.ref}
         className={`scroll-animate ${
-          featuresAnimation.isVisible ? "animate-fade-in-up" : ""
+          featuresAnimation.isVisible ? "scroll-animate-visible" : ""
         }`}
       >
         <FeaturesSection />
@@ -89,7 +89,7 @@ const HomePage: React.FC = () => {
       <div
         ref={statsAnimation.ref}
         className={`scroll-animate ${
-          statsAnimation.isVisible ? "animate-scale-in" : ""
+          statsAnimation.isVisible ? "scroll-animate-visible" : ""
         }`}
       >
         <StatsSection />
@@ -99,7 +99,7 @@ const HomePage: React.FC = () => {
       <div
         ref={testimonialsAnimation.ref}
         className={`scroll-animate ${
-          testimonialsAnimation.isVisible ? "animate-fade-in" : ""
+          testimonialsAnimation.isVisible ? "scroll-animate-visible" : ""
         }`}
       >
         <TestimonialsSection />

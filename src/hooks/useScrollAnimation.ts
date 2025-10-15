@@ -8,9 +8,9 @@ interface ScrollAnimationOptions {
 
 export const useScrollAnimation = (options: ScrollAnimationOptions = {}) => {
   const {
-    threshold = 0.1,
-    rootMargin = "0px 0px -100px 0px",
-    triggerOnce = true,
+    threshold = 0.15,
+    rootMargin = "0px 0px -50px 0px",
+    triggerOnce = false, // Allow reverse animation on scroll away
   } = options;
 
   const ref = useRef<HTMLDivElement>(null);
@@ -20,13 +20,11 @@ export const useScrollAnimation = (options: ScrollAnimationOptions = {}) => {
     const currentRef = ref.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          if (triggerOnce && currentRef) {
-            observer.unobserve(currentRef);
-          }
-        } else if (!triggerOnce) {
-          setIsVisible(false);
+        // Update visibility state whenever intersection changes
+        setIsVisible(entry.isIntersecting);
+
+        if (entry.isIntersecting && triggerOnce && currentRef) {
+          observer.unobserve(currentRef);
         }
       },
       {
