@@ -281,8 +281,9 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
             </div>
           </div>
 
-          {/* Role Selection */}
-          <div>
+          {/* Role Selection - COMMENTED OUT: Users can only sign up as USER role.
+              Fleet Managers and Admins must be authorized by backend. */}
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700">
               Sign up as *
             </label>
@@ -302,7 +303,7 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
               <option value="SUPPORT">Support</option>
               <option value="ADMIN">Admin</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Submit */}
           <button
