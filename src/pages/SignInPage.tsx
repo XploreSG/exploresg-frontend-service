@@ -100,15 +100,21 @@ const SignInPage: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Left Panel - Form */}
-      <div className="flex w-full items-center justify-center bg-white px-4 py-12 sm:px-6 lg:w-1/2 lg:px-8">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex w-full items-center justify-center bg-white px-4 py-8 sm:px-6 sm:py-12 lg:w-1/2 lg:px-8">
+        <div className="w-full max-w-md space-y-6 sm:space-y-8">
           {/* Header */}
           <div className="">
-            <h1 className="flex w-full justify-center pb-6 text-6xl font-light text-gray-900">
-              <span className="pr-3 text-gray-500">Discover. </span>
+            <h1
+              className="flex w-full justify-center pb-4 font-light text-gray-900 sm:pb-6"
+              style={{ fontSize: "clamp(2rem, 6vw, 3.75rem)" }}
+            >
+              <span className="pr-2 text-gray-500 sm:pr-3">Discover. </span>
               <span className="font-semibold text-red-600"> Explore</span>
             </h1>
-            <p className="mt-2 flex w-full justify-center text-lg text-gray-600">
+            <p
+              className="mt-2 flex w-full justify-center text-gray-600"
+              style={{ fontSize: "clamp(0.9375rem, 2vw, 1.125rem)" }}
+            >
               Your premier guide to Singapore
             </p>
           </div>
@@ -124,8 +130,11 @@ const SignInPage: React.FC = () => {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-3 text-gray-500">
+            <div className="relative flex justify-center">
+              <span
+                className="bg-white px-3 text-gray-500"
+                style={{ fontSize: "clamp(0.8125rem, 1.5vw, 0.875rem)" }}
+              >
                 Or continue with
               </span>
             </div>
@@ -135,14 +144,20 @@ const SignInPage: React.FC = () => {
           <SignInForm onSubmit={handleFormSubmit} />
 
           {/* Error & Loading Feedback */}
-          <div className="h-10">
+          <div className="min-h-[2.5rem]">
             {error && (
-              <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
+              <div
+                className="rounded-md border border-red-300 bg-red-50 p-2.5 text-center text-red-700 sm:p-3"
+                style={{ fontSize: "clamp(0.8125rem, 1.5vw, 0.875rem)" }}
+              >
                 {error}
               </div>
             )}
             {loading && (
-              <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+              <div
+                className="flex items-center justify-center space-x-2 text-gray-600"
+                style={{ fontSize: "clamp(0.8125rem, 1.5vw, 0.875rem)" }}
+              >
                 <InlineLogoLoader size={20} />
                 <span>Signing in...</span>
               </div>
@@ -150,7 +165,10 @@ const SignInPage: React.FC = () => {
           </div>
 
           {/* Footer Text */}
-          <p className="text-center text-xs text-gray-500">
+          <p
+            className="text-center text-gray-500"
+            style={{ fontSize: "clamp(0.6875rem, 1.5vw, 0.75rem)" }}
+          >
             By continuing, you agree to our{" "}
             <a
               href="/terms"
@@ -193,9 +211,19 @@ const SignInPage: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
         {/* Branding or tagline on video */}
-        <div className="absolute bottom-10 left-10 text-white">
-          <h2 className="text-4xl font-light tracking-wide">Experience</h2>
-          <h2 className="text-6xl font-bold">Singapore</h2>
+        <div className="absolute bottom-6 left-6 text-white sm:bottom-10 sm:left-10">
+          <h2
+            className="font-light tracking-wide"
+            style={{ fontSize: "clamp(1.5rem, 3vw, 2.25rem)" }}
+          >
+            Experience
+          </h2>
+          <h2
+            className="font-bold"
+            style={{ fontSize: "clamp(2.5rem, 5vw, 3.75rem)" }}
+          >
+            Singapore
+          </h2>
         </div>
       </div>
     </div>

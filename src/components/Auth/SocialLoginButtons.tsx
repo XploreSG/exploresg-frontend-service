@@ -12,8 +12,8 @@ const SocialLoginButtons: React.FC<Props> = ({
   onGoogleError,
 }) => {
   return (
-    <div className="flex justify-center gap-4">
-      <div className="flex items-center justify-center rounded-md border border-gray-300 bg-white px-6 py-2">
+    <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+      <div className="flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 sm:px-6">
         <GoogleLogin
           onSuccess={(credentialResponse: CredentialResponse) => {
             const idToken = credentialResponse?.credential;
@@ -26,13 +26,14 @@ const SocialLoginButtons: React.FC<Props> = ({
       </div>
 
       <button
-        className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-2 text-gray-700 transition hover:bg-gray-50"
+        className="flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 transition hover:bg-gray-50 sm:px-6"
+        style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}
         disabled
         aria-disabled
         title="GitHub login not implemented"
       >
         <svg
-          className="h-5 w-5"
+          className="h-4 w-4 sm:h-5 sm:w-5"
           fill="currentColor"
           viewBox="0 0 24 24"
           aria-hidden="true"
