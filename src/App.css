@@ -8,6 +8,47 @@
       var(--tw-gradient-to)
     );
   }
+
+  /* Fluid typography utilities */
+  .text-fluid-xs {
+    font-size: clamp(0.75rem, 1.5vw, 0.8125rem);
+  }
+
+  .text-fluid-sm {
+    font-size: clamp(0.8125rem, 1.5vw, 0.875rem);
+  }
+
+  .text-fluid-base {
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+  }
+
+  .text-fluid-lg {
+    font-size: clamp(1rem, 2vw, 1.125rem);
+  }
+
+  .text-fluid-xl {
+    font-size: clamp(1.125rem, 2.5vw, 1.25rem);
+  }
+
+  .text-fluid-2xl {
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+  }
+
+  .text-fluid-3xl {
+    font-size: clamp(1.5rem, 4vw, 1.875rem);
+  }
+
+  .text-fluid-4xl {
+    font-size: clamp(1.875rem, 5vw, 2.25rem);
+  }
+
+  .text-fluid-5xl {
+    font-size: clamp(2.25rem, 6vw, 3rem);
+  }
+
+  .text-fluid-6xl {
+    font-size: clamp(2.5rem, 7vw, 3.75rem);
+  }
 }
 
 @keyframes shimmer {
@@ -67,5 +108,67 @@
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
+  }
+}
+
+/* Scroll-based animations with reverse effect */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.8s ease-out,
+    transform 0.8s ease-out;
+}
+
+.scroll-animate-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero section initial load animation */
+@keyframes fadeInUpOnce {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-animate {
+  opacity: 0;
+  animation: fadeInUpOnce 0.8s ease-out forwards;
+}
+
+/* Stagger delays for sequential animations */
+.delay-100 {
+  transition-delay: 0.1s;
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  transition-delay: 0.2s;
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  transition-delay: 0.3s;
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  transition-delay: 0.4s;
+  animation-delay: 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-animate,
+  .hero-animate {
+    transition: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

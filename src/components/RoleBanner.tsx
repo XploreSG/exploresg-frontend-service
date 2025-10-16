@@ -55,6 +55,11 @@ export const RoleBanner: React.FC = () => {
     return `${base} bg-white/10 hover:bg-white/15`;
   };
 
+  // Hide completely in production builds
+  if (APP_ENV === "production") {
+    return null;
+  }
+
   // Only show debug banner in non-production when DEBUG_ENABLED is true, otherwise show only when token exists
   const showDebug = DEBUG_ENABLED || APP_ENV !== "production";
   if (!showDebug && !token) return null;
@@ -66,7 +71,7 @@ export const RoleBanner: React.FC = () => {
 
   return (
     <div
-      className={`sticky top-0 z-40 isolate flex items-center gap-x-6 overflow-hidden ${bannerColor} px-6 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5`}
+      className={`sticky top-0 isolate z-40 flex items-center gap-x-6 overflow-hidden ${bannerColor} px-6 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5`}
       // expose banner height to CSS via a custom property so Navbar can sit below it
       style={{ "--role-banner-height": "3.5rem" } as React.CSSProperties}
     >

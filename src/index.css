@@ -14,6 +14,18 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Fluid typography base */
+  --font-size-base: clamp(0.875rem, 1.5vw, 1rem);
+  --font-size-sm: clamp(0.8125rem, 1.5vw, 0.875rem);
+  --font-size-xs: clamp(0.75rem, 1.5vw, 0.8125rem);
+  --font-size-lg: clamp(1rem, 2vw, 1.125rem);
+  --font-size-xl: clamp(1.125rem, 2.5vw, 1.25rem);
+  --font-size-2xl: clamp(1.25rem, 3vw, 1.5rem);
+  --font-size-3xl: clamp(1.5rem, 4vw, 1.875rem);
+  --font-size-4xl: clamp(1.875rem, 5vw, 2.25rem);
+  --font-size-5xl: clamp(2.25rem, 6vw, 3rem);
+  --font-size-6xl: clamp(2.5rem, 7vw, 3.75rem);
 }
 
 @keyframes gentle-zoom {

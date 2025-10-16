@@ -115,7 +115,7 @@ const YourDayPage = () => {
             <img
               src={user.picture || "/assets/default-avatar.png"}
               alt={fullName || user.email}
-              className="h-10 w-10 rounded-full border object-cover"
+              className="h-16 w-16 rounded-full border object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
                   "/assets/default-avatar.png";
