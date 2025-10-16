@@ -15,7 +15,7 @@ RUN npm run build
 # ===========================
 # 🚀 Runtime Stage (Nginx)
 # ===========================
-FROM nginx:1.29.1-alpine
+FROM nginx:1.29.2-alpine
 
 # Copy compiled Vite build output
 COPY --from=build /app/dist /usr/share/nginx/html
