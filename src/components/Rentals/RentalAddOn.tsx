@@ -33,7 +33,7 @@ type CarDetails = {
   operator: string;
   operatorStyling: { brand: string; background: string };
   carId: string;
-  carModelPublicId?: string; // Backend UUID for API calls
+  publicModelId?: string; // Backend UUID for API calls (standardized)
 };
 
 type BookingDetails = {
@@ -118,6 +118,13 @@ const RentalAddOnPage: React.FC = () => {
     carId: "default-1",
   };
 
+  console.log("🔍 RentalAddOn: Received carDetails from navigation:", {
+    carDetails,
+    hasPublicModelId: !!carDetails.publicModelId,
+    publicModelId: carDetails.publicModelId,
+    carId: carDetails.carId,
+  });
+
   // Ensure operatorStyling is always an object with brand and background
   if (
     typeof carDetails.operatorStyling !== "object" ||
@@ -160,6 +167,8 @@ const RentalAddOnPage: React.FC = () => {
   useEffect(() => {
     console.log("🚗 RentalAddOn: Saving car to BookingContext", {
       carDetails,
+      carId: carDetails?.carId,
+      publicModelId: carDetails?.publicModelId,
     });
 
     setSelectedCar(carDetails);

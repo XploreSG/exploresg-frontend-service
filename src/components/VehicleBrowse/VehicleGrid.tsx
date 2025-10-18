@@ -39,7 +39,8 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
         : vehicles.map((car) => (
             <RentalCard
               key={car.id}
-              carId={car.carModelPublicId || car.id}
+              carId={car.publicModelId || car.id}
+              publicModelId={car.publicModelId}
               model={car.model}
               seats={car.seats}
               luggage={car.luggage}

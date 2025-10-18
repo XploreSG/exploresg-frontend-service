@@ -26,7 +26,7 @@ const ReviewPage: React.FC = () => {
     selectedCar: selectedCar ? selectedCar : "null",
     selectedCarModel: selectedCar ? selectedCar.model : "null",
     selectedCarId: selectedCar ? selectedCar.carId : "null",
-    selectedCarPublicId: selectedCar ? selectedCar.carModelPublicId : "null",
+    publicModelId: selectedCar ? selectedCar.publicModelId : "null",
     bookingDates: bookingDates,
     driverDetails: driverDetails,
     hasDriverDetails: !!driverDetails,
@@ -49,21 +49,26 @@ const ReviewPage: React.FC = () => {
     setError(null);
 
     try {
-      // Use carModelPublicId (backend UUID) - adapter maps publicModelId → carModelPublicId
-      const carModelId =
-        selectedCar.carModelPublicId || selectedCar.carId || "unknown";
+      // Use publicModelId (backend UUID standardized across fleet & booking)
+      // Fallback to carId which contains the UUID from VehicleGrid
+      const publicModelId =
+        selectedCar.publicModelId || selectedCar.carId || "unknown";
 
       console.log(
-        "🔍 ReviewPage: Using carModelPublicId for booking:",
-        carModelId,
+        "🔍 ReviewPage: Using publicModelId for booking:",
+        publicModelId,
+        "\n  selectedCar.publicModelId:",
+        selectedCar.publicModelId,
+        "\n  selectedCar.carId:",
+        selectedCar.carId,
       );
 
       const bookingRequest: CreateBookingRequest = {
-        carModelPublicId: carModelId,
+        publicModelId: publicModelId,
         startDate: bookingDates.pickupISO || bookingDates.pickup, // Use ISO format for API
         endDate: bookingDates.returnISO || bookingDates.return, // Use ISO format for API
-        pickupLocation: "Changi Airport", // TODO: Get from form
-        returnLocation: "Changi Airport", // TODO: Get from form
+        pickupLocation: "Changi Airport Terminal 1",
+        returnLocation: "Changi Airport Terminal 1",
         driverDetails: {
           firstName: driverDetails.firstName,
           lastName: driverDetails.lastName,
@@ -83,16 +88,22 @@ const ReviewPage: React.FC = () => {
 
       const response = await createBooking(bookingRequest);
 
+      console.log("✅ ReviewPage: Booking created successfully!", response);
+
       // Store booking reservation in context
-      setBooking({
+      const bookingData = {
         bookingId: response.bookingId,
         status: response.status,
         reservationExpiresAt: response.reservationExpiresAt,
         totalAmount: response.totalAmount,
-      });
+      };
 
-      // Navigate to payment page with bookingId
-      navigate(`/booking/${response.bookingId}/payment`);
+      console.log("💾 ReviewPage: Saving booking to context:", bookingData);
+      setBooking(bookingData);
+
+      console.log("🧭 ReviewPage: Navigating to payment page...");
+      // Navigate to payment page with bookingId (relative navigation within BookingFlow)
+      navigate(`../${response.bookingId}/payment`);
     } catch (err: unknown) {
       const errorMessage = handleBookingApiError(err, navigate);
 

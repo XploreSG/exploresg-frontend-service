@@ -19,13 +19,12 @@ export function transformCarModelData(
       ? `${op.id}-${item.carModelId}`
       : `${op.id}-${item.model.replace(/\s+/g, "-")}-${index}`;
 
-    // ADAPTER: Backend uses "publicModelId" but we use "carModelPublicId" internally
-    // Support both field names for backward compatibility
+    // Use publicModelId from backend (standardized across fleet & booking services)
     const publicModelId = item.publicModelId || item.publicId;
 
     return {
       id: uniqueId,
-      carModelPublicId: publicModelId, // Adapter: maps publicModelId → carModelPublicId
+      publicModelId: publicModelId, // Backend UUID for API calls
       operatorId: op.id, // Use normalized numeric ID
       operatorName: op.name, // Use mapped operator name
       model: item.model,

@@ -21,7 +21,7 @@ const RentalCard: React.FC<Props> = ({
   operator,
   operatorStyling,
   carId = "alphard-1",
-  carModelPublicId, // ⭐ Destructure the UUID
+  publicModelId, // ⭐ Backend UUID (standardized field name)
   isLoading = false,
 }) => {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ const RentalCard: React.FC<Props> = ({
           operator,
           operatorStyling,
           carId,
-          carModelPublicId, // ⭐ Pass the UUID to navigation state
+          publicModelId, // ⭐ Pass the UUID to navigation state
         },
       },
     });

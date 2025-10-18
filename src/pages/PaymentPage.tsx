@@ -21,6 +21,24 @@ const PaymentPage: React.FC = () => {
     resetBooking,
   } = useBooking();
 
+  // Debug logging
+  console.log("💳 PaymentPage - Loaded with context:", {
+    bookingId,
+    hasBooking: !!booking,
+    booking,
+    hasSelectedCar: !!selectedCar,
+    selectedCar,
+    bookingDates,
+  });
+
+  // Additional debug before early return
+  if (!booking) {
+    console.error("❌ PaymentPage: booking is NULL/undefined");
+  }
+  if (!selectedCar) {
+    console.error("❌ PaymentPage: selectedCar is NULL/undefined");
+  }
+
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [cardDetails, setCardDetails] = useState({
     cardNumber: "",
