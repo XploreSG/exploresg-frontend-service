@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useBooking } from "../contexts/bookingContextCore";
 import BookingProgress from "../components/Rentals/BookingProgress";
+import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 import { FaClipboardCheck, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { createBooking, handleBookingApiError } from "../services/bookingApi";
 import type { CreateBookingRequest } from "../services/bookingApi";
@@ -155,6 +156,27 @@ const ReviewPage: React.FC = () => {
 
       <div className="py-12">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          {/* Full-Width Car Summary */}
+          {selectedCar && bookingDates && (
+            <div className="mb-8">
+              <RentalCardSummary
+                model={selectedCar.model}
+                seats={selectedCar.seats}
+                luggage={selectedCar.luggage}
+                transmission={selectedCar.transmission}
+                price={selectedCar.price}
+                originalPrice={selectedCar.originalPrice}
+                promoText={selectedCar.promoText}
+                imageUrl={selectedCar.imageUrl}
+                operator={selectedCar.operator}
+                operatorStyling={selectedCar.operatorStyling}
+                nights={bookingDates.nights}
+                showPricing={true}
+                className="mb-0"
+              />
+            </div>
+          )}
+
           {/* Step Indicator */}
           <div className="mb-8 text-center">
             <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-6 py-3 shadow-sm">

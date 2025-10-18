@@ -9,7 +9,7 @@ import { processPayment, handleBookingApiError } from "../services/bookingApi";
 import { FaCreditCard, FaLock, FaShieldAlt, FaCheck } from "react-icons/fa";
 
 const PaymentPage: React.FC = () => {
-  const { bookingId } = useParams();
+  const { bookingId, carId } = useParams();
   const navigate = useNavigate();
   const {
     booking,
@@ -74,13 +74,26 @@ const PaymentPage: React.FC = () => {
     setError(null);
 
     try {
+      console.log(
+        "💳 PaymentPage: Submitting payment for bookingId:",
+        bookingId,
+      );
+
       await processPayment(bookingId, {
         paymentMethod: "CREDIT_CARD",
         // cardDetails can be added here for real payment gateway
       });
 
-      // Success - navigate to confirmation
-      navigate(`/booking/${bookingId}/confirmation`);
+      console.log(
+        "✅ PaymentPage: Payment successful! Navigating to confirmation...",
+      );
+
+      // Success - navigate to confirmation using absolute path
+      // Current: /booking/:carId/:bookingId/payment
+      // Target: /booking/:carId/:bookingId/confirmation
+      navigate(`/booking/${carId}/${bookingId}/confirmation`, {
+        replace: true,
+      });
     } catch (err: unknown) {
       const errorMessage = handleBookingApiError(err, navigate);
 

@@ -3,13 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getBookingDetails } from "../services/bookingApi";
 import type { BookingDetailsResponse } from "../services/bookingApi";
 import { FaCheckCircle, FaEnvelope, FaIdCard, FaClock } from "react-icons/fa";
+import { useBooking } from "../contexts/bookingContextCore";
+import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 
 const ConfirmationPage: React.FC = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
+  const { selectedCar, driverDetails: contextDriverDetails } = useBooking();
   const [booking, setBooking] = useState<BookingDetailsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  console.log("🎉 ConfirmationPage - Mounted with bookingId:", bookingId);
 
   useEffect(() => {
     const fetchBookingDetails = async () => {
@@ -20,9 +25,18 @@ const ConfirmationPage: React.FC = () => {
       }
 
       try {
+        console.log(
+          "🔍 ConfirmationPage: Fetching booking details for:",
+          bookingId,
+        );
         const details = await getBookingDetails(bookingId);
+        console.log("📦 ConfirmationPage: Received booking details:", details);
         setBooking(details);
       } catch (err) {
+        console.error(
+          "❌ ConfirmationPage: Failed to fetch booking details:",
+          err,
+        );
         setError("Failed to load booking details");
       } finally {
         setIsLoading(false);
@@ -63,6 +77,22 @@ const ConfirmationPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        {/* Full-Width Car Summary */}
+        {selectedCar && (
+          <div className="mb-8">
+            <RentalCardSummary
+              model={selectedCar.model}
+              seats={selectedCar.seats}
+              luggage={selectedCar.luggage}
+              transmission={selectedCar.transmission}
+              imageUrl={selectedCar.imageUrl}
+              operator={selectedCar.operator}
+              operatorStyling={selectedCar.operatorStyling}
+              className="mb-0"
+            />
+          </div>
+        )}
+
         {/* Success Header */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
@@ -72,8 +102,16 @@ const ConfirmationPage: React.FC = () => {
             Booking Confirmed!
           </h1>
           <p className="text-lg text-gray-600">
-            Your rental is confirmed. We've sent a confirmation email to{" "}
-            <span className="font-semibold">{booking.driverDetails.email}</span>
+            Your rental is confirmed.
+            {(booking.driverDetails?.email || contextDriverDetails?.email) && (
+              <>
+                {" "}
+                We've sent a confirmation email to{" "}
+                <span className="font-semibold">
+                  {booking.driverDetails?.email || contextDriverDetails?.email}
+                </span>
+              </>
+            )}
           </p>
         </div>
 
@@ -95,24 +133,39 @@ const ConfirmationPage: React.FC = () => {
           </div>
 
           {/* Vehicle Information */}
-          <div className="mb-6">
-            <h3 className="mb-3 text-lg font-semibold text-gray-900">
-              Vehicle Information
-            </h3>
-            <div className="flex gap-4">
-              <img
-                src={booking.carModel.imageUrl}
-                alt={booking.carModel.model}
-                className="h-24 w-36 rounded-lg object-cover"
-              />
-              <div>
-                <p className="text-lg font-semibold">
-                  {booking.carModel.model}
-                </p>
-                <p className="text-gray-600">{booking.carModel.manufacturer}</p>
+          {(booking.carModel || selectedCar) && (
+            <div className="mb-6">
+              <h3 className="mb-3 text-lg font-semibold text-gray-900">
+                Vehicle Information
+              </h3>
+              <div className="flex gap-4">
+                {(booking.carModel?.imageUrl || selectedCar?.imageUrl) && (
+                  <img
+                    src={
+                      booking.carModel?.imageUrl || selectedCar?.imageUrl || ""
+                    }
+                    alt={
+                      booking.carModel?.model || selectedCar?.model || "Vehicle"
+                    }
+                    className="h-24 w-36 rounded-lg object-cover"
+                  />
+                )}
+                <div>
+                  <p className="text-lg font-semibold">
+                    {booking.carModel?.model ||
+                      selectedCar?.model ||
+                      "Vehicle Model"}
+                  </p>
+                  {(booking.carModel?.manufacturer ||
+                    selectedCar?.operator) && (
+                    <p className="text-gray-600">
+                      {booking.carModel?.manufacturer || selectedCar?.operator}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Rental Period */}
           <div className="mb-6">
@@ -152,34 +205,45 @@ const ConfirmationPage: React.FC = () => {
           </div>
 
           {/* Driver Information */}
-          <div className="mb-6">
-            <h3 className="mb-3 text-lg font-semibold text-gray-900">
-              Driver Information
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-600">Name</p>
-                <p className="font-medium">
-                  {booking.driverDetails.firstName}{" "}
-                  {booking.driverDetails.lastName}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-600">Phone</p>
-                <p className="font-medium">{booking.driverDetails.phone}</p>
-              </div>
-              <div>
-                <p className="text-gray-600">Email</p>
-                <p className="font-medium">{booking.driverDetails.email}</p>
-              </div>
-              <div>
-                <p className="text-gray-600">License Number</p>
-                <p className="font-medium">
-                  {booking.driverDetails.licenseNumber}
-                </p>
+          {(booking.driverDetails || contextDriverDetails) && (
+            <div className="mb-6">
+              <h3 className="mb-3 text-lg font-semibold text-gray-900">
+                Driver Information
+              </h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-600">Name</p>
+                  <p className="font-medium">
+                    {booking.driverDetails?.firstName ||
+                      contextDriverDetails?.firstName}{" "}
+                    {booking.driverDetails?.lastName ||
+                      contextDriverDetails?.lastName}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Phone</p>
+                  <p className="font-medium">
+                    {booking.driverDetails?.phone ||
+                      contextDriverDetails?.phone}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Email</p>
+                  <p className="font-medium">
+                    {booking.driverDetails?.email ||
+                      contextDriverDetails?.email}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-600">License Number</p>
+                  <p className="font-medium">
+                    {booking.driverDetails?.licenseNumber ||
+                      contextDriverDetails?.licenseNumber}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Payment Summary */}
           <div className="border-t pt-6">
