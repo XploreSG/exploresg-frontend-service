@@ -1,90 +1,29 @@
 import React, { useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-// import BookingProgress from "../components/Rentals/BookingProgress";
+import { useParams, useNavigate } from "react-router-dom";
+import { useBooking } from "../../contexts/bookingContextCore";
 import BookingProgress from "./BookingProgress";
 import RentalCardSummary from "./RentalCardSummary";
-import {
-  FaUser,
-  FaIdCard,
-  FaPhone,
-  //   FaEnvelope,
-  //   FaCalendar,
-  FaMapMarkerAlt,
-} from "react-icons/fa";
+import { FaUser, FaIdCard, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
-interface DriverDetails {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  licenseNumber: string;
-  licenseIssueDate: string;
-  licenseExpiryDate: string;
-  licenseCountry: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  drivingExperience: string;
-}
-
-interface CarDetails {
-  model: string;
-  seats: number;
-  luggage: number;
-  transmission: "automatic" | "manual";
-  price: number;
-  originalPrice?: number;
-  promoText?: string;
-  imageUrl: string;
-  operator: string;
-  operatorStyling: string;
-  carId: string;
-}
-
-interface BookingDates {
-  pickup: string;
-  return: string;
-  nights: number;
-}
-
-interface AddOnSelection {
-  id: string;
-  name: string;
-  price: number | string;
-  selected: boolean;
-}
+// Using types from BookingContext
+import type { DriverDetails as DriverDetailsType } from "../../contexts/bookingContextCore";
 
 const DriverDetailsPage: React.FC = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Get car details and booking data from location state
-  const bookingData = location.state || {};
   const {
-    carDetails,
-    // selectedAddOns,
-    // selectedCDW,
+    selectedCar,
     bookingDates,
-  }: {
-    carDetails?: CarDetails;
-    selectedAddOns?: AddOnSelection[];
-    selectedCDW?: string;
-    bookingDates?: BookingDates;
-  } = bookingData;
+    setDriverDetails: saveDriverDetails,
+  } = useBooking();
 
-  const [driverDetails, setDriverDetails] = useState<DriverDetails>({
+  const [driverDetails, setDriverDetails] = useState<DriverDetailsType>({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     dateOfBirth: "",
     licenseNumber: "",
-    licenseIssueDate: "",
     licenseExpiryDate: "",
     licenseCountry: "Singapore",
     address: "",
@@ -96,9 +35,9 @@ const DriverDetailsPage: React.FC = () => {
     drivingExperience: "3+",
   });
 
-  const [errors, setErrors] = useState<Partial<DriverDetails>>({});
+  const [errors, setErrors] = useState<Partial<DriverDetailsType>>({});
 
-  const handleInputChange = (field: keyof DriverDetails, value: string) => {
+  const handleInputChange = (field: keyof DriverDetailsType, value: string) => {
     setDriverDetails((prev) => ({
       ...prev,
       [field]: value,
@@ -114,7 +53,7 @@ const DriverDetailsPage: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<DriverDetails> = {};
+    const newErrors: Partial<DriverDetailsType> = {};
 
     // Required field validation
     if (!driverDetails.firstName.trim())
@@ -128,8 +67,6 @@ const DriverDetailsPage: React.FC = () => {
       newErrors.dateOfBirth = "Date of birth is required";
     if (!driverDetails.licenseNumber.trim())
       newErrors.licenseNumber = "License number is required";
-    if (!driverDetails.licenseIssueDate)
-      newErrors.licenseIssueDate = "License issue date is required";
     if (!driverDetails.licenseExpiryDate)
       newErrors.licenseExpiryDate = "License expiry date is required";
     if (!driverDetails.address.trim())
@@ -200,19 +137,11 @@ const DriverDetailsPage: React.FC = () => {
     e.preventDefault();
 
     if (validateForm()) {
-      // Save driver details (in real app, save to context/state)
-      console.log("Driver details:", driverDetails);
+      // Save driver details to BookingContext
+      saveDriverDetails(driverDetails);
 
-      // Get booking data from location state
-      const bookingData = location.state || {};
-
-      // Navigate to payment page with all booking data
-      navigate(`/booking/${carId}/payment`, {
-        state: {
-          ...bookingData,
-          driverDetails,
-        },
-      });
+      // Navigate to review page
+      navigate(`/booking/${carId}/review`);
     }
   };
 
@@ -234,24 +163,20 @@ const DriverDetailsPage: React.FC = () => {
           </div>
 
           {/* Full-Width Car Summary */}
-          {carDetails && (
+          {selectedCar && bookingDates && (
             <div className="mb-8">
               <RentalCardSummary
-                model={carDetails.model}
-                seats={carDetails.seats}
-                luggage={carDetails.luggage}
-                transmission={carDetails.transmission}
-                price={carDetails.price}
-                originalPrice={carDetails.originalPrice}
-                promoText={carDetails.promoText}
-                imageUrl={carDetails.imageUrl}
-                operator={carDetails.operator}
-                operatorStyling={
-                  typeof carDetails.operatorStyling === "string"
-                    ? { brand: "text-white", background: "from-gray-500" }
-                    : carDetails.operatorStyling
-                }
-                nights={bookingDates?.nights || 5}
+                model={selectedCar.model}
+                seats={selectedCar.seats}
+                luggage={selectedCar.luggage}
+                transmission={selectedCar.transmission}
+                price={selectedCar.price}
+                originalPrice={selectedCar.originalPrice}
+                promoText={selectedCar.promoText}
+                imageUrl={selectedCar.imageUrl}
+                operator={selectedCar.operator}
+                operatorStyling={selectedCar.operatorStyling}
+                nights={bookingDates.nights}
                 showPricing={true}
                 className="mb-0"
               />
@@ -671,7 +596,7 @@ const DriverDetailsPage: React.FC = () => {
                 type="submit"
                 className="flex-1 rounded-lg bg-blue-600 px-6 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-blue-700"
               >
-                Continue to Payment
+                Continue to Review
               </button>
             </div>
           </form>

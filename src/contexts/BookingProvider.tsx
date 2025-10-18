@@ -6,6 +6,7 @@ import type {
   AddOnSelection,
   BookingDates,
   DriverDetails,
+  BookingReservation,
 } from "./bookingContextCore";
 import type { CarDetailsWithPricing } from "../types/rental";
 
@@ -22,6 +23,7 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({
     null,
   );
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [booking, setBooking] = useState<BookingReservation | null>(null);
 
   const calculateTotal = useCallback(() => {
     if (!selectedCar || !bookingDates) {
@@ -51,6 +53,7 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({
     setSelectedAddOns([]);
     setDriverDetails(null);
     setTotalPrice(0);
+    setBooking(null);
   };
 
   useEffect(() => {
@@ -64,11 +67,13 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({
     selectedAddOns,
     driverDetails,
     totalPrice,
+    booking,
     setSelectedCar,
     setBookingDates,
     setSelectedCDW,
     setSelectedAddOns,
     setDriverDetails,
+    setBooking,
     calculateTotal,
     resetBooking,
   };
