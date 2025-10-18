@@ -68,6 +68,7 @@ export const API_ENDPOINTS = {
   FLEET: {
     MODELS: `${FLEET_API_BASE_URL}/api/v1/fleet/models`,
     VEHICLES: `${FLEET_API_BASE_URL}/api/v1/fleet/vehicles`,
+    NOTIFY: `${FLEET_API_BASE_URL}/api/v1/fleet/reservations/notify`,
   },
 
   BOOKING: {

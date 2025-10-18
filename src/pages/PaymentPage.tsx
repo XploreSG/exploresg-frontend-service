@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import BookingProgress from "../components/Rentals/BookingProgress";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 import { FaCreditCard, FaLock, FaShieldAlt, FaCheck } from "react-icons/fa";
+import { API_ENDPOINTS } from "../config/api";
 // import InlineLogoLoader from "../components/InlineLogoLoader";
 
 interface AddOnSelection {
@@ -64,6 +65,19 @@ const PaymentPage: React.FC = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const sendNotification = async () => {
+    let token = localStorage.getItem("token"); // or however you store the auth token
+    let notifyApiEndpoint: string = API_ENDPOINTS.FLEET.NOTIFY;
+    const response = await fetch(notifyApiEndpoint, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`, // if needed
+      },
+    });
+    if (response.ok) {
+      return response.json();
+    }
+  };
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
@@ -73,6 +87,13 @@ const PaymentPage: React.FC = () => {
       setIsProcessing(false);
       // Navigate to confirmation page or show success message
       alert("Payment successful! Booking confirmed.");
+      sendNotification()
+        .then((data) => {
+          console.log("Notification outcome:", data);
+        })
+        .catch((error) => {
+          console.error("Error sending notification:", error);
+        });
       navigate("/rentals");
     }, 3000);
   };
