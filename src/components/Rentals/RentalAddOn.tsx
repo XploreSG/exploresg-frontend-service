@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useBooking } from "../../contexts/bookingContextCore";
 import BookingProgress from "./BookingProgress";
 import RentalCardSummary from "./RentalCardSummary";
 import { FaPlus } from "react-icons/fa";
@@ -32,6 +33,7 @@ type CarDetails = {
   operator: string;
   operatorStyling: { brand: string; background: string };
   carId: string;
+  carModelPublicId?: string; // Backend UUID for API calls
 };
 
 type BookingDetails = {
@@ -96,6 +98,12 @@ const CDW_OPTIONS: CDWOption[] = [
 const RentalAddOnPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const {
+    setSelectedCar,
+    bookingDates: contextBookingDates,
+    setSelectedCDW: setContextCDW,
+    setSelectedAddOns: setContextAddOns,
+  } = useBooking();
 
   // Get car details from navigation state
   const carDetails: CarDetails = location.state?.carDetails || {
@@ -120,24 +128,24 @@ const RentalAddOnPage: React.FC = () => {
     carDetails.operatorStyling = { brand: "Default", background: "#f0f0f0" };
   }
 
+  // Use booking dates from context (set by DatePicker), or fall back to defaults
+  const bookingDates: BookingDates = contextBookingDates || {
+    pickup: "Sat, 27 Sep, 11:00",
+    return: "Thu, 2 Oct, 10:00",
+    nights: 5,
+  };
+
   // Booking details (normally passed as props or from context/state)
   const bookingDetails: BookingDetails = {
     car: carDetails.model,
     location: "McIver City, 28 Sin Ming Lane",
-    pickup: "Sat, 27 Sep, 11:00",
-    return: "Thu, 2 Oct, 10:00",
+    pickup: bookingDates.pickup,
+    return: bookingDates.return,
     passengers: carDetails.seats,
     luggage: carDetails.luggage,
     petFriendly: true,
-    nights: 5,
+    nights: bookingDates.nights,
     basePrice: carDetails.price,
-  };
-
-  // Create booking dates object for RentalCardSummary
-  const bookingDates: BookingDates = {
-    pickup: bookingDetails.pickup,
-    return: bookingDetails.return,
-    nights: bookingDetails.nights,
   };
 
   const [selectedCDW, setSelectedCDW] = useState<string>("basic");
@@ -147,6 +155,16 @@ const RentalAddOnPage: React.FC = () => {
     },
   );
   const [total, setTotal] = useState<number>(0);
+
+  // Save car details to context on mount (dates already set by DatePicker)
+  useEffect(() => {
+    console.log("🚗 RentalAddOn: Saving car to BookingContext", {
+      carDetails,
+    });
+
+    setSelectedCar(carDetails);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount - we don't want to re-save when carDetails changes
 
   // Calculate total price whenever selections change
   useEffect(() => {
@@ -369,7 +387,33 @@ const RentalAddOnPage: React.FC = () => {
             {/* Continue Button */}
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
+                // Save CDW and add-ons to context before navigating
+                console.log(
+                  "💾 RentalAddOn: Saving CDW and add-ons to BookingContext",
+                  {
+                    selectedCDW,
+                    selectedAddOns,
+                  },
+                );
+
+                setContextCDW(selectedCDW);
+
+                // Convert Record<string, boolean> to AddOnSelection[]
+                const addOnSelections = Object.entries(selectedAddOns)
+                  .filter(([, isSelected]) => isSelected)
+                  .map(([id]) => {
+                    const addon = ADDONS.find((a) => a.id === id);
+                    return {
+                      id,
+                      name: addon?.name || id,
+                      price: typeof addon?.price === "number" ? addon.price : 0,
+                      selected: true,
+                    };
+                  });
+
+                setContextAddOns(addOnSelections);
+
                 navigate(`/booking/${carDetails.carId}/driver-details`, {
                   state: {
                     carDetails,
@@ -377,8 +421,8 @@ const RentalAddOnPage: React.FC = () => {
                     selectedCDW,
                     total,
                   },
-                })
-              }
+                });
+              }}
               className="w-full rounded-lg bg-blue-600 py-4 text-lg font-semibold text-white shadow-lg transition-colors hover:bg-blue-700"
             >
               Continue to Driver Info

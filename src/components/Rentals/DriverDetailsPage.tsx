@@ -74,9 +74,10 @@ const DriverDetailsPage: React.FC = () => {
             text: "Your saved information has been loaded. You can update it if needed.",
           });
         }
-      } catch (error) {
-        console.error("Failed to load profile:", error);
-        // Continue with empty form - user might be booking for the first time
+      } catch {
+        // Silently continue with empty form - user might be booking for the first time
+        // This is expected behavior for new users with minimal signup
+        console.log("ℹ️ No saved profile found. Starting with empty form.");
       } finally {
         setIsLoadingProfile(false);
       }
@@ -185,8 +186,15 @@ const DriverDetailsPage: React.FC = () => {
     e.preventDefault();
 
     if (validateForm()) {
+      console.log(
+        "🔍 DriverDetailsPage - Submitting driver details:",
+        driverDetails,
+      );
+
       // Save driver details to BookingContext for this booking
       saveDriverDetails(driverDetails);
+
+      console.log("✅ DriverDetailsPage - Driver details saved to context");
 
       // Save to user profile if checkbox is checked
       if (saveToProfile) {
@@ -220,7 +228,10 @@ const DriverDetailsPage: React.FC = () => {
       }
 
       // Navigate to review page
+      console.log("🚀 DriverDetailsPage - Navigating to review page");
       navigate(`/booking/${carId}/review`);
+    } else {
+      console.error("❌ DriverDetailsPage - Validation failed");
     }
   };
 

@@ -5,6 +5,8 @@ export interface OperatorCarModelData {
   operatorId: number | string; // Now supports both UUID (from backend) and numeric ID
   operatorName: string;
   carModelId: number;
+  publicId?: string; // UUID from backend for API calls (legacy field)
+  publicModelId?: string; // UUID from backend for API calls (current field name)
   model: string;
   manufacturer: string;
   seats: number;
@@ -26,7 +28,8 @@ export interface OperatorStyling {
 
 // Display type for UI components
 export interface DisplayCarData {
-  id: string; // Unique combination of operatorId-carModelId
+  id: string; // Unique combination of operatorId-carModelId (for frontend use)
+  carModelPublicId?: string; // Backend UUID for API calls
   operatorId: number;
   operatorName: string;
   model: string;
@@ -58,7 +61,8 @@ export interface CarDetailsWithPricing extends BaseCarDetails {
   price: number;
   originalPrice?: number;
   promoText?: string;
-  carId?: string;
+  carId?: string; // Frontend ID or backend publicId (UUID)
+  carModelPublicId?: string; // Backend UUID for API calls
 }
 
 // Operator information

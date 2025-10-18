@@ -21,6 +21,17 @@ const ReviewPage: React.FC = () => {
     setBooking,
   } = useBooking();
 
+  // Debug logging
+  console.log("🔍 ReviewPage - Received booking data:", {
+    selectedCar: selectedCar ? selectedCar : "null",
+    selectedCarModel: selectedCar ? selectedCar.model : "null",
+    selectedCarId: selectedCar ? selectedCar.carId : "null",
+    selectedCarPublicId: selectedCar ? selectedCar.carModelPublicId : "null",
+    bookingDates: bookingDates,
+    driverDetails: driverDetails,
+    hasDriverDetails: !!driverDetails,
+  });
+
   const [isReserving, setIsReserving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -38,10 +49,19 @@ const ReviewPage: React.FC = () => {
     setError(null);
 
     try {
+      // Use carModelPublicId (backend UUID) - adapter maps publicModelId → carModelPublicId
+      const carModelId =
+        selectedCar.carModelPublicId || selectedCar.carId || "unknown";
+
+      console.log(
+        "🔍 ReviewPage: Using carModelPublicId for booking:",
+        carModelId,
+      );
+
       const bookingRequest: CreateBookingRequest = {
-        carModelPublicId: selectedCar.carId || "unknown",
-        startDate: bookingDates.pickup,
-        endDate: bookingDates.return,
+        carModelPublicId: carModelId,
+        startDate: bookingDates.pickupISO || bookingDates.pickup, // Use ISO format for API
+        endDate: bookingDates.returnISO || bookingDates.return, // Use ISO format for API
         pickupLocation: "Changi Airport", // TODO: Get from form
         returnLocation: "Changi Airport", // TODO: Get from form
         driverDetails: {
@@ -50,14 +70,16 @@ const ReviewPage: React.FC = () => {
           email: driverDetails.email,
           phone: driverDetails.phone,
           licenseNumber: driverDetails.licenseNumber,
-          dateOfBirth: driverDetails.dateOfBirth,
-          licenseExpiryDate: driverDetails.licenseExpiryDate,
+          // ✅ Backend contract: ONLY these 5 fields
+          // ❌ Removed: dateOfBirth, licenseExpiryDate (not in backend contract)
         },
-        selectedCDW,
-        selectedAddOns: selectedAddOns
-          .filter((a: AddOnSelection) => a.selected)
-          .map((a: AddOnSelection) => a.id),
+        // ✅ Backend contract: NO selectedCDW or selectedAddOns
       };
+
+      console.log(
+        "📤 ReviewPage: Sending booking request to API:",
+        JSON.stringify(bookingRequest, null, 2),
+      );
 
       const response = await createBooking(bookingRequest);
 

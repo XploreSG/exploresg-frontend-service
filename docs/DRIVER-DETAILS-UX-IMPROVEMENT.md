@@ -307,6 +307,17 @@ const handleSubmit = async (e) => {
 
 ## 📝 **API Contract**
 
+> 📋 **Complete API Documentation**: See [BACKEND-API-DRIVER-DETAILS.md](./BACKEND-API-DRIVER-DETAILS.md) for comprehensive backend API integration guide including cURL examples and testing scenarios.
+
+### **Quick Reference**
+
+**Backend Design**: Uses **PATCH-style** `/signup` endpoint for progressive profile completion
+
+**Key Endpoints**:
+
+- `POST /api/v1/signup` - Create/Update profile (idempotent, accepts empty body or partial updates)
+- `GET /api/v1/user/profile` - Fetch current profile
+
 ### **GET /api/v1/user/profile**
 
 **Request:**

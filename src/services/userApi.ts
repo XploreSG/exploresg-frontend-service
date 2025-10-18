@@ -1,6 +1,11 @@
 /**
  * User Profile API Service
  * Handles user profile operations including driver details
+ *
+ * Backend API Pattern:
+ * - POST /api/v1/signup with empty body {} - Initial signup (minimal)
+ * - POST /api/v1/signup with driver details - Update profile during booking
+ * - GET /api/v1/user/profile - Fetch current user profile
  */
 
 import { API_ENDPOINTS } from "../config/api";
@@ -63,7 +68,7 @@ export interface UserProfileResponse extends UserProfileData {
  * Get current user's profile
  */
 export const getUserProfile = async (): Promise<UserProfileResponse> => {
-  const jwtToken = localStorage.getItem("jwtToken");
+  const jwtToken = localStorage.getItem("token"); // Changed from "jwtToken" to "token"
 
   if (!jwtToken) {
     throw new Error("Authentication required. Please log in.");
@@ -82,12 +87,19 @@ export const getUserProfile = async (): Promise<UserProfileResponse> => {
       if (response.status === 401) {
         throw new Error("Session expired. Please log in again.");
       }
+      if (response.status === 404 || response.status === 500) {
+        // Profile not found - this is expected for new users with minimal signup
+        throw new Error("PROFILE_NOT_FOUND");
+      }
       throw new Error("Failed to fetch user profile");
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching user profile:", error);
+    // Don't log "profile not found" errors as they're expected for new users
+    if (error instanceof Error && error.message !== "PROFILE_NOT_FOUND") {
+      console.error("Error fetching user profile:", error);
+    }
     throw error;
   }
 };
@@ -95,19 +107,21 @@ export const getUserProfile = async (): Promise<UserProfileResponse> => {
 /**
  * Update user profile with driver details
  * This is called during booking flow to save driver information
+ * Uses the SIGNUP endpoint as per backend API design (PATCH-style updates)
  */
 export const updateUserProfile = async (
   profileData: UpdateProfileRequest,
 ): Promise<UserProfileResponse> => {
-  const jwtToken = localStorage.getItem("jwtToken");
+  const jwtToken = localStorage.getItem("token"); // Changed from "jwtToken" to "token"
 
   if (!jwtToken) {
     throw new Error("Authentication required. Please log in.");
   }
 
   try {
-    const response = await fetch(API_ENDPOINTS.USER.PROFILE, {
-      method: "PUT",
+    // Backend uses /signup endpoint for profile updates (PATCH-style)
+    const response = await fetch(API_ENDPOINTS.USER.SIGNUP, {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${jwtToken}`,
         "Content-Type": "application/json",

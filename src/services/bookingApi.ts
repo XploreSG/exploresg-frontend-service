@@ -8,9 +8,9 @@ import { API_ENDPOINTS } from "../config/api";
 // ==================== Types ====================
 
 export interface CreateBookingRequest {
-  carModelPublicId: string;
-  startDate: string; // ISO format
-  endDate: string; // ISO format
+  publicModelId: string; // UUID from fleet API (matches fleet service naming)
+  startDate: string; // ISO format: "2025-11-01T10:00:00Z" (no milliseconds)
+  endDate: string; // ISO format: "2025-11-05T18:00:00Z" (no milliseconds)
   pickupLocation: string;
   returnLocation: string;
   driverDetails: {
@@ -19,11 +19,9 @@ export interface CreateBookingRequest {
     email: string;
     phone: string;
     licenseNumber: string;
-    dateOfBirth?: string;
-    licenseExpiryDate?: string;
+    // NOTE: Backend does NOT expect dateOfBirth or licenseExpiryDate
   };
-  selectedAddOns?: string[]; // Array of add-on IDs
-  selectedCDW?: string; // CDW level: basic, plus, max
+  // NOTE: Backend does NOT expect selectedAddOns or selectedCDW
 }
 
 export interface CreateBookingResponse {
@@ -93,7 +91,7 @@ export interface ApiError {
 export const createBooking = async (
   bookingData: CreateBookingRequest,
 ): Promise<CreateBookingResponse> => {
-  const jwtToken = localStorage.getItem("jwtToken");
+  const jwtToken = localStorage.getItem("token"); // Changed from "jwtToken" to "token"
 
   if (!jwtToken) {
     throw new Error("Authentication required. Please log in.");
@@ -142,7 +140,7 @@ export const processPayment = async (
   bookingId: string,
   paymentData: ProcessPaymentRequest,
 ): Promise<ProcessPaymentResponse> => {
-  const jwtToken = localStorage.getItem("jwtToken");
+  const jwtToken = localStorage.getItem("token"); // Changed from "jwtToken" to "token"
 
   if (!jwtToken) {
     throw new Error("Authentication required. Please log in.");
@@ -192,7 +190,7 @@ export const processPayment = async (
 export const getBookingDetails = async (
   bookingId: string,
 ): Promise<BookingDetailsResponse> => {
-  const jwtToken = localStorage.getItem("jwtToken");
+  const jwtToken = localStorage.getItem("token"); // Changed from "jwtToken" to "token"
 
   if (!jwtToken) {
     throw new Error("Authentication required. Please log in.");

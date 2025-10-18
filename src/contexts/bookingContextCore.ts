@@ -9,9 +9,11 @@ export interface AddOnSelection {
 }
 
 export interface BookingDates {
-  pickup: string;
-  return: string;
+  pickup: string; // Display format: "Sat, 27 Sep, 11:00"
+  return: string; // Display format: "Thu, 2 Oct, 10:00"
   nights: number;
+  pickupISO?: string; // ISO format: "2025-11-01T10:00:00Z" for API
+  returnISO?: string; // ISO format: "2025-11-05T18:00:00Z" for API
 }
 
 export interface DriverDetails {
