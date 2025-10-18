@@ -1,57 +1,43 @@
 import React, { useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import BookingProgress from "../components/Rentals/BookingProgress";
+import CountdownTimer from "../components/Rentals/CountdownTimer";
+import ReservationExpiredModal from "../components/Rentals/ReservationExpiredModal";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
+import { useBooking } from "../contexts/bookingContextCore";
+import { processPayment, handleBookingApiError } from "../services/bookingApi";
 import { FaCreditCard, FaLock, FaShieldAlt, FaCheck } from "react-icons/fa";
-// import InlineLogoLoader from "../components/InlineLogoLoader";
-
-interface AddOnSelection {
-  id: string;
-  name: string;
-  price: number | string;
-  selected: boolean;
-}
-
-interface CarDetails {
-  model: string;
-  seats: number;
-  luggage: number;
-  transmission: "automatic" | "manual";
-  price: number;
-  originalPrice?: number;
-  promoText?: string;
-  imageUrl: string;
-  operator: string;
-  operatorStyling: { brand: string; background: string };
-  carId: string;
-}
-
-interface BookingDates {
-  pickup: string;
-  return: string;
-  nights: number;
-}
 
 const PaymentPage: React.FC = () => {
-  const { carId } = useParams();
+  const { bookingId, carId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Get booking data from location state
-  const bookingData = location.state || {};
   const {
-    carDetails,
+    booking,
+    selectedCar,
+    bookingDates,
     selectedAddOns,
     selectedCDW,
-    total,
+    totalPrice,
+    resetBooking,
+  } = useBooking();
+
+  // Debug logging
+  console.log("💳 PaymentPage - Loaded with context:", {
+    bookingId,
+    hasBooking: !!booking,
+    booking,
+    hasSelectedCar: !!selectedCar,
+    selectedCar,
     bookingDates,
-  }: {
-    carDetails?: CarDetails;
-    selectedAddOns?: AddOnSelection[];
-    selectedCDW?: string;
-    total?: number;
-    bookingDates?: BookingDates;
-  } = bookingData;
+  });
+
+  // Additional debug before early return
+  if (!booking) {
+    console.error("❌ PaymentPage: booking is NULL/undefined");
+  }
+  if (!selectedCar) {
+    console.error("❌ PaymentPage: selectedCar is NULL/undefined");
+  }
 
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [cardDetails, setCardDetails] = useState({
@@ -63,52 +49,134 @@ const PaymentPage: React.FC = () => {
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showExpiredModal, setShowExpiredModal] = useState(false);
+
+  const handleReservationExpired = () => {
+    setShowExpiredModal(true);
+  };
+
+  const handleExpiredModalClose = () => {
+    setShowExpiredModal(false);
+    resetBooking();
+    navigate("/rentals");
+  };
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProcessing(true);
 
-    // Simulate payment processing
-    setTimeout(() => {
+    if (!bookingId) {
+      setError("No booking ID found. Please start over.");
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      console.log(
+        "💳 PaymentPage: Submitting payment for bookingId:",
+        bookingId,
+      );
+
+      await processPayment(bookingId, {
+        paymentMethod: "CREDIT_CARD",
+        // cardDetails can be added here for real payment gateway
+      });
+
+      console.log(
+        "✅ PaymentPage: Payment successful! Navigating to confirmation...",
+      );
+
+      // Success - navigate to confirmation using absolute path
+      // Current: /booking/:carId/:bookingId/payment
+      // Target: /booking/:carId/:bookingId/confirmation
+      navigate(`/booking/${carId}/${bookingId}/confirmation`, {
+        replace: true,
+      });
+    } catch (err: unknown) {
+      const errorMessage = handleBookingApiError(err, navigate);
+
+      const apiError = err as { status?: number };
+      if (apiError.status === 410) {
+        // Reservation expired - show modal
+        setShowExpiredModal(true);
+      } else {
+        setError(errorMessage);
+      }
+    } finally {
       setIsProcessing(false);
-      // Navigate to confirmation page or show success message
-      alert("Payment successful! Booking confirmed.");
-      navigate("/rentals");
-    }, 3000);
+    }
   };
+
+  // If no booking reservation, redirect back
+  if (!booking || !selectedCar) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="mb-4 text-2xl font-bold">No Active Reservation</h2>
+          <p className="mb-6 text-gray-600">
+            Please complete the previous steps to make a reservation.
+          </p>
+          <button
+            onClick={() => navigate("/rentals")}
+            className="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
+          >
+            Return to Vehicle Selection
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Progress Steps - Step 4: Payment */}
-      <BookingProgress currentStep={4} />
+      {/* Progress Steps - Step 5: Payment */}
+      <BookingProgress currentStep={5} />
 
       <div className="py-12">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          {/* Countdown Timer - Prominent Display */}
+          {booking && (
+            <CountdownTimer
+              expiresAt={booking.reservationExpiresAt}
+              onExpired={handleReservationExpired}
+              className="mb-8"
+            />
+          )}
+
           {/* Current Step Indicator */}
           <div className="mb-8 text-center">
             <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-6 py-3 shadow-sm">
               <FaCreditCard className="mr-3 h-5 w-5 text-blue-500" />
               <span className="text-base font-medium text-blue-700">
-                Step 4: Complete your booking
+                Step 5: Complete your payment
               </span>
             </div>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
           {/* Full-Width Car Summary */}
-          {carDetails && (
+          {selectedCar && bookingDates && (
             <div className="mb-8">
               <RentalCardSummary
-                model={carDetails.model}
-                seats={carDetails.seats}
-                luggage={carDetails.luggage}
-                transmission={carDetails.transmission}
-                price={carDetails.price}
-                originalPrice={carDetails.originalPrice}
-                promoText={carDetails.promoText}
-                imageUrl={carDetails.imageUrl}
-                operator={carDetails.operator}
-                operatorStyling={carDetails.operatorStyling}
-                nights={bookingDates?.nights || 5}
+                model={selectedCar.model}
+                seats={selectedCar.seats}
+                luggage={selectedCar.luggage}
+                transmission={selectedCar.transmission}
+                price={selectedCar.price}
+                originalPrice={selectedCar.originalPrice}
+                promoText={selectedCar.promoText}
+                imageUrl={selectedCar.imageUrl}
+                operator={selectedCar.operator}
+                operatorStyling={selectedCar.operatorStyling}
+                nights={bookingDates.nights}
                 showPricing={true}
                 className="mb-0"
               />
@@ -296,11 +364,11 @@ const PaymentPage: React.FC = () => {
                 <div className="flex flex-col gap-4 sm:flex-row">
                   <button
                     type="button"
-                    onClick={() => navigate(`/booking/${carId}/driver-details`)}
+                    onClick={() => window.history.back()}
                     className="flex-1 rounded-lg border border-gray-300 px-6 py-4 font-medium text-gray-700 transition-colors hover:bg-gray-50"
                     disabled={isProcessing}
                   >
-                    Back to Driver Details
+                    Back to Review
                   </button>
 
                   <button
@@ -314,12 +382,7 @@ const PaymentPage: React.FC = () => {
                         Processing Payment...
                       </div>
                     ) : (
-                      //                 <div className="flex items-center justify-center">
-                      //   {/* Inline brand loader */}
-                      //   <InlineLogoLoader size={20} />
-                      //   <span className="ml-2">Processing Payment...</span>
-                      // </div>
-                      "Complete Booking"
+                      "Complete Payment"
                     )}
                   </button>
                 </div>
@@ -334,10 +397,15 @@ const PaymentPage: React.FC = () => {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span>
-                      {carDetails?.model || "Toyota Alphard"} (5 nights)
+                      {selectedCar?.model || "Vehicle"} (
+                      {bookingDates?.nights || 5} nights)
                     </span>
                     <span>
-                      S$ {((carDetails?.price || 250) * 5).toFixed(2)}
+                      S${" "}
+                      {(
+                        (selectedCar?.price || 250) *
+                        (bookingDates?.nights || 5)
+                      ).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -358,37 +426,23 @@ const PaymentPage: React.FC = () => {
                           : "S$ 200.00"}
                     </span>
                   </div>
-                  {selectedAddOns && selectedAddOns.length > 0 ? (
-                    selectedAddOns.map((addon: AddOnSelection) =>
+                  {selectedAddOns &&
+                    selectedAddOns.length > 0 &&
+                    selectedAddOns.some((a) => a.selected) &&
+                    selectedAddOns.map((addon) =>
                       addon.selected ? (
                         <div key={addon.id} className="flex justify-between">
                           <span>{addon.name}</span>
-                          <span>
-                            {typeof addon.price === "string"
-                              ? addon.price
-                              : `S$ ${addon.price.toFixed(2)}`}
-                          </span>
+                          <span>S$ {addon.price.toFixed(2)}</span>
                         </div>
                       ) : null,
-                    )
-                  ) : (
-                    <>
-                      <div className="flex justify-between">
-                        <span>Malaysia Entry (FREE)</span>
-                        <span>S$ 0.00</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Windscreen Protection</span>
-                        <span>S$ 20.00</span>
-                      </div>
-                    </>
-                  )}
+                    )}
 
                   <hr className="my-4" />
 
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span>S$ {(total || 1270).toFixed(2)}</span>
+                    <span>S$ {totalPrice.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -411,6 +465,14 @@ const PaymentPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Reservation Expired Modal */}
+      <ReservationExpiredModal
+        isOpen={showExpiredModal}
+        onClose={handleExpiredModalClose}
+        title="Reservation Expired"
+        message="Your 30-second reservation window has expired. Please select the vehicle again to restart the booking process."
+      />
     </div>
   );
 };

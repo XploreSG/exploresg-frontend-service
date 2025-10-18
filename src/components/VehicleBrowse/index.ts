@@ -6,3 +6,4 @@ export { default as VehicleGrid } from "./VehicleGrid";
 export { default as MobileFilterButton } from "./MobileFilterButton";
 export { default as DesktopFilters } from "./DesktopFilters";
 export { default as VehicleBrowseHeader } from "./VehicleBrowseHeader";
+export { default as DatePickerSection } from "./DatePickerSection";

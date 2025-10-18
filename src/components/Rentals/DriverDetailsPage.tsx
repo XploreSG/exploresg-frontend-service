@@ -1,83 +1,35 @@
-import React, { useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-// import BookingProgress from "../components/Rentals/BookingProgress";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useBooking } from "../../contexts/bookingContextCore";
 import BookingProgress from "./BookingProgress";
 import RentalCardSummary from "./RentalCardSummary";
 import {
   FaUser,
   FaIdCard,
   FaPhone,
-  //   FaEnvelope,
-  //   FaCalendar,
   FaMapMarkerAlt,
+  FaSave,
 } from "react-icons/fa";
+import {
+  getUserProfile,
+  updateUserProfile,
+  profileToDriverDetails,
+  hasCompleteDriverDetails,
+} from "../../services/userApi";
 
-interface DriverDetails {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  licenseNumber: string;
-  licenseIssueDate: string;
-  licenseExpiryDate: string;
-  licenseCountry: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
-  drivingExperience: string;
-}
-
-interface CarDetails {
-  model: string;
-  seats: number;
-  luggage: number;
-  transmission: "automatic" | "manual";
-  price: number;
-  originalPrice?: number;
-  promoText?: string;
-  imageUrl: string;
-  operator: string;
-  operatorStyling: string;
-  carId: string;
-}
-
-interface BookingDates {
-  pickup: string;
-  return: string;
-  nights: number;
-}
-
-interface AddOnSelection {
-  id: string;
-  name: string;
-  price: number | string;
-  selected: boolean;
-}
+// Using types from BookingContext
+import type { DriverDetails as DriverDetailsType } from "../../contexts/bookingContextCore";
 
 const DriverDetailsPage: React.FC = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Get car details and booking data from location state
-  const bookingData = location.state || {};
   const {
-    carDetails,
-    // selectedAddOns,
-    // selectedCDW,
+    selectedCar,
     bookingDates,
-  }: {
-    carDetails?: CarDetails;
-    selectedAddOns?: AddOnSelection[];
-    selectedCDW?: string;
-    bookingDates?: BookingDates;
-  } = bookingData;
+    setDriverDetails: saveDriverDetails,
+  } = useBooking();
 
-  const [driverDetails, setDriverDetails] = useState<DriverDetails>({
+  const [driverDetails, setDriverDetails] = useState<DriverDetailsType>({
     firstName: "",
     lastName: "",
     email: "",
@@ -96,9 +48,45 @@ const DriverDetailsPage: React.FC = () => {
     drivingExperience: "3+",
   });
 
-  const [errors, setErrors] = useState<Partial<DriverDetails>>({});
+  const [errors, setErrors] = useState<Partial<DriverDetailsType>>({});
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [saveToProfile, setSaveToProfile] = useState(true); // Default to saving profile
+  const [profileMessage, setProfileMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
-  const handleInputChange = (field: keyof DriverDetails, value: string) => {
+  // Load user profile on mount
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        setIsLoadingProfile(true);
+        const profile = await getUserProfile();
+
+        // Check if user has complete driver details
+        if (hasCompleteDriverDetails(profile)) {
+          // Pre-fill form with existing profile data
+          const driverData = profileToDriverDetails(profile);
+          setDriverDetails(driverData);
+          setProfileMessage({
+            type: "success",
+            text: "Your saved information has been loaded. You can update it if needed.",
+          });
+        }
+      } catch {
+        // Silently continue with empty form - user might be booking for the first time
+        // This is expected behavior for new users with minimal signup
+        console.log("ℹ️ No saved profile found. Starting with empty form.");
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    loadUserProfile();
+  }, []);
+
+  const handleInputChange = (field: keyof DriverDetailsType, value: string) => {
     setDriverDetails((prev) => ({
       ...prev,
       [field]: value,
@@ -114,7 +102,7 @@ const DriverDetailsPage: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<DriverDetails> = {};
+    const newErrors: Partial<DriverDetailsType> = {};
 
     // Required field validation
     if (!driverDetails.firstName.trim())
@@ -128,8 +116,6 @@ const DriverDetailsPage: React.FC = () => {
       newErrors.dateOfBirth = "Date of birth is required";
     if (!driverDetails.licenseNumber.trim())
       newErrors.licenseNumber = "License number is required";
-    if (!driverDetails.licenseIssueDate)
-      newErrors.licenseIssueDate = "License issue date is required";
     if (!driverDetails.licenseExpiryDate)
       newErrors.licenseExpiryDate = "License expiry date is required";
     if (!driverDetails.address.trim())
@@ -196,23 +182,56 @@ const DriverDetailsPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (validateForm()) {
-      // Save driver details (in real app, save to context/state)
-      console.log("Driver details:", driverDetails);
+      console.log(
+        "🔍 DriverDetailsPage - Submitting driver details:",
+        driverDetails,
+      );
 
-      // Get booking data from location state
-      const bookingData = location.state || {};
+      // Save driver details to BookingContext for this booking
+      saveDriverDetails(driverDetails);
 
-      // Navigate to payment page with all booking data
-      navigate(`/booking/${carId}/payment`, {
-        state: {
-          ...bookingData,
-          driverDetails,
-        },
-      });
+      console.log("✅ DriverDetailsPage - Driver details saved to context");
+
+      // Save to user profile if checkbox is checked
+      if (saveToProfile) {
+        try {
+          setIsSavingProfile(true);
+          await updateUserProfile({
+            firstName: driverDetails.firstName,
+            lastName: driverDetails.lastName,
+            phone: driverDetails.phone,
+            dateOfBirth: driverDetails.dateOfBirth,
+            drivingLicenseNumber: driverDetails.licenseNumber,
+            licenseIssueDate: driverDetails.licenseIssueDate,
+            licenseExpiryDate: driverDetails.licenseExpiryDate,
+            licenseCountry: driverDetails.licenseCountry,
+            address: driverDetails.address,
+            city: driverDetails.city,
+            postalCode: driverDetails.postalCode,
+            country: driverDetails.country,
+            emergencyContactName: driverDetails.emergencyContactName,
+            emergencyContactPhone: driverDetails.emergencyContactPhone,
+            drivingExperience: driverDetails.drivingExperience,
+          });
+
+          console.log("✅ Profile saved successfully for future bookings");
+        } catch (error) {
+          console.error("Failed to save profile:", error);
+          // Don't block the flow - user can continue with booking
+        } finally {
+          setIsSavingProfile(false);
+        }
+      }
+
+      // Navigate to review page
+      console.log("🚀 DriverDetailsPage - Navigating to review page");
+      navigate(`/booking/${carId}/review`);
+    } else {
+      console.error("❌ DriverDetailsPage - Validation failed");
     }
   };
 
@@ -234,27 +253,65 @@ const DriverDetailsPage: React.FC = () => {
           </div>
 
           {/* Full-Width Car Summary */}
-          {carDetails && (
+          {selectedCar && bookingDates && (
             <div className="mb-8">
               <RentalCardSummary
-                model={carDetails.model}
-                seats={carDetails.seats}
-                luggage={carDetails.luggage}
-                transmission={carDetails.transmission}
-                price={carDetails.price}
-                originalPrice={carDetails.originalPrice}
-                promoText={carDetails.promoText}
-                imageUrl={carDetails.imageUrl}
-                operator={carDetails.operator}
-                operatorStyling={
-                  typeof carDetails.operatorStyling === "string"
-                    ? { brand: "text-white", background: "from-gray-500" }
-                    : carDetails.operatorStyling
-                }
-                nights={bookingDates?.nights || 5}
+                model={selectedCar.model}
+                seats={selectedCar.seats}
+                luggage={selectedCar.luggage}
+                transmission={selectedCar.transmission}
+                price={selectedCar.price}
+                originalPrice={selectedCar.originalPrice}
+                promoText={selectedCar.promoText}
+                imageUrl={selectedCar.imageUrl}
+                operator={selectedCar.operator}
+                operatorStyling={selectedCar.operatorStyling}
+                nights={bookingDates.nights}
                 showPricing={true}
                 className="mb-0"
               />
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoadingProfile && (
+            <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <div className="flex items-center">
+                <div className="mr-3 h-5 w-5 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                <p className="text-sm text-blue-700">
+                  Loading your saved information...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Profile Message Banner */}
+          {profileMessage && (
+            <div
+              className={`mb-6 rounded-lg border p-4 ${
+                profileMessage.type === "success"
+                  ? "border-green-200 bg-green-50"
+                  : "border-yellow-200 bg-yellow-50"
+              }`}
+            >
+              <div className="flex items-start">
+                <FaSave
+                  className={`mt-0.5 mr-3 h-5 w-5 ${
+                    profileMessage.type === "success"
+                      ? "text-green-600"
+                      : "text-yellow-600"
+                  }`}
+                />
+                <p
+                  className={`text-sm ${
+                    profileMessage.type === "success"
+                      ? "text-green-700"
+                      : "text-yellow-700"
+                  }`}
+                >
+                  {profileMessage.text}
+                </p>
+              </div>
             </div>
           )}
 
@@ -627,6 +684,33 @@ const DriverDetailsPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Save Profile Option */}
+            <div className="rounded-xl border-2 border-blue-200 bg-blue-50 p-6 shadow-lg">
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="saveProfile"
+                  checked={saveToProfile}
+                  onChange={(e) => setSaveToProfile(e.target.checked)}
+                  className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="saveProfile"
+                    className="flex items-center font-semibold text-blue-900"
+                  >
+                    <FaSave className="mr-2 h-4 w-4" />
+                    Save my information for future bookings
+                  </label>
+                  <p className="mt-1 text-sm text-blue-700">
+                    Your information will be securely saved to your profile and
+                    automatically filled in next time you book a vehicle. You
+                    can update it anytime from your profile settings.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Terms and Conditions */}
             <div className="rounded-xl bg-white p-6 shadow-lg">
               <div className="flex items-start space-x-3">
@@ -663,15 +747,24 @@ const DriverDetailsPage: React.FC = () => {
                 type="button"
                 onClick={() => navigate(`/booking/${carId}/addons`)}
                 className="flex-1 rounded-lg border border-gray-300 px-6 py-4 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                disabled={isSavingProfile}
               >
                 Back to Add-ons
               </button>
 
               <button
                 type="submit"
-                className="flex-1 rounded-lg bg-blue-600 px-6 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-blue-700"
+                disabled={isSavingProfile}
+                className="flex-1 rounded-lg bg-blue-600 px-6 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Continue to Payment
+                {isSavingProfile ? (
+                  <div className="flex items-center justify-center">
+                    <div className="mr-2 h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
+                    Saving...
+                  </div>
+                ) : (
+                  "Continue to Review"
+                )}
               </button>
             </div>
           </form>

@@ -9,9 +9,11 @@ export interface AddOnSelection {
 }
 
 export interface BookingDates {
-  pickup: string;
-  return: string;
+  pickup: string; // Display format: "Sat, 27 Sep, 11:00"
+  return: string; // Display format: "Thu, 2 Oct, 10:00"
   nights: number;
+  pickupISO?: string; // ISO format: "2025-11-01T10:00:00Z" for API
+  returnISO?: string; // ISO format: "2025-11-05T18:00:00Z" for API
 }
 
 export interface DriverDetails {
@@ -21,6 +23,7 @@ export interface DriverDetails {
   phone: string;
   dateOfBirth: string;
   licenseNumber: string;
+  licenseIssueDate: string;
   licenseExpiryDate: string;
   licenseCountry: string;
   address: string;
@@ -32,6 +35,13 @@ export interface DriverDetails {
   drivingExperience: string;
 }
 
+export interface BookingReservation {
+  bookingId: string;
+  status: string;
+  reservationExpiresAt: string; // ISO timestamp
+  totalAmount: number;
+}
+
 export interface BookingContextType {
   selectedCar: CarDetailsWithPricing | null;
   bookingDates: BookingDates | null;
@@ -39,11 +49,13 @@ export interface BookingContextType {
   selectedAddOns: AddOnSelection[];
   driverDetails: DriverDetails | null;
   totalPrice: number;
+  booking: BookingReservation | null;
   setSelectedCar: (car: CarDetailsWithPricing) => void;
   setBookingDates: (dates: BookingDates) => void;
   setSelectedCDW: (cdw: string) => void;
   setSelectedAddOns: (addOns: AddOnSelection[]) => void;
   setDriverDetails: (details: DriverDetails) => void;
+  setBooking: (booking: BookingReservation | null) => void;
   calculateTotal: () => void;
   resetBooking: () => void;
 }

@@ -6,6 +6,7 @@ import type {
   AddOnSelection,
   BookingDates,
   DriverDetails,
+  BookingReservation,
 } from "./bookingContextCore";
 import type { CarDetailsWithPricing } from "../types/rental";
 
@@ -18,10 +19,18 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({
   const [bookingDates, setBookingDates] = useState<BookingDates | null>(null);
   const [selectedCDW, setSelectedCDW] = useState<string>("basic");
   const [selectedAddOns, setSelectedAddOns] = useState<AddOnSelection[]>([]);
-  const [driverDetails, setDriverDetails] = useState<DriverDetails | null>(
+  const [driverDetails, setDriverDetailsState] = useState<DriverDetails | null>(
     null,
   );
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [booking, setBooking] = useState<BookingReservation | null>(null);
+
+  // Wrapper to add logging
+  const setDriverDetails = (details: DriverDetails | null) => {
+    console.log("📝 BookingProvider - setDriverDetails called with:", details);
+    setDriverDetailsState(details);
+    console.log("✅ BookingProvider - Driver details state updated");
+  };
 
   const calculateTotal = useCallback(() => {
     if (!selectedCar || !bookingDates) {
@@ -51,6 +60,7 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({
     setSelectedAddOns([]);
     setDriverDetails(null);
     setTotalPrice(0);
+    setBooking(null);
   };
 
   useEffect(() => {
@@ -64,11 +74,13 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({
     selectedAddOns,
     driverDetails,
     totalPrice,
+    booking,
     setSelectedCar,
     setBookingDates,
     setSelectedCDW,
     setSelectedAddOns,
     setDriverDetails,
+    setBooking,
     calculateTotal,
     resetBooking,
   };

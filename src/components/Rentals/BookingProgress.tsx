@@ -1,5 +1,12 @@
 import React from "react";
-import { FaCheck, FaCar, FaPlus, FaUser, FaCreditCard } from "react-icons/fa";
+import {
+  FaCheck,
+  FaCar,
+  FaPlus,
+  FaUser,
+  FaClipboardCheck,
+  FaCreditCard,
+} from "react-icons/fa";
 
 interface Step {
   id: number;
@@ -53,12 +60,23 @@ const BookingProgress: React.FC<BookingProgressProps> = ({
     },
     {
       id: 4,
-      title: "Make payment",
-      icon: FaCreditCard,
+      title: "Review & Reserve",
+      icon: FaClipboardCheck,
       status:
         currentStep > 4
           ? "completed"
           : currentStep === 4
+            ? "current"
+            : "upcoming",
+    },
+    {
+      id: 5,
+      title: "Payment",
+      icon: FaCreditCard,
+      status:
+        currentStep > 5
+          ? "completed"
+          : currentStep === 5
             ? "current"
             : "upcoming",
     },
