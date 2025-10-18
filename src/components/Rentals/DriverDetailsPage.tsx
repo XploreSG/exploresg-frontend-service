@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useBooking } from "../../contexts/bookingContextCore";
 import BookingProgress from "./BookingProgress";
 import RentalCardSummary from "./RentalCardSummary";
-import { FaUser, FaIdCard, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FaUser,
+  FaIdCard,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaSave,
+} from "react-icons/fa";
+import {
+  getUserProfile,
+  updateUserProfile,
+  profileToDriverDetails,
+  hasCompleteDriverDetails,
+} from "../../services/userApi";
 
 // Using types from BookingContext
 import type { DriverDetails as DriverDetailsType } from "../../contexts/bookingContextCore";
@@ -24,6 +36,7 @@ const DriverDetailsPage: React.FC = () => {
     phone: "",
     dateOfBirth: "",
     licenseNumber: "",
+    licenseIssueDate: "",
     licenseExpiryDate: "",
     licenseCountry: "Singapore",
     address: "",
@@ -36,6 +49,41 @@ const DriverDetailsPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Partial<DriverDetailsType>>({});
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [saveToProfile, setSaveToProfile] = useState(true); // Default to saving profile
+  const [profileMessage, setProfileMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  // Load user profile on mount
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        setIsLoadingProfile(true);
+        const profile = await getUserProfile();
+
+        // Check if user has complete driver details
+        if (hasCompleteDriverDetails(profile)) {
+          // Pre-fill form with existing profile data
+          const driverData = profileToDriverDetails(profile);
+          setDriverDetails(driverData);
+          setProfileMessage({
+            type: "success",
+            text: "Your saved information has been loaded. You can update it if needed.",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+        // Continue with empty form - user might be booking for the first time
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    loadUserProfile();
+  }, []);
 
   const handleInputChange = (field: keyof DriverDetailsType, value: string) => {
     setDriverDetails((prev) => ({
@@ -133,12 +181,43 @@ const DriverDetailsPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (validateForm()) {
-      // Save driver details to BookingContext
+      // Save driver details to BookingContext for this booking
       saveDriverDetails(driverDetails);
+
+      // Save to user profile if checkbox is checked
+      if (saveToProfile) {
+        try {
+          setIsSavingProfile(true);
+          await updateUserProfile({
+            firstName: driverDetails.firstName,
+            lastName: driverDetails.lastName,
+            phone: driverDetails.phone,
+            dateOfBirth: driverDetails.dateOfBirth,
+            drivingLicenseNumber: driverDetails.licenseNumber,
+            licenseIssueDate: driverDetails.licenseIssueDate,
+            licenseExpiryDate: driverDetails.licenseExpiryDate,
+            licenseCountry: driverDetails.licenseCountry,
+            address: driverDetails.address,
+            city: driverDetails.city,
+            postalCode: driverDetails.postalCode,
+            country: driverDetails.country,
+            emergencyContactName: driverDetails.emergencyContactName,
+            emergencyContactPhone: driverDetails.emergencyContactPhone,
+            drivingExperience: driverDetails.drivingExperience,
+          });
+
+          console.log("✅ Profile saved successfully for future bookings");
+        } catch (error) {
+          console.error("Failed to save profile:", error);
+          // Don't block the flow - user can continue with booking
+        } finally {
+          setIsSavingProfile(false);
+        }
+      }
 
       // Navigate to review page
       navigate(`/booking/${carId}/review`);
@@ -180,6 +259,48 @@ const DriverDetailsPage: React.FC = () => {
                 showPricing={true}
                 className="mb-0"
               />
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoadingProfile && (
+            <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <div className="flex items-center">
+                <div className="mr-3 h-5 w-5 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                <p className="text-sm text-blue-700">
+                  Loading your saved information...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Profile Message Banner */}
+          {profileMessage && (
+            <div
+              className={`mb-6 rounded-lg border p-4 ${
+                profileMessage.type === "success"
+                  ? "border-green-200 bg-green-50"
+                  : "border-yellow-200 bg-yellow-50"
+              }`}
+            >
+              <div className="flex items-start">
+                <FaSave
+                  className={`mt-0.5 mr-3 h-5 w-5 ${
+                    profileMessage.type === "success"
+                      ? "text-green-600"
+                      : "text-yellow-600"
+                  }`}
+                />
+                <p
+                  className={`text-sm ${
+                    profileMessage.type === "success"
+                      ? "text-green-700"
+                      : "text-yellow-700"
+                  }`}
+                >
+                  {profileMessage.text}
+                </p>
+              </div>
             </div>
           )}
 
@@ -552,6 +673,33 @@ const DriverDetailsPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Save Profile Option */}
+            <div className="rounded-xl border-2 border-blue-200 bg-blue-50 p-6 shadow-lg">
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="saveProfile"
+                  checked={saveToProfile}
+                  onChange={(e) => setSaveToProfile(e.target.checked)}
+                  className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="saveProfile"
+                    className="flex items-center font-semibold text-blue-900"
+                  >
+                    <FaSave className="mr-2 h-4 w-4" />
+                    Save my information for future bookings
+                  </label>
+                  <p className="mt-1 text-sm text-blue-700">
+                    Your information will be securely saved to your profile and
+                    automatically filled in next time you book a vehicle. You
+                    can update it anytime from your profile settings.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Terms and Conditions */}
             <div className="rounded-xl bg-white p-6 shadow-lg">
               <div className="flex items-start space-x-3">
@@ -588,15 +736,24 @@ const DriverDetailsPage: React.FC = () => {
                 type="button"
                 onClick={() => navigate(`/booking/${carId}/addons`)}
                 className="flex-1 rounded-lg border border-gray-300 px-6 py-4 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                disabled={isSavingProfile}
               >
                 Back to Add-ons
               </button>
 
               <button
                 type="submit"
-                className="flex-1 rounded-lg bg-blue-600 px-6 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-blue-700"
+                disabled={isSavingProfile}
+                className="flex-1 rounded-lg bg-blue-600 px-6 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Continue to Review
+                {isSavingProfile ? (
+                  <div className="flex items-center justify-center">
+                    <div className="mr-2 h-5 w-5 animate-spin rounded-full border-b-2 border-white"></div>
+                    Saving...
+                  </div>
+                ) : (
+                  "Continue to Review"
+                )}
               </button>
             </div>
           </form>

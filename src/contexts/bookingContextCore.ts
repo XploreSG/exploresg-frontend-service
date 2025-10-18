@@ -21,6 +21,7 @@ export interface DriverDetails {
   phone: string;
   dateOfBirth: string;
   licenseNumber: string;
+  licenseIssueDate: string;
   licenseExpiryDate: string;
   licenseCountry: string;
   address: string;
