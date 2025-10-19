@@ -27,7 +27,7 @@ ReviewPage.tsx:26 🔍 ReviewPage - Received booking data: {selectedCar: {…}, 
 PaymentPage.tsx:25 💳 PaymentPage - Loaded with context: {bookingId: 'f368ed30-6543-4267-98b0-ef47b1b69625', hasBooking: true, booking: {…}, hasSelectedCar: true, selectedCar: {…}, …}
 PaymentPage.tsx:25 💳 PaymentPage - Loaded with context: {bookingId: 'f368ed30-6543-4267-98b0-ef47b1b69625', hasBooking: true, booking: {…}, hasSelectedCar: true, selectedCar: {…}, …}
 
-this the app on K8s connecting the onlien api's. what is not set?
+this the app on K8s connecting the online api's. what is not set?
 🔍 ReviewPage: Using publicModelId for booking: c04a0e91-76a0-4b2a-8950-8b38343f1103
 selectedCar.publicModelId: c04a0e91-76a0-4b2a-8950-8b38343f1103
 selectedCar.carId: c04a0e91-76a0-4b2a-8950-8b38343f1103
