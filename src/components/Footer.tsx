@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 // 🔧 UPDATE THIS VERSION MANUALLY
-const APP_VERSION = "1.2.7.2";
+const APP_VERSION = "1.2.7.3";
 
 const Footer: React.FC = () => {
   return (
