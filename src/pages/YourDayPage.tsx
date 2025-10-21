@@ -305,9 +305,13 @@ const YourDayPage = () => {
               <div className="flex gap-4">
                 <div className="flex-1">
                   <img
-                    src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80"
+                    src="https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80"
                     alt="328 Katong Laska"
-                    className="mb-2 h-24 w-full rounded-lg object-cover"
+                    className="mb-2 h-32 w-full rounded-lg object-cover"
+                    style={{ aspectRatio: "1/1", objectPosition: "center center" }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80";
+                    }}
                   />
                   <div className="font-semibold text-gray-800">
                     328 Katong Laska
@@ -322,17 +326,27 @@ const YourDayPage = () => {
                     Book Table
                   </button>
                 </div>
-                <div className="flex flex-1 flex-col items-center justify-center gap-2">
+                <div className="flex-1">
                   <img
-                    src="https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80"
-                    alt="Food"
-                    className="mb-2 h-24 w-full rounded-lg object-cover"
+                    src="https://images.unsplash.com/photo-1551782450-17144efb9c50?auto=format&fit=crop&w=400&q=80"
+                    alt="Maxwell Food Centre"
+                    className="mb-2 h-32 w-full rounded-lg object-cover"
+                    style={{ aspectRatio: "1/1", objectPosition: "center center" }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1551782450-17144efb9c50?auto=format&fit=crop&w=400&q=80";
+                    }}
                   />
-                  <div className="text-center font-semibold text-gray-800">
-                    More Eateries
+                  <div className="font-semibold text-gray-800">
+                    Maxwell Food Centre
                   </div>
-                  <button className="w-full rounded-lg border border-blue-600 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50">
-                    See More
+                  <div className="text-xs text-gray-500">Local Hawker Fare</div>
+                  <div className="mt-1 flex items-center gap-1 text-xs text-yellow-600">
+                    <span>★ 4.2</span>
+                    <span className="text-gray-400">(1,234)</span>
+                    <span className="text-gray-400">• 0.8 km</span>
+                  </div>
+                  <button className="mt-2 w-full rounded-lg border border-blue-600 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50">
+                    Book Table
                   </button>
                 </div>
               </div>
