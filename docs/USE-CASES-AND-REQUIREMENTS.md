@@ -4,14 +4,21 @@
 
 1. [Executive Summary](#executive-summary)
 2. [System Overview](#system-overview)
-3. [User Roles & Personas](#user-roles--personas)
-4. [Functional Requirements](#functional-requirements)
-5. [Detailed Use Cases](#detailed-use-cases)
-6. [Non-Functional Requirements](#non-functional-requirements)
-7. [Technical Requirements](#technical-requirements)
-8. [Business Rules](#business-rules)
-9. [Security Requirements](#security-requirements)
-10. [Integration Requirements](#integration-requirements)
+3. [UML Diagrams](#uml-diagrams)
+   - [Physical Architecture Diagram](#physical-architecture-diagram)
+   - [Logical Architecture Diagram](#logical-architecture-diagram)
+   - [Use Case Diagrams](#use-case-diagrams)
+   - [Sequence Diagrams](#sequence-diagrams)
+   - [Component Diagram](#component-diagram)
+   - [Deployment Diagram](#deployment-diagram)
+4. [User Roles & Personas](#user-roles--personas)
+5. [Functional Requirements](#functional-requirements)
+6. [Detailed Use Cases](#detailed-use-cases)
+7. [Non-Functional Requirements](#non-functional-requirements)
+8. [Technical Requirements](#technical-requirements)
+9. [Business Rules](#business-rules)
+10. [Security Requirements](#security-requirements)
+11. [Integration Requirements](#integration-requirements)
 
 ---
 
@@ -60,6 +67,1464 @@ Single Page Application (SPA) built with React 19, TypeScript, and Vite
 - **Real-Time Data**: WebSocket support for GPS tracking (Eagle IoT)
 - **Mapping**: Mapbox GL for interactive maps
 - **Containerization**: Docker with multi-stage builds
+
+---
+
+## UML Diagrams
+
+### Physical Architecture Diagram
+
+This diagram shows the physical deployment architecture of the ExploreSingapore application, including all infrastructure components, external services, and network boundaries.
+
+```plantuml
+@startuml Physical Architecture
+!define RECTANGLE class
+
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+' Define colors
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<database>> LightYellow
+    BackgroundColor<<external>> LightCoral
+    BackgroundColor<<cache>> Wheat
+    BackgroundColor<<security>> LightPink
+}
+
+package "Client Tier" {
+    [Web Browser] <<frontend>>
+    [Mobile Browser] <<frontend>>
+}
+
+package "CDN / Load Balancer" {
+    [CloudFlare / AWS CloudFront] <<security>>
+}
+
+package "Application Tier (Docker Containers)" {
+    package "Frontend Service" {
+        [Nginx Web Server\n(Port 3000)] <<frontend>>
+        [React SPA\n(Static Build)] <<frontend>>
+    }
+
+    package "Backend Services" {
+        [API Gateway\n(Port 8080)] <<backend>>
+        [Fleet API\n(Port 8081)] <<backend>>
+        [Auth Service] <<backend>>
+        [Booking Service] <<backend>>
+    }
+}
+
+package "Data Tier" {
+    database "PostgreSQL\nPrimary DB" <<database>>
+    database "MongoDB\nFleet Data" <<database>>
+    [Redis Cache] <<cache>>
+}
+
+package "External Services" {
+    cloud "Google OAuth 2.0" <<external>> as GoogleOAuth
+    cloud "Mapbox API" <<external>> as Mapbox
+    cloud "Open-Meteo\nWeather API" <<external>> as Weather
+    cloud "Eagle Telematics\nGPS IoT Platform" <<external>> as Eagle
+    cloud "Payment Gateway\n(Stripe - Future)" <<external>> as Stripe
+}
+
+package "Monitoring & Logging" {
+    [Application Insights /\nPrometheus] as Monitoring
+    [Elasticsearch\nLog Aggregation] as Logging
+}
+
+' Client connections
+[Web Browser] --> [CloudFlare / AWS CloudFront] : HTTPS
+[Mobile Browser] --> [CloudFlare / AWS CloudFront] : HTTPS
+
+' CDN to Frontend
+[CloudFlare / AWS CloudFront] --> [Nginx Web Server\n(Port 3000)] : HTTPS/443
+
+' Frontend serving
+[Nginx Web Server\n(Port 3000)] --> [React SPA\n(Static Build)] : Serves
+
+' Frontend to Backend API calls
+[React SPA\n(Static Build)] --> [API Gateway\n(Port 8080)] : REST API\nJWT Bearer Token
+[React SPA\n(Static Build)] --> [Fleet API\n(Port 8081)] : REST API\nJWT Bearer Token
+
+' API Gateway routing
+[API Gateway\n(Port 8080)] --> [Auth Service]
+[API Gateway\n(Port 8080)] --> [Booking Service]
+
+' Backend to Data
+[Auth Service] --> [PostgreSQL\nPrimary DB]
+[Booking Service] --> [PostgreSQL\nPrimary DB]
+[Fleet API\n(Port 8081)] --> [MongoDB\nFleet Data]
+[Fleet API\n(Port 8081)] --> [Redis Cache] : Session/Cache
+
+' External service integrations
+[React SPA\n(Static Build)] --> GoogleOAuth : OAuth 2.0\nAuthentication
+[React SPA\n(Static Build)] --> Mapbox : Map Rendering
+[React SPA\n(Static Build)] --> Weather : Weather Data
+[Fleet API\n(Port 8081)] --> Eagle : WebSocket\nGPS Tracking
+[Booking Service] --> Stripe : Payment\nProcessing
+
+' Monitoring connections
+[Nginx Web Server\n(Port 3000)] --> Monitoring
+[API Gateway\n(Port 8080)] --> Monitoring
+[Fleet API\n(Port 8081)] --> Monitoring
+[Auth Service] --> Logging
+[Booking Service] --> Logging
+
+note right of [CloudFlare / AWS CloudFront]
+    - DDoS Protection
+    - SSL/TLS Termination
+    - Global CDN
+    - Rate Limiting
+end note
+
+note right of [React SPA\n(Static Build)]
+    - Vite Build (Production)
+    - Code Splitting
+    - Lazy Loading
+    - PWA Support (Future)
+end note
+
+note right of [PostgreSQL\nPrimary DB]
+    - User Data
+    - Booking Records
+    - Transaction History
+    - Audit Logs
+end note
+
+note right of [MongoDB\nFleet Data]
+    - Vehicle Inventory
+    - GPS Coordinates
+    - Maintenance Records
+    - Telematics Data
+end note
+
+@enduml
+```
+
+---
+
+### Logical Architecture Diagram
+
+This diagram illustrates the logical layers and components of the application, showing how different modules interact.
+
+```plantuml
+@startuml Logical Architecture
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Logical Architecture - ExploreSingapore Application
+
+Container_Boundary(spa, "Single Page Application") {
+    Component(ui, "UI Components", "React 19", "Reusable UI components using Tailwind CSS")
+    Component(pages, "Page Components", "React Router", "Route-based page components")
+    Component(contexts, "State Management", "React Context", "Global state (Auth, Booking, Fleet)")
+    Component(services, "API Services", "Axios", "HTTP client for backend communication")
+    Component(utils, "Utilities", "TypeScript", "Helper functions, formatters, validators")
+}
+
+Container_Boundary(auth, "Authentication Module") {
+    Component(oauth, "Google OAuth", "@react-oauth/google", "OAuth 2.0 authentication")
+    Component(jwt, "JWT Handler", "Custom", "Token management and validation")
+    Component(rbac, "RBAC Engine", "Custom", "Role-based access control")
+}
+
+Container_Boundary(rental, "Car Rental Module") {
+    Component(browse, "Vehicle Browser", "React", "Search, filter, and browse vehicles")
+    Component(booking, "Booking Flow", "React Router State", "Multi-step booking process")
+    Component(addons, "Add-ons Manager", "React", "Insurance and extras selection")
+    Component(payment, "Payment Handler", "Future: Stripe", "Payment processing")
+}
+
+Container_Boundary(fleet, "Fleet Management Module") {
+    Component(dashboard, "Analytics Dashboard", "Chart.js", "Fleet statistics and charts")
+    Component(inventory, "Inventory Manager", "TanStack Table", "Vehicle list and management")
+    Component(tracking, "GPS Tracking", "Mapbox GL", "Real-time vehicle tracking")
+    Component(eagle, "Eagle Integration", "WebSocket", "IoT telematics integration")
+}
+
+Container_Boundary(tourism, "Tourism Discovery Module") {
+    Component(attractions, "Attractions", "React", "Singapore attractions catalog")
+    Component(food, "Food & Dining", "React", "Restaurant and hawker info")
+    Component(events, "Events", "React", "Events and festivals")
+    Component(explore, "Interactive Map", "Mapbox GL", "Explore Singapore with map")
+}
+
+Container_Boundary(personalization, "Personalization Module") {
+    Component(yourday, "Your Day", "React", "Personalized dashboard")
+    Component(weather, "Weather Widget", "Open-Meteo API", "Real-time weather")
+    Component(profile, "Profile Manager", "React", "User preferences and settings")
+}
+
+Container_Boundary(backend, "Backend Services") {
+    Component(api, "API Gateway", "REST", "Main API endpoint")
+    Component(fleetapi, "Fleet API", "REST", "Fleet-specific endpoints")
+    Component(authsvc, "Auth Service", "JWT", "Authentication and authorization")
+    Component(bookingsvc, "Booking Service", "REST", "Booking management")
+}
+
+Container_Boundary(external, "External Services") {
+    ComponentDb(google, "Google OAuth", "OAuth 2.0", "User authentication")
+    ComponentDb(mapbox, "Mapbox API", "REST", "Maps and geocoding")
+    ComponentDb(openmeteo, "Open-Meteo", "REST", "Weather data")
+    ComponentDb(eagleiot, "Eagle IoT", "WebSocket", "GPS tracking")
+}
+
+' Relationships
+Rel(pages, ui, "Uses")
+Rel(pages, contexts, "Accesses")
+Rel(pages, services, "Calls")
+Rel(services, utils, "Uses")
+
+Rel(pages, oauth, "Authenticates")
+Rel(oauth, jwt, "Issues")
+Rel(jwt, rbac, "Validates")
+
+Rel(pages, browse, "Displays")
+Rel(pages, booking, "Executes")
+Rel(booking, addons, "Includes")
+Rel(booking, payment, "Processes")
+
+Rel(pages, dashboard, "Shows")
+Rel(pages, inventory, "Manages")
+Rel(pages, tracking, "Displays")
+Rel(tracking, eagle, "Integrates")
+
+Rel(pages, attractions, "Shows")
+Rel(pages, food, "Shows")
+Rel(pages, events, "Shows")
+Rel(pages, explore, "Renders")
+
+Rel(pages, yourday, "Displays")
+Rel(yourday, weather, "Shows")
+Rel(yourday, profile, "Uses")
+
+Rel(services, api, "Calls")
+Rel(services, fleetapi, "Calls")
+Rel(api, authsvc, "Routes to")
+Rel(api, bookingsvc, "Routes to")
+
+Rel(oauth, google, "Authenticates with")
+Rel(explore, mapbox, "Loads tiles from")
+Rel(tracking, mapbox, "Renders with")
+Rel(weather, openmeteo, "Fetches from")
+Rel(eagle, eagleiot, "Streams from")
+
+@enduml
+```
+
+---
+
+### Use Case Diagrams
+
+#### Overall System Use Case Diagram
+
+```plantuml
+@startuml Overall Use Cases
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Guest User" as Guest
+actor "Registered User" as User
+actor "Fleet Manager" as FleetMgr
+actor "Manager" as Manager
+actor "Support Staff" as Support
+actor "Administrator" as Admin
+
+rectangle "ExploreSingapore System" {
+    ' Guest capabilities
+    usecase "Browse Attractions" as UC1
+    usecase "View Food Options" as UC2
+    usecase "Check Events" as UC3
+    usecase "Explore Map" as UC4
+    usecase "Browse Vehicles" as UC5
+    usecase "View Vehicle Details" as UC6
+
+    ' User capabilities
+    usecase "Sign In with Google" as UC7
+    usecase "Book Vehicle" as UC8
+    usecase "Select Add-ons" as UC9
+    usecase "Enter Driver Details" as UC10
+    usecase "Make Payment" as UC11
+    usecase "View Your Day Dashboard" as UC12
+    usecase "Check Weather" as UC13
+    usecase "Manage Profile" as UC14
+
+    ' Fleet Manager capabilities
+    usecase "View Fleet Dashboard" as UC15
+    usecase "Monitor Vehicle Status" as UC16
+    usecase "Track GPS Location" as UC17
+    usecase "Update Vehicle Status" as UC18
+    usecase "View Fleet Analytics" as UC19
+
+    ' Manager capabilities
+    usecase "View All Fleets" as UC20
+    usecase "Search Cross-Operator" as UC21
+
+    ' Support capabilities
+    usecase "View Customer Bookings" as UC22
+    usecase "Assist Customers" as UC23
+
+    ' Admin capabilities
+    usecase "Manage Users" as UC24
+    usecase "Assign Roles" as UC25
+    usecase "Configure System" as UC26
+    usecase "View Audit Logs" as UC27
+}
+
+' Guest relationships
+Guest --> UC1
+Guest --> UC2
+Guest --> UC3
+Guest --> UC4
+Guest --> UC5
+Guest --> UC6
+
+' User inherits Guest + additional
+User --> UC7
+User --> UC8
+User --> UC12
+User --> UC13
+User --> UC14
+
+' User extended use cases
+UC8 ..> UC9 : <<extends>>
+UC8 ..> UC10 : <<extends>>
+UC8 ..> UC11 : <<extends>>
+
+' Fleet Manager inherits User + additional
+FleetMgr --> UC15
+FleetMgr --> UC16
+FleetMgr --> UC17
+FleetMgr --> UC18
+FleetMgr --> UC19
+
+' Manager inherits User + additional
+Manager --> UC20
+Manager --> UC21
+
+' Support inherits Manager + additional
+Support --> UC22
+Support --> UC23
+
+' Admin has all capabilities
+Admin --> UC24
+Admin --> UC25
+Admin --> UC26
+Admin --> UC27
+
+' Inheritance relationships
+User --|> Guest
+FleetMgr --|> User
+Manager --|> User
+Support --|> Manager
+Admin --|> Support
+
+@enduml
+```
+
+#### Car Rental Booking Use Case Diagram
+
+```plantuml
+@startuml Booking Use Cases
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Registered User" as User
+actor "Payment Gateway" as Payment
+actor "Backend API" as Backend
+
+rectangle "Car Rental Booking System" {
+    usecase "Search Vehicles" as UC1
+    usecase "Filter by Criteria" as UC2
+    usecase "Select Vehicle" as UC3
+    usecase "Choose Dates" as UC4
+    usecase "Select CDW Insurance" as UC5
+    usecase "Add Extras" as UC6
+    usecase "Enter Driver Details" as UC7
+    usecase "Review Booking" as UC8
+    usecase "Make Payment" as UC9
+    usecase "Receive Confirmation" as UC10
+
+    usecase "Validate Availability" as UC11
+    usecase "Calculate Total Price" as UC12
+    usecase "Validate Driver Info" as UC13
+    usecase "Process Payment" as UC14
+    usecase "Create Booking Record" as UC15
+    usecase "Send Email Confirmation" as UC16
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+
+UC3 ..> UC11 : <<include>>
+UC5 ..> UC12 : <<include>>
+UC6 ..> UC12 : <<include>>
+UC7 ..> UC13 : <<include>>
+UC9 ..> UC14 : <<include>>
+UC9 ..> UC15 : <<include>>
+UC10 ..> UC16 : <<include>>
+
+UC9 --> Payment
+UC11 --> Backend
+UC13 --> Backend
+UC14 --> Payment
+UC15 --> Backend
+UC16 --> Backend
+
+note right of UC12
+    Price = Base Price × Nights
+    + CDW Price × Nights
+    + Sum(Add-ons)
+end note
+
+note right of UC13
+    Validations:
+    - Age ≥ 21
+    - License not expired
+    - Valid email format
+    - Required fields filled
+end note
+
+@enduml
+```
+
+#### Fleet Management Use Case Diagram
+
+```plantuml
+@startuml Fleet Management Use Cases
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Fleet Manager" as FleetMgr
+actor "Manager" as Manager
+actor "Administrator" as Admin
+actor "Eagle IoT System" as Eagle
+
+rectangle "Fleet Management System" {
+    usecase "View Fleet Dashboard" as UC1
+    usecase "View Fleet Statistics" as UC2
+    usecase "View Fleet Charts" as UC3
+    usecase "Search Fleet Inventory" as UC4
+    usecase "Filter by Status" as UC5
+    usecase "View Vehicle Details" as UC6
+    usecase "Track GPS Location" as UC7
+    usecase "Update Vehicle Status" as UC8
+    usecase "View Maintenance History" as UC9
+    usecase "View Rental History" as UC10
+    usecase "Export Fleet Report" as UC11
+    usecase "Monitor Real-Time Location" as UC12
+    usecase "View Telematics Data" as UC13
+
+    usecase "Filter by Operator" as UC14
+    usecase "View Cross-Operator Analytics" as UC15
+}
+
+' Fleet Manager capabilities
+FleetMgr --> UC1
+FleetMgr --> UC2
+FleetMgr --> UC3
+FleetMgr --> UC4
+FleetMgr --> UC5
+FleetMgr --> UC6
+FleetMgr --> UC7
+FleetMgr --> UC8
+FleetMgr --> UC9
+FleetMgr --> UC10
+
+' Manager additional capabilities
+Manager --> UC14
+Manager --> UC15
+
+' Admin has all capabilities
+Admin --> UC11
+
+' Use case relationships
+UC1 ..> UC2 : <<include>>
+UC1 ..> UC3 : <<include>>
+UC7 ..> UC12 : <<include>>
+UC7 ..> UC13 : <<include>>
+
+' External system
+UC12 --> Eagle
+UC13 --> Eagle
+
+note right of UC8
+    Status Options:
+    - Available
+    - Rented
+    - Maintenance
+    - Out of Service
+end note
+
+note right of UC14
+    Fleet Manager sees
+    only assigned operator
+
+    Manager/Admin sees
+    all operators
+end note
+
+@enduml
+```
+
+---
+
+### Sequence Diagrams
+
+#### Authentication Flow Sequence Diagram
+
+```plantuml
+@startuml Authentication Flow
+autonumber
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 100
+
+actor User
+participant "React SPA" as SPA
+participant "Google OAuth" as Google
+participant "Backend API" as Backend
+database "Database" as DB
+participant "localStorage" as Storage
+
+User -> SPA: Click "Sign in with Google"
+activate SPA
+
+SPA -> Google: Redirect to OAuth consent screen
+activate Google
+Google -> User: Display consent screen
+User -> Google: Approve permissions
+Google -> SPA: Redirect with authorization code
+deactivate Google
+
+SPA -> Backend: POST /api/auth/google\n{authorization_code}
+activate Backend
+
+Backend -> Google: Validate authorization code
+activate Google
+Google -> Backend: Return user profile\n{email, name, picture}
+deactivate Google
+
+Backend -> DB: Check if user exists
+activate DB
+alt User exists
+    DB -> Backend: Return user record
+else New user
+    Backend -> DB: Create new user\n(role: USER)
+    DB -> Backend: Return new user record
+end
+deactivate DB
+
+Backend -> Backend: Generate JWT token\n{userId, roles, exp}
+Backend -> SPA: Return JWT + user info
+deactivate Backend
+
+SPA -> Storage: Store token & user info
+activate Storage
+Storage -> SPA: Stored successfully
+deactivate Storage
+
+SPA -> SPA: Update AuthContext state
+SPA -> User: Redirect to dashboard
+deactivate SPA
+
+note right of Backend
+    JWT Payload:
+    {
+      "userId": "uuid",
+      "email": "user@example.com",
+      "roles": ["ROLE_USER"],
+      "exp": timestamp
+    }
+end note
+
+@enduml
+```
+
+#### Vehicle Booking Flow Sequence Diagram
+
+```plantuml
+@startuml Booking Flow
+autonumber
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+
+actor User
+participant "Vehicle Browser" as Browser
+participant "Booking Context" as Context
+participant "Add-ons Page" as Addons
+participant "Driver Details" as Driver
+participant "Review Page" as Review
+participant "Payment Page" as Payment
+participant "Backend API" as Backend
+database "Database" as DB
+
+User -> Browser: Search and filter vehicles
+activate Browser
+Browser -> User: Display available vehicles
+User -> Browser: Select vehicle + dates
+Browser -> Context: Store selected car & dates
+activate Context
+Context -> Browser: Confirmed
+deactivate Context
+Browser -> Addons: Navigate to add-ons
+deactivate Browser
+
+activate Addons
+Addons -> User: Display insurance & extras
+User -> Addons: Select CDW and add-ons
+Addons -> Context: Store selections
+activate Context
+Context -> Context: Calculate total price
+Context -> Addons: Updated price
+deactivate Context
+Addons -> Driver: Navigate to driver details
+deactivate Addons
+
+activate Driver
+Driver -> User: Display form
+User -> Driver: Enter personal & license info
+Driver -> Driver: Validate form fields
+alt Validation passed
+    Driver -> Context: Store driver details
+    activate Context
+    Context -> Driver: Confirmed
+    deactivate Context
+    Driver -> Review: Navigate to review
+else Validation failed
+    Driver -> User: Show error messages
+end
+deactivate Driver
+
+activate Review
+Review -> Context: Retrieve all booking data
+activate Context
+Context -> Review: Return complete booking
+deactivate Context
+Review -> User: Display booking summary
+User -> Review: Confirm and proceed to payment
+Review -> Backend: POST /api/bookings/reserve
+activate Backend
+Backend -> DB: Check vehicle availability
+activate DB
+alt Available
+    DB -> Backend: Lock vehicle temporarily
+    Backend -> Review: Return booking ID
+else Not available
+    DB -> Backend: Vehicle unavailable
+    Backend -> Review: Return error
+    Review -> User: Show error modal
+end
+deactivate DB
+deactivate Backend
+Review -> Payment: Navigate with booking ID
+deactivate Review
+
+activate Payment
+Payment -> User: Display payment form
+User -> Payment: Enter card details
+Payment -> Backend: POST /api/bookings/{id}/payment
+activate Backend
+Backend -> Backend: Validate payment details
+Backend -> "Payment Gateway": Process payment
+activate "Payment Gateway"
+"Payment Gateway" -> Backend: Payment successful
+deactivate "Payment Gateway"
+Backend -> DB: Confirm booking
+activate DB
+DB -> DB: Update vehicle status to "Rented"
+DB -> Backend: Booking confirmed
+deactivate DB
+Backend -> Payment: Return confirmation
+deactivate Backend
+Payment -> User: Show confirmation page
+deactivate Payment
+
+note right of Backend
+    Booking Record:
+    - Booking ID
+    - User ID
+    - Vehicle ID
+    - Dates
+    - Add-ons
+    - Driver details
+    - Total price
+    - Status: CONFIRMED
+end note
+
+@enduml
+```
+
+#### Fleet GPS Tracking Sequence Diagram
+
+```plantuml
+@startuml GPS Tracking
+autonumber
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+
+actor "Fleet Manager" as Manager
+participant "Eagle View Page" as Page
+participant "Mapbox GL" as Mapbox
+participant "Mock Simulator\n(Dev)" as Simulator
+participant "Fleet API" as API
+participant "Eagle IoT\n(Production)" as Eagle
+database "MongoDB" as DB
+
+Manager -> Page: Open Eagle View page
+activate Page
+
+Page -> API: GET /api/fleet/vehicles
+activate API
+API -> DB: Query vehicle list
+activate DB
+DB -> API: Return vehicles
+deactivate DB
+API -> Page: Vehicle list with metadata
+deactivate API
+
+Page -> Mapbox: Initialize map
+activate Mapbox
+Mapbox -> Page: Map ready
+deactivate Mapbox
+
+alt Development Mode
+    Page -> Simulator: Initialize with vehicle list
+    activate Simulator
+    loop Every 2 seconds
+        Simulator -> Simulator: Generate random GPS coordinates
+        Simulator -> Page: Publish location updates
+        Page -> Mapbox: Update markers
+        activate Mapbox
+        Mapbox -> Manager: Display updated positions
+        deactivate Mapbox
+    end
+    deactivate Simulator
+else Production Mode
+    Page -> Eagle: Connect WebSocket
+    activate Eagle
+    Eagle -> Page: Connection established
+    loop Real-time updates
+        Eagle -> Eagle: Vehicle sends GPS data
+        Eagle -> Page: Broadcast location\n{vehicleId, lat, lng, speed, timestamp}
+        Page -> Mapbox: Update markers
+        activate Mapbox
+        Mapbox -> Manager: Display real positions
+        deactivate Mapbox
+    end
+    deactivate Eagle
+end
+
+Manager -> Page: Click vehicle marker
+Page -> Manager: Show vehicle popup\n(Plate, Model, Status)
+
+Manager -> Page: Search vehicle
+Page -> Page: Filter vehicle list
+Page -> Manager: Show filtered results
+
+Manager -> Page: Filter by status
+Page -> Page: Update visible markers
+Page -> Mapbox: Show/hide markers
+activate Mapbox
+Mapbox -> Manager: Display filtered vehicles
+deactivate Mapbox
+
+deactivate Page
+
+note right of Simulator
+    Simulated Movement:
+    - "In Use" vehicles move
+    - Others stay stationary
+    - Bounded within Singapore
+    - Random speed variations
+end note
+
+note right of Eagle
+    Real IoT Data:
+    - GPS coordinates
+    - Speed
+    - Heading
+    - Fuel level
+    - Engine diagnostics
+    - Odometer reading
+end note
+
+@enduml
+```
+
+#### RBAC Authorization Sequence Diagram
+
+```plantuml
+@startuml RBAC Authorization
+autonumber
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+
+actor User
+participant "React Router" as Router
+participant "ProtectedRoleRoute" as Guard
+participant "useAuth Hook" as Auth
+participant "localStorage" as Storage
+participant "JWT Utils" as JWT
+participant "Page Component" as Page
+
+User -> Router: Navigate to protected route\n(e.g., /manager/dashboard)
+activate Router
+
+Router -> Guard: Route requires\n[FLEET_MANAGER, ADMIN]
+activate Guard
+
+Guard -> Auth: Get current user & role
+activate Auth
+
+Auth -> Storage: Retrieve token
+activate Storage
+Storage -> Auth: Return JWT token
+deactivate Storage
+
+alt Token exists
+    Auth -> JWT: Decode token
+    activate JWT
+    JWT -> Auth: Extract user info & roles
+    deactivate JWT
+
+    Auth -> Guard: Return user object\n{userId, email, roles}
+    deactivate Auth
+
+    Guard -> Guard: Check if user role\nin allowed roles
+
+    alt User has required role
+        Guard -> Page: Render protected component
+        activate Page
+        Page -> User: Display dashboard
+        deactivate Page
+    else User lacks required role
+        Guard -> Router: Redirect to /access-denied
+        Router -> User: Show Access Denied page
+    end
+else No token
+    Guard -> Router: Redirect to /signin
+    deactivate Guard
+    Router -> User: Show Sign In page
+end
+
+deactivate Router
+
+note right of Guard
+    Protected Route Example:
+    <ProtectedRoleRoute
+      allowedRoles={["FLEET_MANAGER", "ADMIN"]}
+    >
+      <FleetDashboard />
+    </ProtectedRoleRoute>
+end note
+
+note right of JWT
+    JWT Payload:
+    {
+      "userId": "uuid",
+      "roles": ["ROLE_FLEET_MANAGER"],
+      "exp": 1698765432
+    }
+
+    Extracted role: "FLEET_MANAGER"
+    (ROLE_ prefix removed)
+end note
+
+@enduml
+```
+
+---
+
+### Component Diagram
+
+This diagram shows the internal structure of the React application with its components and dependencies.
+
+```plantuml
+@startuml Component Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_LEFT_RIGHT()
+
+title Component Diagram - React Application Structure
+
+Container_Boundary(app, "React Application") {
+
+    Component(router, "React Router", "react-router-dom@7.9", "Client-side routing")
+    Component(app_comp, "App Component", "React", "Root component with routing")
+
+    Container_Boundary(contexts, "Context Providers") {
+        Component(auth_ctx, "AuthContext", "React Context", "Authentication state")
+        Component(booking_ctx, "BookingContext", "React Context", "Booking flow state")
+        Component(fleet_ctx, "FleetContext", "React Context", "Fleet data state")
+        Component(loading_ctx, "LoadingContext", "React Context", "Loading state")
+    }
+
+    Container_Boundary(pages, "Page Components") {
+        Component(home, "HomePage", "React", "Landing page")
+        Component(browse, "UserVehicleBrowsePage", "React", "Vehicle catalog")
+        Component(booking_flow, "BookingFlow", "React", "Multi-step booking")
+        Component(yourday, "YourDayPage", "React", "Personalized dashboard")
+        Component(fleet_dash, "FleetAdminDashboardPage", "React", "Fleet analytics")
+        Component(fleet_list, "FleetAdminListPage", "React", "Fleet inventory")
+        Component(eagle, "EagleViewPage", "React", "GPS tracking")
+        Component(admin, "AdminConsole", "React", "Admin panel")
+    }
+
+    Container_Boundary(components, "Shared Components") {
+        Component(navbar, "Navbar", "React", "Navigation bar")
+        Component(footer, "Footer", "React", "Page footer")
+        Component(rental_card, "RentalCard", "React", "Vehicle card")
+        Component(fleet_table, "FleetTable", "TanStack Table", "Fleet data table")
+        Component(weather, "WeatherWidget", "React", "Weather display")
+        Component(vehicle_drawer, "VehicleDrawer", "React", "Vehicle details panel")
+        Component(protected_route, "ProtectedRoleRoute", "React", "RBAC guard")
+    }
+
+    Container_Boundary(services, "API Services") {
+        Component(api_client, "Axios Client", "axios@1.12", "HTTP client")
+        Component(booking_api, "Booking API", "TypeScript", "Booking endpoints")
+        Component(fleet_api, "Fleet API", "TypeScript", "Fleet endpoints")
+        Component(auth_service, "Auth Service", "TypeScript", "Auth endpoints")
+    }
+
+    Container_Boundary(utils, "Utilities") {
+        Component(jwt_utils, "JWT Utils", "TypeScript", "Token parsing")
+        Component(rental_utils, "Rental Utils", "TypeScript", "Formatting helpers")
+        Component(validators, "Validators", "TypeScript", "Form validation")
+    }
+
+    Container_Boundary(hooks, "Custom Hooks") {
+        Component(use_auth, "useAuth", "React Hook", "Auth context accessor")
+        Component(use_booking, "useBooking", "React Hook", "Booking context accessor")
+        Component(use_fleet, "useFleetData", "React Hook", "Fleet data fetcher")
+    }
+}
+
+Container_Boundary(external_libs, "External Libraries") {
+    Component(react, "React@19.1", "Library", "UI framework")
+    Component(oauth, "@react-oauth/google", "Library", "Google OAuth")
+    Component(mapbox, "mapbox-gl@3.15", "Library", "Map rendering")
+    Component(chartjs, "chart.js@4.5", "Library", "Data visualization")
+    Component(gsap, "GSAP@3.13", "Library", "Animations")
+    Component(tailwind, "Tailwind CSS@4.1", "Framework", "Styling")
+}
+
+' Relationships
+Rel(app_comp, router, "Uses")
+Rel(app_comp, auth_ctx, "Wraps with")
+Rel(app_comp, booking_ctx, "Wraps with")
+
+Rel(router, pages, "Routes to")
+Rel(pages, components, "Renders")
+Rel(pages, contexts, "Consumes")
+Rel(pages, hooks, "Uses")
+
+Rel(components, hooks, "Uses")
+Rel(hooks, contexts, "Accesses")
+
+Rel(pages, services, "Calls")
+Rel(services, api_client, "Uses")
+Rel(services, utils, "Uses")
+
+Rel(auth_ctx, jwt_utils, "Uses")
+Rel(auth_ctx, oauth, "Integrates")
+
+Rel(eagle, mapbox, "Renders with")
+Rel(fleet_dash, chartjs, "Visualizes with")
+Rel(home, gsap, "Animates with")
+
+Rel(components, tailwind, "Styled with")
+
+@enduml
+```
+
+---
+
+### Deployment Diagram
+
+This diagram shows how the application is deployed in different environments.
+
+```plantuml
+@startuml Deployment Diagram
+!define RECTANGLE class
+
+skinparam backgroundColor #FEFEFE
+skinparam rectangleBackgroundColor<<dev>> LightBlue
+skinparam rectangleBackgroundColor<<prod>> LightGreen
+skinparam rectangleBackgroundColor<<cloud>> LightCoral
+
+node "Developer Workstation" <<dev>> {
+    artifact "Source Code" {
+        component [React TypeScript Files]
+        component [Package.json]
+        component [Vite Config]
+    }
+
+    node "Docker Container (Dev)" {
+        component [Vite Dev Server\nPort 3000] as ViteDev
+        component [Hot Module Replacement]
+    }
+}
+
+node "CI/CD Pipeline" <<cloud>> {
+    component [GitHub Actions]
+    component [Build & Test]
+    component [Security Scan]
+    component [Docker Build]
+}
+
+node "Docker Hub Registry" <<cloud>> {
+    artifact [exploresg-frontend-service:latest]
+}
+
+node "Production Server" <<prod>> {
+    node "Docker Container (Prod)" {
+        component [Nginx Web Server\nPort 3000] as NginxProd
+        artifact [React Static Build\n(dist/)] as StaticBuild
+        artifact [env.js\n(Runtime Config)] as EnvJS
+    }
+
+    node "Docker Network" {
+        component [exploresg-net]
+    }
+}
+
+node "Cloud Services" <<cloud>> {
+    cloud "Google OAuth" {
+        component [OAuth 2.0 Server]
+    }
+
+    cloud "Mapbox" {
+        component [Maps API]
+    }
+
+    cloud "Open-Meteo" {
+        component [Weather API]
+    }
+
+    cloud "CDN / Load Balancer" {
+        component [CloudFlare]
+    }
+}
+
+database "Backend Services" {
+    component [API Gateway\nPort 8080]
+    component [Fleet API\nPort 8081]
+}
+
+' Development Flow
+[React TypeScript Files] --> [Vite Dev Server\nPort 3000] : npm run dev
+[Vite Dev Server\nPort 3000] --> [Hot Module Replacement] : Watches changes
+
+' CI/CD Flow
+[Source Code] --> [GitHub Actions] : git push
+[GitHub Actions] --> [Build & Test] : Run tests
+[Build & Test] --> [Security Scan] : ESLint, Audit
+[Security Scan] --> [Docker Build] : Multi-stage build
+[Docker Build] --> [exploresg-frontend-service:latest] : Push image
+
+' Production Deployment
+[exploresg-frontend-service:latest] --> [Nginx Web Server\nPort 3000] : docker pull & run
+[Nginx Web Server\nPort 3000] --> [React Static Build\n(dist/)] : Serves
+[Nginx Web Server\nPort 3000] --> [env.js\n(Runtime Config)] : Generates on start
+
+' External connections
+[CloudFlare] --> [Nginx Web Server\nPort 3000] : HTTPS/443
+[React Static Build\n(dist/)] --> [OAuth 2.0 Server] : Authentication
+[React Static Build\n(dist/)] --> [Maps API] : Map tiles
+[React Static Build\n(dist/)] --> [Weather API] : Weather data
+[React Static Build\n(dist/)] --> [API Gateway\nPort 8080] : REST API
+[React Static Build\n(dist/)] --> [Fleet API\nPort 8081] : REST API
+
+note right of [Docker Build]
+    Multi-stage Dockerfile:
+
+    Stage 1: Build
+    - Node 18 Alpine
+    - npm ci
+    - npm run build
+
+    Stage 2: Production
+    - Nginx Alpine
+    - Copy dist/
+    - Copy nginx.conf
+    - Copy docker-entrypoint.sh
+end note
+
+note right of [env.js\n(Runtime Config)]
+    Generated at runtime from
+    environment variables:
+
+    - API_BASE_URL
+    - FLEET_API_BASE_URL
+    - GOOGLE_CLIENT_ID
+    - MAPBOX_TOKEN
+    - APP_ENV
+end note
+
+note right of [exploresg-net]
+    Docker network connecting:
+    - Frontend container
+    - Backend containers
+    - Database containers
+end note
+
+@enduml
+```
+
+---
+
+### State Diagram - Booking Flow
+
+```plantuml
+@startuml Booking State Diagram
+[*] --> Browsing : User visits rentals page
+
+state Browsing {
+    [*] --> Filtering
+    Filtering --> SearchResults : Apply filters
+    SearchResults --> VehicleSelected : Select vehicle
+}
+
+VehicleSelected --> SelectingAddons : Continue to add-ons
+note right of VehicleSelected
+    Data stored:
+    - Selected vehicle
+    - Pickup date/time
+    - Return date/time
+    - Number of nights
+end note
+
+state SelectingAddons {
+    [*] --> ChoosingCDW
+    ChoosingCDW --> ChoosingExtras : Select insurance
+    ChoosingExtras --> AddonsComplete : Confirm selections
+}
+
+AddonsComplete --> EnteringDriverDetails : Continue to driver details
+note right of SelectingAddons
+    Data stored:
+    - CDW level (Basic/Plus/Max)
+    - Selected extras
+    - Updated total price
+end note
+
+state EnteringDriverDetails {
+    [*] --> FillingForm
+    FillingForm --> Validating : Submit form
+    Validating --> FormComplete : Validation passed
+    Validating --> FillingForm : Validation failed
+}
+
+FormComplete --> ReviewingBooking : Continue to review
+note right of EnteringDriverDetails
+    Validations:
+    - Age ≥ 21
+    - License not expired
+    - Valid email/phone
+    - All required fields
+end note
+
+state ReviewingBooking {
+    [*] --> DisplayingSummary
+    DisplayingSummary --> CreatingReservation : Confirm booking
+    CreatingReservation --> ReservationCreated : Success
+    CreatingReservation --> ReservationFailed : API error
+    ReservationFailed --> DisplayingSummary : Retry
+}
+
+ReservationCreated --> ProcessingPayment : Continue to payment
+note right of ReviewingBooking
+    Backend action:
+    - Check availability
+    - Lock vehicle temporarily
+    - Generate booking ID
+end note
+
+state ProcessingPayment {
+    [*] --> EnteringPaymentDetails
+    EnteringPaymentDetails --> ValidatingPayment : Submit payment
+    ValidatingPayment --> PaymentSuccessful : Payment approved
+    ValidatingPayment --> PaymentFailed : Payment declined
+    PaymentFailed --> EnteringPaymentDetails : Retry
+}
+
+PaymentSuccessful --> BookingConfirmed : Create booking record
+note right of ProcessingPayment
+    Payment gateway:
+    - Validate card
+    - Process charge
+    - Return confirmation
+end note
+
+state BookingConfirmed {
+    [*] --> SendingConfirmation
+    SendingConfirmation --> ConfirmationSent
+}
+
+ConfirmationSent --> [*]
+
+' Back navigation
+SelectingAddons --> VehicleSelected : Go back
+EnteringDriverDetails --> SelectingAddons : Go back
+ReviewingBooking --> EnteringDriverDetails : Go back
+
+' Cancel flow
+Browsing --> [*] : Close page
+VehicleSelected --> [*] : Cancel
+SelectingAddons --> [*] : Cancel
+EnteringDriverDetails --> [*] : Cancel
+ReviewingBooking --> [*] : Cancel
+ProcessingPayment --> [*] : Cancel
+
+note bottom
+    Booking data persists across steps
+    using React Router location state
+    and BookingContext
+end note
+
+@enduml
+```
+
+---
+
+### Class Diagram - Core Data Models
+
+```plantuml
+@startuml Class Diagram
+skinparam classAttributeIconSize 0
+
+class User {
+    +userId: string
+    +email: string
+    +givenName: string
+    +familyName: string
+    +picture?: string
+    +preferredLanguage?: string
+    +createdAt: Date
+    +updatedAt: Date
+    --
+    +getFullName(): string
+    +hasRole(role: string): boolean
+}
+
+class UserRole {
+    +roleId: string
+    +roleName: RoleType
+    +description: string
+    --
+    <<enumeration>> RoleType
+    USER
+    FLEET_MANAGER
+    MANAGER
+    SUPPORT
+    ADMIN
+}
+
+class Vehicle {
+    +vehicleId: string
+    +publicModelId: string
+    +name: string
+    +model: string
+    +plateNumber: string
+    +operatorId: number
+    +operatorName: string
+    +imageUrl: string
+    +price: number
+    +seats: number
+    +luggage: number
+    +transmission: TransmissionType
+    +status: VehicleStatus
+    +features: string[]
+    --
+    +isAvailable(): boolean
+    +calculatePrice(nights: number): number
+}
+
+enum VehicleStatus {
+    AVAILABLE
+    RENTED
+    MAINTENANCE
+    OUT_OF_SERVICE
+}
+
+enum TransmissionType {
+    AUTOMATIC
+    MANUAL
+}
+
+class Booking {
+    +bookingId: string
+    +userId: string
+    +vehicleId: string
+    +bookingRef: string
+    +status: BookingStatus
+    +pickupDate: Date
+    +returnDate: Date
+    +nights: number
+    +driverDetails: DriverDetails
+    +addOns: AddOnSelection[]
+    +cdwLevel: CDWLevel
+    +totalPrice: number
+    +paymentStatus: PaymentStatus
+    +createdAt: Date
+    --
+    +calculateTotal(): number
+    +cancel(): void
+    +confirm(): void
+}
+
+enum BookingStatus {
+    PENDING
+    RESERVED
+    CONFIRMED
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+}
+
+enum PaymentStatus {
+    PENDING
+    PROCESSING
+    PAID
+    FAILED
+    REFUNDED
+}
+
+class DriverDetails {
+    +firstName: string
+    +lastName: string
+    +email: string
+    +phone: string
+    +dateOfBirth: Date
+    +licenseNumber: string
+    +licenseExpiry: Date
+    +licenseCountry: string
+    +emergencyContact: string
+    +emergencyPhone: string
+    +address: Address
+    --
+    +validate(): boolean
+    +getAge(): number
+}
+
+class Address {
+    +street: string
+    +city: string
+    +postalCode: string
+    +country: string
+}
+
+class AddOn {
+    +addOnId: string
+    +name: string
+    +description: string
+    +price: number
+    +category: AddOnCategory
+    +isOneTime: boolean
+}
+
+enum AddOnCategory {
+    INSURANCE
+    EQUIPMENT
+    SERVICE
+    CROSS_BORDER
+}
+
+class AddOnSelection {
+    +addOnId: string
+    +selected: boolean
+    +quantity: number
+}
+
+class FleetVehicle {
+    +fleetId: string
+    +vehicleId: string
+    +plateNumber: string
+    +operatorId: number
+    +currentLocation?: GPSLocation
+    +lastMaintenance?: Date
+    +nextMaintenance?: Date
+    +odometer: number
+    +fuelLevel?: number
+    --
+    +needsMaintenance(): boolean
+    +getLocationHistory(): GPSLocation[]
+}
+
+class GPSLocation {
+    +latitude: number
+    +longitude: number
+    +altitude?: number
+    +speed?: number
+    +heading?: number
+    +accuracy?: number
+    +timestamp: Date
+}
+
+class Operator {
+    +operatorId: number
+    +uuid: string
+    +name: string
+    +styling: OperatorStyling
+    +contactEmail: string
+    +contactPhone: string
+}
+
+class OperatorStyling {
+    +brand: string
+    +background: string
+    +primaryColor: string
+    +logoUrl?: string
+}
+
+' Relationships
+User "1" -- "*" UserRole : has
+User "1" -- "*" Booking : creates
+Vehicle "1" -- "*" Booking : booked in
+Booking "1" *-- "1" DriverDetails : contains
+Booking "1" *-- "*" AddOnSelection : includes
+AddOnSelection "*" -- "1" AddOn : references
+Vehicle "1" -- "1" FleetVehicle : tracked as
+FleetVehicle "1" *-- "*" GPSLocation : has history
+Vehicle "*" -- "1" Operator : belongs to
+Operator "1" *-- "1" OperatorStyling : has
+
+note right of User
+    JWT token contains:
+    - userId
+    - roles[]
+    - email
+    - exp
+end note
+
+note right of Booking
+    Price calculation:
+    basePrice × nights
+    + cdwPrice × nights
+    + Σ(addOns.price)
+end note
+
+note right of FleetVehicle
+    Real-time data from
+    Eagle IoT platform
+    via WebSocket
+end note
+
+@enduml
+```
 
 ---
 
