@@ -1,43 +1,16 @@
-import React, { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useRef } from "react";
+import { usePageAnimations } from "../hooks/usePageAnimations";
 
 const PrivacyPolicyPage: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const sectionsRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Hero section entrance
-      gsap.from(heroRef.current, {
-        opacity: 0,
-        y: 30,
-        duration: 1,
-        ease: "power2.out",
-      });
-
-      // Scroll-triggered animations for sections
-      gsap.from(sectionsRef.current?.querySelectorAll("section") || [], {
-        scrollTrigger: {
-          trigger: sectionsRef.current,
-          start: "top 80%",
-        },
-        opacity: 0,
-        y: 50,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: "power2.out",
-      });
-    });
-
-    return () => ctx.revert();
-  }, []);
+  usePageAnimations({
+    heroRef,
+    contentRef: sectionsRef,
+    contentSelector: "section",
+    staggerDelay: 0.1
+  });
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-16 lg:py-12">
       <div className="mx-auto max-w-4xl">

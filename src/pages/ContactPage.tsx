@@ -1,8 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import React, { useState, useRef } from "react";
+import { usePageAnimations } from "../hooks/usePageAnimations";
 
 const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -15,36 +12,12 @@ const ContactPage: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Hero section entrance
-      gsap.from(heroRef.current, {
-        opacity: 0,
-        y: 30,
-        duration: 1,
-        ease: "power2.out",
-      });
-
-      // Content sections animation
-      gsap.from(contentRef.current?.querySelectorAll(".contact-section") || [], {
-        scrollTrigger: {
-          trigger: contentRef.current,
-          start: "top 80%",
-        },
-        opacity: 0,
-        y: 50,
-        stagger: 0.2,
-        duration: 0.8,
-        ease: "power2.out",
-      });
-    });
-
-    return () => ctx.revert();
-  }, []);
+  usePageAnimations({
+    heroRef,
+    contentRef,
+    contentSelector: ".contact-section",
+    staggerDelay: 0.2
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
