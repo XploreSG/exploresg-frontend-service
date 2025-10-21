@@ -10,9 +10,10 @@ import { getEnvVar } from "./runtimeEnv";
 // ✅ Required Environment Variables Validation
 // -----------------------------------------
 const requiredEnvVars = {
-  VITE_API_BASE_URL: getEnvVar("API_BASE_URL"),
-  VITE_FLEET_API_BASE_URL: getEnvVar("FLEET_API_BASE_URL"),
-  VITE_GOOGLE_CLIENT_ID: getEnvVar("GOOGLE_CLIENT_ID"),
+  API_BASE_URL: getEnvVar("API_BASE_URL"),
+  FLEET_API_BASE_URL: getEnvVar("FLEET_API_BASE_URL"),
+  BOOKING_API_BASE_URL: getEnvVar("BOOKING_API_BASE_URL"),
+  GOOGLE_CLIENT_ID: getEnvVar("GOOGLE_CLIENT_ID"),
 } as const;
 
 const missingVars = Object.entries(requiredEnvVars)
@@ -23,8 +24,9 @@ if (missingVars.length > 0) {
   console.error(
     `Missing required environment variables: ${missingVars.join(", ")}`,
   );
+  console.error("For local dev: Set VITE_${VAR_NAME} in .env.development");
   console.error(
-    "Please create a .env.local file (for local dev) or ensure runtime env variables are injected (via env.js).",
+    "For production: Set ${VAR_NAME} in .env.production (no VITE_ prefix)",
   );
 }
 
@@ -35,6 +37,10 @@ export const API_BASE_URL = getEnvVar("API_BASE_URL", "http://localhost:8080");
 export const FLEET_API_BASE_URL = getEnvVar(
   "FLEET_API_BASE_URL",
   "http://localhost:8081",
+);
+export const BOOKING_API_BASE_URL = getEnvVar(
+  "BOOKING_API_BASE_URL",
+  "http://localhost:8082",
 );
 
 // -----------------------------------------
@@ -71,8 +77,9 @@ export const API_ENDPOINTS = {
   },
 
   BOOKING: {
-    CREATE: `${API_BASE_URL}/api/v1/bookings`,
-    DETAILS: (id: string) => `${API_BASE_URL}/api/v1/bookings/${id}`,
+    CREATE: `${BOOKING_API_BASE_URL}/api/v1/bookings`,
+    DETAILS: (id: string) => `${BOOKING_API_BASE_URL}/api/v1/bookings/${id}`,
+    PAY: (id: string) => `${BOOKING_API_BASE_URL}/api/v1/bookings/${id}/pay`,
   },
 
   TEST: `${API_BASE_URL}/test`,
@@ -96,6 +103,7 @@ if (IS_DEVELOPMENT && DEBUG_ENABLED) {
   console.log("API Configuration Loaded:", {
     API_BASE_URL,
     FLEET_API_BASE_URL,
+    BOOKING_API_BASE_URL,
     APP_ENV,
     GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID ? "Set" : "Missing",
     MAPBOX_TOKEN: MAPBOX_TOKEN ? "Set" : "Missing",

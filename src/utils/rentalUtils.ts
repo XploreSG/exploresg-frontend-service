@@ -19,8 +19,12 @@ export function transformCarModelData(
       ? `${op.id}-${item.carModelId}`
       : `${op.id}-${item.model.replace(/\s+/g, "-")}-${index}`;
 
+    // Use publicModelId from backend (standardized across fleet & booking services)
+    const publicModelId = item.publicModelId || item.publicId;
+
     return {
       id: uniqueId,
+      publicModelId: publicModelId, // Backend UUID for API calls
       operatorId: op.id, // Use normalized numeric ID
       operatorName: op.name, // Use mapped operator name
       model: item.model,

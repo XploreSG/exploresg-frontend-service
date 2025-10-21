@@ -10,6 +10,7 @@ import {
   EmptyState,
   ComingSoonSection,
   VehicleBrowseHeader,
+  DatePickerSection,
 } from "../components/VehicleBrowse";
 
 const UserVehicleBrowsePage: React.FC = () => {
@@ -72,6 +73,9 @@ const UserVehicleBrowsePage: React.FC = () => {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section with Car Carousel Background */}
         <VehicleBrowseHeader />
+
+        {/* Date Picker Section */}
+        <DatePickerSection />
 
         {/* Desktop Filter Section */}
         <DesktopFilters
