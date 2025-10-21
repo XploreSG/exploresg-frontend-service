@@ -1,10 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { usePageAnimations } from "../hooks/usePageAnimations";
+import { useFilter } from "../hooks/useFilter";
 
 const FoodPage: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [selectedCuisine, setSelectedCuisine] = useState("All");
+  const { selectedFilter: selectedCuisine, handleFilterChange: handleCuisineClick, resetFilter } = useFilter({ initialFilter: "All" });
 
   usePageAnimations({
     heroRef,
@@ -118,13 +119,6 @@ const FoodPage: React.FC = () => {
     ? eateries 
     : eateries.filter(eatery => eatery.cuisine === selectedCuisine);
 
-  const handleCuisineClick = (cuisine: string) => {
-    setSelectedCuisine(cuisine);
-  };
-
-  const resetFilter = () => {
-    setSelectedCuisine("All");
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">

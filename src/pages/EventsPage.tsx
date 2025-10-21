@@ -1,10 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { usePageAnimations } from "../hooks/usePageAnimations";
+import { useFilter } from "../hooks/useFilter";
 
 const EventsPage: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const { selectedFilter: selectedCategory, handleFilterChange: handleCategoryClick, resetFilter } = useFilter({ initialFilter: "All" });
 
   usePageAnimations({
     heroRef,
@@ -118,13 +119,6 @@ const EventsPage: React.FC = () => {
     ? events 
     : events.filter(event => event.category === selectedCategory);
 
-  const handleCategoryClick = (category: string) => {
-    setSelectedCategory(category);
-  };
-
-  const resetFilter = () => {
-    setSelectedCategory("All");
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">

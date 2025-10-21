@@ -1,17 +1,11 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { usePageAnimations } from "../hooks/usePageAnimations";
+import { useFilter } from "../hooks/useFilter";
 
 const AttractionsPage: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
-  usePageAnimations({
-    heroRef,
-    contentRef,
-    contentSelector: ".attraction-card",
-    staggerDelay: 0.1
-  });
+  const { selectedFilter: selectedCategory, handleFilterChange: handleCategoryClick, resetFilter } = useFilter({ initialFilter: "All" });
 
   const attractions = [
     {
@@ -118,13 +112,12 @@ const AttractionsPage: React.FC = () => {
     ? attractions 
     : attractions.filter(attraction => attraction.category === selectedCategory);
 
-  const handleCategoryClick = (category: string) => {
-    setSelectedCategory(category);
-  };
-
-  const resetFilter = () => {
-    setSelectedCategory("All");
-  };
+  usePageAnimations({
+    heroRef,
+    contentRef,
+    contentSelector: ".attraction-card",
+    staggerDelay: 0.1
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
