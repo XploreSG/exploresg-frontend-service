@@ -1,39 +1,32 @@
-import React, { useRef, useState } from "react";
-import { usePageAnimations } from "../hooks/usePageAnimations";
+import React from "react";
 
 interface FilterablePageProps {
   heroTitle: string;
   heroSubtitle: string;
   heroGradient: string;
-  filterTitle: string;
   filterOptions: string[];
   selectedFilter: string;
   onFilterChange: (filter: string) => void;
   onResetFilter: () => void;
   children: React.ReactNode;
-  contentRef: React.RefObject<HTMLDivElement>;
-  heroRef: React.RefObject<HTMLDivElement>;
+  contentRef: React.RefObject<HTMLDivElement | null>;
+  heroRef: React.RefObject<HTMLDivElement | null>;
+  additionalContent?: React.ReactNode;
 }
 
 const FilterablePage: React.FC<FilterablePageProps> = ({
   heroTitle,
   heroSubtitle,
   heroGradient,
-  filterTitle,
   filterOptions,
   selectedFilter,
   onFilterChange,
   onResetFilter,
   children,
   contentRef,
-  heroRef
+  heroRef,
+  additionalContent
 }) => {
-  usePageAnimations({
-    heroRef,
-    contentRef,
-    contentSelector: ".page-card",
-    staggerDelay: 0.1
-  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,6 +75,9 @@ const FilterablePage: React.FC<FilterablePageProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {children}
         </div>
+
+        {/* Additional Content */}
+        {additionalContent}
       </div>
     </div>
   );

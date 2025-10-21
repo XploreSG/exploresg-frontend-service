@@ -1,7 +1,6 @@
 import React from "react";
 
 interface ContentCardProps {
-  id: number;
   name: string;
   description: string;
   image: string;
@@ -16,7 +15,6 @@ interface ContentCardProps {
 }
 
 const ContentCard: React.FC<ContentCardProps> = ({
-  id,
   name,
   description,
   image,
