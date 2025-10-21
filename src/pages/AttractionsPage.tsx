@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { usePageAnimations } from "../hooks/usePageAnimations";
 
 const AttractionsPage: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   usePageAnimations({
     heroRef,
@@ -17,7 +18,7 @@ const AttractionsPage: React.FC = () => {
       id: 1,
       name: "Marina Bay Sands",
       description: "Iconic integrated resort with stunning architecture, luxury shopping, and the famous infinity pool.",
-      image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+      image: "/assets/attractions/marina-bay-sands.jpg",
       location: "Marina Bay",
       rating: 4.7,
       reviews: 12500,
@@ -29,7 +30,7 @@ const AttractionsPage: React.FC = () => {
       id: 2,
       name: "Gardens by the Bay",
       description: "Award-winning nature park featuring the iconic Supertree Grove and climate-controlled conservatories.",
-      image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+      image: "/assets/attractions/gardens-by-the-bay.jpg",
       location: "Marina Bay",
       rating: 4.8,
       reviews: 18500,
@@ -41,7 +42,7 @@ const AttractionsPage: React.FC = () => {
       id: 3,
       name: "Sentosa Island",
       description: "Singapore's premier island resort with Universal Studios, beaches, and world-class attractions.",
-      image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+      image: "/assets/attractions/sentosa-island.jpg",
       location: "Sentosa",
       rating: 4.6,
       reviews: 22000,
@@ -53,7 +54,7 @@ const AttractionsPage: React.FC = () => {
       id: 4,
       name: "Singapore Zoo",
       description: "World's best rainforest zoo with open-concept exhibits and the famous Night Safari.",
-      image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+      image: "/assets/attractions/singapore-zoo.jpg",
       location: "Mandai",
       rating: 4.5,
       reviews: 16800,
@@ -65,7 +66,7 @@ const AttractionsPage: React.FC = () => {
       id: 5,
       name: "Chinatown",
       description: "Vibrant cultural district with traditional shophouses, temples, and authentic local cuisine.",
-      image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+      image: "/assets/attractions/chinatown.jpg",
       location: "Chinatown",
       rating: 4.4,
       reviews: 9800,
@@ -77,7 +78,7 @@ const AttractionsPage: React.FC = () => {
       id: 6,
       name: "Singapore Flyer",
       description: "World's largest observation wheel offering panoramic views of Singapore's skyline.",
-      image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+      image: "/assets/attractions/singapore-flyer.jpg",
       location: "Marina Bay",
       rating: 4.3,
       reviews: 11200,
@@ -89,7 +90,7 @@ const AttractionsPage: React.FC = () => {
       id: 7,
       name: "Botanic Gardens",
       description: "UNESCO World Heritage Site featuring the National Orchid Garden and lush tropical landscapes.",
-      image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+      image: "/assets/attractions/botanic-gardens.jpg",
       location: "Tanglin",
       rating: 4.6,
       reviews: 14500,
@@ -101,7 +102,7 @@ const AttractionsPage: React.FC = () => {
       id: 8,
       name: "Jewel Changi Airport",
       description: "World-class lifestyle destination with the iconic Rain Vortex and Canopy Park.",
-      image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+      image: "/assets/attractions/jewel-changi.jpg",
       location: "Changi",
       rating: 4.7,
       reviews: 19800,
@@ -113,42 +114,69 @@ const AttractionsPage: React.FC = () => {
 
   const categories = ["All", "Landmark", "Nature", "Entertainment", "Culture", "Shopping"];
 
+  const filteredAttractions = selectedCategory === "All" 
+    ? attractions 
+    : attractions.filter(attraction => attraction.category === selectedCategory);
+
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(category);
+  };
+
+  const resetFilter = () => {
+    setSelectedCategory("All");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div ref={heroRef} className="relative h-96 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center">
-        <div className="text-center text-white px-4">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">Discover Singapore's Iconic Attractions</h1>
-          <p className="text-xl md:text-2xl mb-8">From lush gardens to thrilling theme parks, explore the best of the Lion City</p>
+      <div ref={heroRef} className="relative h-64 sm:h-80 md:h-96 bg-gradient-to-r from-red-600 to-red-800 flex items-center justify-center">
+        <div className="text-center text-white px-4 sm:px-6 lg:px-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4">Discover Singapore's Iconic Attractions</h1>
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl mb-6 sm:mb-8">From lush gardens to thrilling theme parks, explore the best of the Lion City</p>
         </div>
       </div>
 
-      <div ref={contentRef} className="max-w-7xl mx-auto px-4 py-12">
+      <div ref={contentRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
         {/* Categories Filter */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-2 justify-center">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">
             {categories.map((category) => (
               <button
                 key={category}
-                className="px-6 py-2 rounded-full bg-white shadow-md hover:bg-red-50 hover:text-red-600 transition-colors"
+                onClick={() => handleCategoryClick(category)}
+                className={`px-3 sm:px-4 md:px-6 py-2 text-xs sm:text-sm md:text-base rounded-full shadow-md transition-colors ${
+                  selectedCategory === category
+                    ? "bg-red-600 text-white"
+                    : "bg-white hover:bg-red-50 hover:text-red-600"
+                }`}
               >
                 {category}
               </button>
             ))}
+            {selectedCategory !== "All" && (
+              <button
+                onClick={resetFilter}
+                className="ml-2 px-2 sm:px-3 py-2 text-xs sm:text-sm rounded-full bg-gray-200 hover:bg-gray-300 transition-colors text-gray-600 hover:text-gray-800"
+                title="Reset filter"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
 
         {/* Attractions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {attractions.map((attraction) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+          {filteredAttractions.map((attraction) => (
             <div key={attraction.id} className="attraction-card bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-              <div className="relative h-48">
+              <div className="relative h-48 w-full">
                 <img
                   src={attraction.image}
                   alt={attraction.name}
                   className="w-full h-full object-cover"
+                  style={{ aspectRatio: "4/3" }}
                 />
-                <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-full text-sm font-semibold">
+                <div className="absolute top-4 right-4 bg-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
                   {attraction.price}
                 </div>
               </div>
@@ -176,9 +204,6 @@ const AttractionsPage: React.FC = () => {
                   </span>
                 </div>
                 
-                <button className="w-full mt-4 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
-                  Learn More
-                </button>
               </div>
             </div>
           ))}
