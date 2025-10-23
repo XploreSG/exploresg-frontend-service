@@ -308,9 +308,13 @@ const YourDayPage = () => {
                     src="https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80"
                     alt="328 Katong Laska"
                     className="mb-2 h-32 w-full rounded-lg object-cover"
-                    style={{ aspectRatio: "1/1", objectPosition: "center center" }}
+                    style={{
+                      aspectRatio: "1/1",
+                      objectPosition: "center center",
+                    }}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80";
+                      (e.target as HTMLImageElement).src =
+                        "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80";
                     }}
                   />
                   <div className="font-semibold text-gray-800">
@@ -327,14 +331,17 @@ const YourDayPage = () => {
                   </button>
                 </div>
                 <div className="flex-1">
-                <div className="flex-1">
                   <img
                     src="https://images.unsplash.com/photo-1551782450-17144efb9c50?auto=format&fit=crop&w=400&q=80"
                     alt="Maxwell Food Centre"
                     className="mb-2 h-32 w-full rounded-lg object-cover"
-                    style={{ aspectRatio: "1/1", objectPosition: "center center" }}
+                    style={{
+                      aspectRatio: "1/1",
+                      objectPosition: "center center",
+                    }}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1551782450-17144efb9c50?auto=format&fit=crop&w=400&q=80";
+                      (e.target as HTMLImageElement).src =
+                        "https://images.unsplash.com/photo-1551782450-17144efb9c50?auto=format&fit=crop&w=400&q=80";
                     }}
                   />
                   <div className="font-semibold text-gray-800">
@@ -346,8 +353,6 @@ const YourDayPage = () => {
                     <span className="text-gray-400">(1,234)</span>
                     <span className="text-gray-400">• 0.8 km</span>
                   </div>
-                  <button className="mt-2 w-full rounded-lg border border-blue-600 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50">
-                    Book Table
                   <button className="mt-2 w-full rounded-lg border border-blue-600 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50">
                     Book Table
                   </button>
