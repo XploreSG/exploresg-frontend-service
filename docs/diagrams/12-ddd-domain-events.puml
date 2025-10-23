@@ -1,0 +1,202 @@
+@startuml DDD Domain Events
+skinparam backgroundColor #FEFEFE
+
+title Domain-Driven Design - Domain Events Flow\nExploreSingapore Application
+
+' Actors
+actor "User" as user
+participant "BookingAggregate" as booking_agg <<AggregateRoot>>
+participant "VehicleAggregate" as vehicle_agg <<AggregateRoot>>
+participant "PaymentAggregate" as payment_agg <<AggregateRoot>>
+participant "EventBus" as event_bus <<Infrastructure>>
+participant "BookingEventHandler" as booking_handler <<EventHandler>>
+participant "VehicleEventHandler" as vehicle_handler <<EventHandler>>
+participant "NotificationService" as notification <<AppService>>
+participant "AnalyticsService" as analytics <<AppService>>
+
+' Event Flow 1: Booking Created
+user -> booking_agg : createBooking(vehicle, period)
+activate booking_agg
+
+booking_agg -> booking_agg : validate()
+booking_agg -> booking_agg : new Booking()
+
+booking_agg -> event_bus : publish(BookingCreated)
+note right
+    **Event: BookingCreated**
+    {
+      bookingId: UUID,
+      userId: UUID,
+      vehicleId: UUID,
+      period: {pickup, return},
+      timestamp: DateTime
+    }
+end note
+activate event_bus
+
+event_bus -> vehicle_handler : handle(BookingCreated)
+activate vehicle_handler
+vehicle_handler -> vehicle_agg : reserveVehicle(vehicleId, period)
+vehicle_agg -> event_bus : publish(VehicleReserved)
+deactivate vehicle_handler
+
+event_bus -> notification : handle(BookingCreated)
+activate notification
+notification -> user : sendEmail("Booking Created")
+deactivate notification
+
+event_bus -> analytics : handle(BookingCreated)
+activate analytics
+analytics -> analytics : recordMetric("booking_created")
+deactivate analytics
+
+deactivate event_bus
+deactivate booking_agg
+
+' Event Flow 2: Payment Processed
+user -> payment_agg : processPayment(bookingId, cardDetails)
+activate payment_agg
+
+payment_agg -> payment_agg : validateCard()
+payment_agg -> payment_agg : chargeCard()
+
+payment_agg -> event_bus : publish(PaymentProcessed)
+note right
+    **Event: PaymentProcessed**
+    {
+      paymentId: UUID,
+      bookingId: UUID,
+      amount: Money,
+      status: "COMPLETED",
+      timestamp: DateTime
+    }
+end note
+activate event_bus
+
+event_bus -> booking_handler : handle(PaymentProcessed)
+activate booking_handler
+booking_handler -> booking_agg : confirmBooking(payment)
+booking_agg -> event_bus : publish(BookingConfirmed)
+note right
+    **Event: BookingConfirmed**
+    {
+      bookingId: UUID,
+      confirmedAt: DateTime,
+      paymentId: UUID
+    }
+end note
+deactivate booking_handler
+
+event_bus -> vehicle_handler : handle(BookingConfirmed)
+activate vehicle_handler
+vehicle_handler -> vehicle_agg : updateStatus(RENTED)
+vehicle_agg -> event_bus : publish(VehicleStatusChanged)
+deactivate vehicle_handler
+
+event_bus -> notification : handle(BookingConfirmed)
+activate notification
+notification -> user : sendEmail("Booking Confirmed")
+notification -> user : sendSMS("Booking Reference")
+deactivate notification
+
+deactivate event_bus
+deactivate payment_agg
+
+' Event Flow 3: Booking Cancelled
+user -> booking_agg : cancelBooking(reason)
+activate booking_agg
+
+booking_agg -> booking_agg : validateCancellation()
+booking_agg -> booking_agg : updateStatus(CANCELLED)
+
+booking_agg -> event_bus : publish(BookingCancelled)
+note right
+    **Event: BookingCancelled**
+    {
+      bookingId: UUID,
+      reason: String,
+      cancelledAt: DateTime,
+      refundAmount: Money
+    }
+end note
+activate event_bus
+
+event_bus -> vehicle_handler : handle(BookingCancelled)
+activate vehicle_handler
+vehicle_handler -> vehicle_agg : releaseVehicle(vehicleId)
+vehicle_agg -> event_bus : publish(VehicleReleased)
+deactivate vehicle_handler
+
+event_bus -> booking_handler : handle(BookingCancelled)
+activate booking_handler
+booking_handler -> payment_agg : initiateRefund(paymentId)
+payment_agg -> event_bus : publish(RefundInitiated)
+deactivate booking_handler
+
+event_bus -> notification : handle(BookingCancelled)
+activate notification
+notification -> user : sendEmail("Cancellation Confirmed")
+deactivate notification
+
+deactivate event_bus
+deactivate booking_agg
+
+note over event_bus
+    **Event Bus (Infrastructure)**
+    
+    - In-memory (Development)
+    - RabbitMQ / Kafka (Production)
+    - Eventual Consistency
+    - At-Least-Once Delivery
+    - Dead Letter Queue
+    - Event Replay
+end note
+
+note over booking_handler, vehicle_handler
+    **Event Handlers (Subscribers)**
+    
+    - Subscribe to domain events
+    - Implement use cases
+    - Orchestrate aggregates
+    - Idempotent operations
+    - Handle failures gracefully
+end note
+
+' Domain Events Catalog
+note bottom
+    **Domain Events Catalog:**
+    
+    **Booking Context:**
+    - BookingCreated
+    - BookingReserved
+    - BookingConfirmed
+    - BookingCancelled
+    - BookingModified
+    - DriverDetailsAdded
+    - AddOnSelected
+    
+    **Vehicle Context:**
+    - VehicleAdded
+    - VehicleStatusChanged
+    - VehicleReserved
+    - VehicleReleased
+    - VehicleRetired
+    
+    **Payment Context:**
+    - PaymentProcessed
+    - PaymentFailed
+    - RefundInitiated
+    - RefundCompleted
+    
+    **Fleet Context:**
+    - VehicleLocationUpdated
+    - MaintenanceScheduled
+    - MaintenanceCompleted
+    
+    **User Context:**
+    - UserRegistered
+    - UserRoleChanged
+    - UserProfileUpdated
+end note
+
+@enduml
