@@ -1,0 +1,125 @@
+@startuml Activity Diagram - Booking Flow
+|User|
+start
+:Browse Available Vehicles;
+:Apply Filters\n(Price, Type, Seats, etc.);
+:View Filtered Results;
+
+|System|
+:Fetch Vehicle Catalog from API;
+:Apply Client-Side Filters;
+:Display Vehicle Cards;
+
+|User|
+:Select Desired Vehicle;
+:Choose Pickup/Return Dates;
+
+|System|
+if (Dates Valid?) then (yes)
+    :Calculate Number of Nights;
+    :Store Vehicle & Dates in Context;
+else (no)
+    :Show Validation Error;
+    stop
+endif
+
+|User|
+:Navigate to Add-ons Page;
+:Select CDW Insurance Level\n(Basic/Plus/Max);
+:Choose Additional Extras\n(Child Seat, Malaysia Entry, etc.);
+
+|System|
+:Calculate Total Price;
+:Update Price Display;
+note right
+    Price = Base × Nights
+    + CDW × Nights
+    + Sum(Add-ons)
+end note
+
+|User|
+:Continue to Driver Details;
+:Enter Personal Information;
+:Enter License Details;
+:Provide Emergency Contact;
+
+|System|
+:Validate Form Fields;
+
+if (All Valid?) then (yes)
+    if (Driver Age >= 21?) then (yes)
+        if (License Not Expired?) then (yes)
+            :Store Driver Details;
+        else (no)
+            :Show "License Expired" Error;
+            stop
+        endif
+    else (no)
+        :Show "Minimum Age 21" Error;
+        stop
+    endif
+else (no)
+    :Show Field Errors;
+    stop
+endif
+
+|User|
+:Review Complete Booking Summary;
+:Confirm Booking;
+
+|System|
+:Call Backend API\nPOST /api/bookings/reserve;
+
+fork
+    :Check Vehicle Availability;
+fork again
+    :Validate Dates;
+fork again
+    :Verify User Authentication;
+end fork
+
+if (Vehicle Available?) then (yes)
+    :Lock Vehicle Temporarily;
+    :Generate Booking ID;
+    :Return Reservation;
+else (no)
+    :Return "Vehicle Unavailable" Error;
+    |User|
+    :Show Error Modal;
+    stop
+endif
+
+|User|
+:Navigate to Payment Page;
+:Enter Card Details;
+:Review Terms & Conditions;
+:Submit Payment;
+
+|System|
+:Validate Card Details;
+
+if (Card Valid?) then (yes)
+    :Call Payment Gateway;
+    |Payment Gateway|
+    if (Payment Successful?) then (yes)
+        |System|
+        :Confirm Booking;
+        :Update Vehicle Status to "Rented";
+        :Send Confirmation Email;
+        |User|
+        :Display Confirmation Page;
+        :Show Booking Reference;
+        stop
+    else (no)
+        |User|
+        :Show "Payment Failed" Error;
+        :Offer Retry;
+        stop
+    endif
+else (no)
+    |User|
+    :Show Validation Errors;
+    stop
+endif
+
+@enduml

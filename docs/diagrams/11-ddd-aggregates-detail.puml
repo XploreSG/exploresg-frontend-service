@@ -1,0 +1,294 @@
+@startuml DDD Aggregates Detail
+skinparam backgroundColor #FEFEFE
+skinparam classAttributeIconSize 0
+
+title Domain-Driven Design - Aggregates in Detail\nBooking Context
+
+' Style definitions
+skinparam class {
+    BackgroundColor<<AggregateRoot>> #FFE6CC
+    BorderColor<<AggregateRoot>> #D79B00
+    BackgroundColor<<Entity>> #DAE8FC
+    BorderColor<<Entity>> #6C8EBF
+    BackgroundColor<<ValueObject>> #D5E8D4
+    BorderColor<<ValueObject>> #82B366
+    BackgroundColor<<DomainService>> #F8CECC
+    BorderColor<<DomainService>> #B85450
+}
+
+package "Booking Aggregate" <<AggregateRoot>> {
+    
+    class Booking <<AggregateRoot>> {
+        - bookingId: BookingId
+        - userId: UserId
+        - vehicleId: VehicleId
+        - bookingRef: BookingReference
+        - status: BookingStatus
+        - period: BookingPeriod
+        - driverDetails: DriverDetails
+        - addOnSelections: List<AddOnSelection>
+        - cdwLevel: CDWLevel
+        - priceBreakdown: PriceBreakdown
+        - createdAt: DateTime
+        - updatedAt: DateTime
+        --
+        + create(vehicle, user, period): Booking
+        + addAddOn(addOn: AddOn): void
+        + removeAddOn(addOnId: AddOnId): void
+        + setDriverDetails(details: DriverDetails): void
+        + calculateTotalPrice(): Money
+        + reserve(): void
+        + confirm(payment: Payment): void
+        + cancel(reason: String): void
+        + canBeCancelled(): Boolean
+        + isInProgress(): Boolean
+        --
+        **Domain Events:**
+        + BookingCreated
+        + BookingReserved
+        + BookingConfirmed
+        + BookingCancelled
+        + BookingModified
+    }
+    
+    class AddOnSelection <<Entity>> {
+        - addOnSelectionId: AddOnSelectionId
+        - addOnId: AddOnId
+        - addOnName: String
+        - price: Money
+        - quantity: Integer
+        - selected: Boolean
+        --
+        + select(): void
+        + deselect(): void
+        + updateQuantity(qty: Integer): void
+        + getTotal(): Money
+    }
+    
+    class BookingPeriod <<ValueObject>> {
+        - pickupDate: DateTime
+        - returnDate: DateTime
+        - pickupTime: Time
+        - returnTime: Time
+        - nights: Integer
+        --
+        + create(pickup, return): BookingPeriod
+        + calculateNights(): Integer
+        + isValid(): Boolean
+        + overlaps(other: BookingPeriod): Boolean
+        + extendBy(days: Integer): BookingPeriod
+    }
+    
+    class DriverDetails <<ValueObject>> {
+        - firstName: String
+        - lastName: String
+        - email: Email
+        - phone: PhoneNumber
+        - dateOfBirth: Date
+        - license: LicenseInfo
+        - emergencyContact: EmergencyContact
+        - address: Address
+        --
+        + validate(): ValidationResult
+        + getAge(): Integer
+        + isLicenseValid(): Boolean
+        + meetsMinimumAge(age: Integer): Boolean
+    }
+    
+    class LicenseInfo <<ValueObject>> {
+        - licenseNumber: String
+        - expiryDate: Date
+        - country: Country
+        - issueDate: Date
+        --
+        + isExpired(): Boolean
+        + isValidFor(bookingPeriod): Boolean
+        + yearsOfExperience(): Integer
+    }
+    
+    class EmergencyContact <<ValueObject>> {
+        - name: String
+        - phone: PhoneNumber
+        - relationship: String
+    }
+    
+    class Address <<ValueObject>> {
+        - street: String
+        - city: String
+        - postalCode: String
+        - country: Country
+    }
+    
+    class PriceBreakdown <<ValueObject>> {
+        - basePrice: Money
+        - cdwPrice: Money
+        - addOnsTotal: Money
+        - totalPrice: Money
+        - currency: Currency
+        --
+        + calculateTotal(): Money
+        + toJSON(): Object
+    }
+    
+    enum BookingStatus <<ValueObject>> {
+        PENDING
+        RESERVED
+        CONFIRMED
+        IN_PROGRESS
+        COMPLETED
+        CANCELLED
+        --
+        + canTransitionTo(status): Boolean
+        + isTerminal(): Boolean
+    }
+    
+    enum CDWLevel <<ValueObject>> {
+        BASIC
+        PLUS
+        MAX
+        --
+        + getPricePerNight(): Money
+        + getDescription(): String
+        + getCoverageAmount(): Money
+    }
+}
+
+package "Domain Services" {
+    
+    class BookingService <<DomainService>> {
+        --
+        + createBooking(vehicle, user, period): Booking
+        + reserveBooking(booking): Result
+        + confirmBooking(booking, payment): Result
+        + cancelBooking(booking, reason): Result
+        + validateBookingRules(booking): ValidationResult
+    }
+    
+    class PricingService <<DomainService>> {
+        --
+        + calculateBookingPrice(booking): PriceBreakdown
+        + calculateCDWPrice(level, nights): Money
+        + calculateAddOnsTotal(selections): Money
+        + applyDiscounts(price, rules): Money
+    }
+    
+    class ValidationService <<DomainService>> {
+        --
+        + validateDriverDetails(details): ValidationResult
+        + validateLicense(license, period): ValidationResult
+        + validateAge(dob, minAge): ValidationResult
+        + validateBookingPeriod(period): ValidationResult
+    }
+    
+    class AvailabilityService <<DomainService>> {
+        --
+        + checkVehicleAvailability(vehicleId, period): Boolean
+        + findAvailableVehicles(criteria): List<Vehicle>
+        + lockVehicle(vehicleId, period): Lock
+        + releaseLock(lockId): void
+    }
+}
+
+package "Repository" {
+    interface BookingRepository <<Repository>> {
+        + save(booking: Booking): void
+        + findById(id: BookingId): Booking
+        + findByUserId(userId: UserId): List<Booking>
+        + findByVehicleId(vehicleId: VehicleId): List<Booking>
+        + findByStatus(status: BookingStatus): List<Booking>
+        + findByDateRange(start, end): List<Booking>
+        + delete(id: BookingId): void
+    }
+}
+
+' Relationships within Aggregate
+Booking "1" *-- "1" BookingPeriod : contains
+Booking "1" *-- "1" DriverDetails : contains
+Booking "1" *-- "0..*" AddOnSelection : includes
+Booking "1" *-- "1" PriceBreakdown : has
+Booking "1" -- "1" BookingStatus : has
+Booking "1" -- "1" CDWLevel : has
+
+DriverDetails "1" *-- "1" LicenseInfo : contains
+DriverDetails "1" *-- "1" EmergencyContact : contains
+DriverDetails "1" *-- "1" Address : contains
+
+' Domain Services use Aggregate
+BookingService ..> Booking : creates/manages
+PricingService ..> Booking : calculates for
+PricingService ..> PriceBreakdown : creates
+ValidationService ..> DriverDetails : validates
+ValidationService ..> BookingPeriod : validates
+AvailabilityService ..> BookingPeriod : checks against
+
+' Repository
+BookingRepository ..> Booking : persists
+
+note right of Booking
+    **Aggregate Root Responsibilities:**
+    
+    1. **Consistency Boundary**
+       - All changes go through root
+       - Maintains invariants
+    
+    2. **Transaction Boundary**
+       - One aggregate per transaction
+       - Atomic operations
+    
+    3. **Identity**
+       - Global identity (BookingId)
+       - Referenced from outside
+    
+    4. **Lifecycle Management**
+       - Controls entities/VOs inside
+       - Enforces business rules
+    
+    **Invariants:**
+    - Booking must have valid period
+    - Driver must be 21+ years old
+    - License must not be expired
+    - Total price must be positive
+    - Status transitions are valid
+end note
+
+note right of AddOnSelection
+    **Entity (Not Aggregate Root)**
+    
+    - Has identity within aggregate
+    - Cannot be referenced from outside
+    - Lifecycle controlled by Booking
+    - Changes validated by root
+end note
+
+note right of BookingPeriod
+    **Value Object**
+    
+    - Immutable
+    - No identity
+    - Equality by value
+    - Replaceable, not updatable
+    - Self-validating
+end note
+
+note right of DriverDetails
+    **Value Object (Complex)**
+    
+    - Groups related data
+    - Contains nested VOs
+    - Encapsulates validation
+    - Domain-specific logic
+end note
+
+note bottom
+    **DDD Aggregate Design Principles:**
+    
+    1. **Small Aggregates**: Keep aggregates small for better performance
+    2. **Reference by ID**: Use IDs to reference other aggregates
+    3. **Consistency**: Enforce invariants within aggregate boundary
+    4. **Eventual Consistency**: Use domain events for cross-aggregate updates
+    5. **Transaction Boundary**: One aggregate per transaction
+    6. **Immutable VOs**: Value Objects should be immutable
+    7. **Rich Behavior**: Behavior in entities, not anemic domain models
+end note
+
+@enduml

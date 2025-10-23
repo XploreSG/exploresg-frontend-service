@@ -8,4 +8,5 @@ dist
 coverage
 Dockerfile*
 docker-compose.yml
+docs/*
 

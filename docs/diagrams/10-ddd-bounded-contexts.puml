@@ -1,0 +1,287 @@
+@startuml DDD Bounded Contexts
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+
+title Domain-Driven Design - Bounded Contexts Map\nExploreSingapore Application
+
+' Define relationship styles
+!define UPSTREAM_DOWNSTREAM(a,b) a -down-> b : <<U, D>>
+!define CUSTOMER_SUPPLIER(a,b) a -down-> b : <<C, S>>
+!define CONFORMIST(a,b) a -down-> b : <<CF>>
+!define ANTICORRUPTION_LAYER(a,b) a -down-> b : <<ACL>>
+!define SHARED_KERNEL(a,b) a -- b : <<SK>>
+!define PARTNERSHIP(a,b) a -- b : <<P>>
+
+Person(user, "User", "Tourist or Local")
+Person(fleet_manager, "Fleet Manager", "Operator Staff")
+Person(admin, "Administrator", "System Admin")
+
+System_Boundary(core_domain, "Core Domain") {
+    
+    System(iam, "Identity & Access\nManagement", "User authentication,\nauthorization, RBAC") {
+        [User Management]
+        [Role Management]
+        [Session Management]
+        [OAuth Integration]
+    }
+    
+    System(vehicle_mgmt, "Vehicle\nManagement", "Vehicle catalog,\navailability, operators") {
+        [Vehicle Catalog]
+        [Operator Management]
+        [Availability Engine]
+        [Search & Filter]
+    }
+    
+    System(booking, "Booking\nManagement", "Car rental bookings,\ndriver validation") {
+        [Booking Workflow]
+        [Driver Validation]
+        [Add-ons Management]
+        [Pricing Engine]
+    }
+}
+
+System_Boundary(supporting_domain, "Supporting Subdomains") {
+    
+    System(fleet_ops, "Fleet\nOperations", "Vehicle tracking,\nmaintenance, analytics") {
+        [GPS Tracking]
+        [Maintenance Scheduling]
+        [Fleet Analytics]
+        [Telematics Integration]
+    }
+    
+    System(tourism, "Tourism\nDiscovery", "Attractions, restaurants,\nevents, maps") {
+        [Attractions Catalog]
+        [Restaurant Directory]
+        [Events Calendar]
+        [Map Integration]
+    }
+    
+    System(personalization, "Personalization", "User preferences,\nrecommendations") {
+        [Your Day Dashboard]
+        [Weather Integration]
+        [Preferences Management]
+    }
+}
+
+System_Boundary(generic_subdomain, "Generic Subdomains") {
+    
+    System(payment, "Payment\nProcessing", "Payment gateway\nintegration") {
+        [Payment Processing]
+        [Refund Management]
+        [Transaction History]
+    }
+    
+    System(notification, "Notification\nService", "Email, SMS,\npush notifications") {
+        [Email Service]
+        [SMS Service]
+        [Push Notifications]
+    }
+    
+    System(audit, "Audit &\nLogging", "System logs,\naudit trails") {
+        [Audit Log]
+        [System Monitoring]
+        [Error Tracking]
+    }
+}
+
+System_Ext(google, "Google OAuth", "External Auth")
+System_Ext(stripe, "Stripe", "Payment Gateway")
+System_Ext(eagle, "Eagle IoT", "GPS Platform")
+System_Ext(mapbox, "Mapbox", "Maps Service")
+System_Ext(weather_api, "Open-Meteo", "Weather API")
+
+' User Interactions
+user --> iam : "Sign in"
+user --> vehicle_mgmt : "Browse vehicles"
+user --> booking : "Make booking"
+user --> tourism : "Explore Singapore"
+user --> personalization : "View dashboard"
+fleet_manager --> fleet_ops : "Monitor fleet"
+admin --> iam : "Manage users"
+
+' Core Domain Relationships - CUSTOMER/SUPPLIER pattern
+CUSTOMER_SUPPLIER(iam, vehicle_mgmt)
+note on link
+    IAM provides user context
+    Vehicle Mgmt uses for authorization
+end note
+
+CUSTOMER_SUPPLIER(iam, booking)
+note on link
+    IAM authenticates users
+    Booking validates user roles
+end note
+
+CUSTOMER_SUPPLIER(vehicle_mgmt, booking)
+note on link
+    Vehicle Mgmt provides availability
+    Booking reserves vehicles
+end note
+
+CUSTOMER_SUPPLIER(booking, payment)
+note on link
+    Booking triggers payment
+    Payment confirms transaction
+end note
+
+' Supporting Domain Relationships - CONFORMIST pattern
+CONFORMIST(fleet_ops, vehicle_mgmt)
+note on link
+    Fleet Ops conforms to
+    Vehicle Mgmt's vehicle model
+end note
+
+UPSTREAM_DOWNSTREAM(vehicle_mgmt, fleet_ops)
+note on link
+    Vehicle status updates
+    flow to Fleet Ops
+end note
+
+' Supporting to Core - ANTICORRUPTION LAYER
+ANTICORRUPTION_LAYER(tourism, personalization)
+note on link
+    Personalization uses ACL
+    to integrate tourism data
+end note
+
+' Generic Subdomain Relationships
+booking --> notification : "Send confirmations"
+payment --> notification : "Payment receipts"
+iam --> audit : "Log auth events"
+booking --> audit : "Log bookings"
+payment --> audit : "Log transactions"
+
+' External System Integrations
+iam --> google : "OAuth 2.0"
+payment --> stripe : "Process payments"
+fleet_ops --> eagle : "WebSocket GPS"
+tourism --> mapbox : "Map tiles"
+personalization --> weather_api : "Weather data"
+
+' Shared Kernel (if any)
+SHARED_KERNEL(vehicle_mgmt, fleet_ops)
+note on link
+    Shared: Vehicle entity,
+    Status enum, Operator
+end note
+
+note right of iam
+    **Context: Identity & Access Management**
+    
+    **Bounded by:**
+    - User lifecycle
+    - Authentication flows
+    - Authorization rules
+    
+    **Ubiquitous Language:**
+    - User, Role, Permission
+    - OAuth, JWT, Session
+    - RBAC (Role-Based Access Control)
+    
+    **Strategic Pattern:**
+    - Core Domain
+    - Customer/Supplier with others
+end note
+
+note right of vehicle_mgmt
+    **Context: Vehicle Management**
+    
+    **Bounded by:**
+    - Vehicle catalog
+    - Operator management
+    - Availability logic
+    
+    **Ubiquitous Language:**
+    - Vehicle, Model, Operator
+    - Availability, Pricing
+    - Transmission, Features
+    
+    **Strategic Pattern:**
+    - Core Domain
+    - Shared Kernel with Fleet Ops
+end note
+
+note right of booking
+    **Context: Booking Management**
+    
+    **Bounded by:**
+    - Booking lifecycle
+    - Driver validation
+    - Price calculation
+    
+    **Ubiquitous Language:**
+    - Booking, Reservation
+    - Driver, License
+    - CDW, Add-on, Total Price
+    
+    **Strategic Pattern:**
+    - Core Domain
+    - Complex business rules
+end note
+
+note right of fleet_ops
+    **Context: Fleet Operations**
+    
+    **Bounded by:**
+    - GPS tracking
+    - Maintenance scheduling
+    - Fleet analytics
+    
+    **Ubiquitous Language:**
+    - Fleet Vehicle, GPS Location
+    - Maintenance, Odometer
+    - Telematics, Eagle Device
+    
+    **Strategic Pattern:**
+    - Supporting Subdomain
+    - Real-time operations
+end note
+
+note right of payment
+    **Context: Payment Processing**
+    
+    **Bounded by:**
+    - Payment lifecycle
+    - Gateway integration
+    - Refund processing
+    
+    **Ubiquitous Language:**
+    - Payment, Transaction
+    - Card, Stripe
+    - Refund, Receipt
+    
+    **Strategic Pattern:**
+    - Generic Subdomain
+    - Third-party integration
+end note
+
+note bottom
+    **Context Relationship Patterns:**
+    
+    <<U, D>> Upstream/Downstream
+    - One context depends on another
+    - Upstream has more influence
+    
+    <<C, S>> Customer/Supplier
+    - Customer's needs drive the supplier
+    - Well-defined interface
+    
+    <<CF>> Conformist
+    - Downstream conforms to upstream model
+    - No translation layer
+    
+    <<ACL>> Anticorruption Layer
+    - Translation layer protects domain
+    - Prevents external model pollution
+    
+    <<SK>> Shared Kernel
+    - Explicit shared code/data
+    - Changes affect both contexts
+    
+    <<P>> Partnership
+    - Both teams coordinate changes
+    - Mutual dependency
+end note
+
+@enduml
