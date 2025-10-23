@@ -14,6 +14,9 @@ import AttractionsPage from "./pages/AttractionsPage";
 import FoodPage from "./pages/FoodPage";
 import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
 import UserVehicleBrowsePage from "./pages/UserVehicleBrowsePage";
 import SignInPage from "./pages/SignInPage";
 import YourDayPage from "./pages/YourDayPage";
@@ -50,6 +53,9 @@ const App = () => {
               <Route path="/food" element={<FoodPage />} />
               <Route path="/events" element={<EventsPage />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
               <Route path="/login" element={<SignInPage />} />
               <Route path="/explore" element={<ExplorePage />} />
               <Route

@@ -76,6 +76,10 @@ const AboutPage: React.FC = () => {
   const teamRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     const ctx = gsap.context(() => {
       // Hero section entrance
       gsap.from(heroRef.current, {
@@ -242,7 +246,7 @@ const AboutPage: React.FC = () => {
       <ClientsSection />
 
       {/* Team Section */}
-      <section ref={teamRef} className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <section id="our-team" ref={teamRef} className="px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 text-center">
             <h2
