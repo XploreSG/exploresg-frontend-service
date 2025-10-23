@@ -48,13 +48,14 @@ const Footer: React.FC = () => {
               </h3>
               <ul className="mt-3 space-y-2 sm:mt-4">
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/"
+                    onClick={() => window.scrollTo(0, 0)}
                     className="text-gray-600 transition-colors hover:text-teal-600"
                     style={{ fontSize: "clamp(0.875rem, 2vw, 0.938rem)" }}
                   >
                     Home
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a
@@ -105,31 +106,31 @@ const Footer: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/contact"
                     className="text-gray-600 transition-colors hover:text-teal-600"
                     style={{ fontSize: "clamp(0.875rem, 2vw, 0.938rem)" }}
                   >
                     Contact
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/privacy-policy"
                     className="text-gray-600 transition-colors hover:text-teal-600"
                     style={{ fontSize: "clamp(0.875rem, 2vw, 0.938rem)" }}
                   >
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/terms-of-service"
                     className="text-gray-600 transition-colors hover:text-teal-600"
                     style={{ fontSize: "clamp(0.875rem, 2vw, 0.938rem)" }}
                   >
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
