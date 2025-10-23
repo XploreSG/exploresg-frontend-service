@@ -34,92 +34,106 @@ import AccessDeniedPage from "./pages/AccessDeniedPage";
 import BookingFlow from "./pages/BookingFlow";
 import EagleViewPage from "./pages/EagleViewPage";
 import { BookingProvider } from "./contexts/BookingProvider";
+import { ConfirmedBookingsProvider } from "./contexts/ConfirmedBookingsContext";
 
 const App = () => {
   return (
     <BookingProvider>
-      <Router>
-        {/* RouteChangeHandler must be inside Router so useLocation() is valid */}
-        <RouteChangeHandler />
-        <div className="flex min-h-screen flex-col">
-          <RoleBanner />
-          <Navbar />
-          <main className="relative flex-1">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/rentals" element={<UserVehicleBrowsePage />} />
-              <Route path="/attractions" element={<AttractionsPage />} />
-              <Route path="/food" element={<FoodPage />} />
-              <Route path="/events" element={<EventsPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-              <Route path="/login" element={<SignInPage />} />
-              <Route path="/explore" element={<ExplorePage />} />
-              <Route
-                path="/signup"
-                element={
-                  <SignUpForm
-                    onSubmit={(data: SignupDetails) => {
-                      // TODO: handle sign up form submission
-                      console.log("Sign up data:", data);
-                    }}
-                  />
-                }
-              />
-              <Route path="/test" element={<TestPage />} />
-
-              {/* Protected Routes - Only for USER role */}
-              <Route element={<ProtectedRoleRoute allowedRoles={["USER"]} />}>
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/yourday" element={<YourDayPage />} />
-                <Route path="/booking/:carId/*" element={<BookingFlow />} />
-              </Route>
-
-              {/* Role-Specific Routes (Admin and Fleet Manager) */}
-              <Route
-                element={
-                  <ProtectedRoleRoute
-                    allowedRoles={["ADMIN", "MANAGER", "FLEET_MANAGER"]}
-                  />
-                }
-              >
+      <ConfirmedBookingsProvider>
+        <Router>
+          {/* RouteChangeHandler must be inside Router so useLocation() is valid */}
+          <RouteChangeHandler />
+          <div className="flex min-h-screen flex-col">
+            <RoleBanner />
+            <Navbar />
+            <main className="relative flex-1">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/rentals" element={<UserVehicleBrowsePage />} />
+                <Route path="/attractions" element={<AttractionsPage />} />
+                <Route path="/food" element={<FoodPage />} />
+                <Route path="/events" element={<EventsPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route
-                  path="/manager/dashboard"
-                  element={<FleetAdminDashboardPage />}
+                  path="/terms-of-service"
+                  element={<TermsOfServicePage />}
                 />
-                <Route path="/manager/fleet" element={<FleetAdminListPage />} />
+                <Route path="/login" element={<SignInPage />} />
+                <Route path="/explore" element={<ExplorePage />} />
                 <Route
-                  path="/manager/fleet/:id"
-                  element={<FleetDetailPage />}
+                  path="/signup"
+                  element={
+                    <SignUpForm
+                      onSubmit={(data: SignupDetails) => {
+                        // TODO: handle sign up form submission
+                        console.log("Sign up data:", data);
+                      }}
+                    />
+                  }
                 />
-              </Route>
+                <Route path="/test" element={<TestPage />} />
 
-              {/* Fleet Admin + Fleet Manager Eagle View */}
-              <Route
-                element={
-                  <ProtectedRoleRoute
-                    allowedRoles={["FLEET_ADMIN", "FLEET_MANAGER"]}
+                {/* Protected Routes - Only for USER role */}
+                <Route element={<ProtectedRoleRoute allowedRoles={["USER"]} />}>
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/yourday" element={<YourDayPage />} />
+                  <Route path="/booking/:carId/*" element={<BookingFlow />} />
+                </Route>
+
+                {/* Role-Specific Routes (Admin and Fleet Manager) */}
+                <Route
+                  element={
+                    <ProtectedRoleRoute
+                      allowedRoles={["ADMIN", "MANAGER", "FLEET_MANAGER"]}
+                    />
+                  }
+                >
+                  <Route
+                    path="/manager/dashboard"
+                    element={<FleetAdminDashboardPage />}
                   />
-                }
-              >
-                <Route path="/manager/eagle-view" element={<EagleViewPage />} />
-              </Route>
+                  <Route
+                    path="/manager/fleet"
+                    element={<FleetAdminListPage />}
+                  />
+                  <Route
+                    path="/manager/fleet/:id"
+                    element={<FleetDetailPage />}
+                  />
+                </Route>
 
-              {/* Role-Specific Routes (Admin only) */}
-              <Route element={<ProtectedRoleRoute allowedRoles={["ADMIN"]} />}>
-                <Route path="/admin/console" element={<AdminConsole />} />
-              </Route>
+                {/* Fleet Admin + Fleet Manager Eagle View */}
+                <Route
+                  element={
+                    <ProtectedRoleRoute
+                      allowedRoles={["FLEET_ADMIN", "FLEET_MANAGER"]}
+                    />
+                  }
+                >
+                  <Route
+                    path="/manager/eagle-view"
+                    element={<EagleViewPage />}
+                  />
+                </Route>
 
-              {/* Fallback route for unauthorized access */}
-              <Route path="/access-denied" element={<AccessDeniedPage />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
+                {/* Role-Specific Routes (Admin only) */}
+                <Route
+                  element={<ProtectedRoleRoute allowedRoles={["ADMIN"]} />}
+                >
+                  <Route path="/admin/console" element={<AdminConsole />} />
+                </Route>
+
+                {/* Fallback route for unauthorized access */}
+                <Route path="/access-denied" element={<AccessDeniedPage />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </ConfirmedBookingsProvider>
     </BookingProvider>
   );
 };
