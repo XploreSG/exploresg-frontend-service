@@ -1,0 +1,241 @@
+@startuml DDD Logical Architecture
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Domain-Driven Design - Logical Architecture\nExploreSingapore Application
+
+' Define custom styles for DDD elements
+AddElementTag("aggregate", $bgColor="#FFE6CC", $borderColor="#D79B00")
+AddElementTag("entity", $bgColor="#DAE8FC", $borderColor="#6C8EBF")
+AddElementTag("valueObject", $bgColor="#D5E8D4", $borderColor="#82B366")
+AddElementTag("domainService", $bgColor="#F8CECC", $borderColor="#B85450")
+AddElementTag("repository", $bgColor="#E1D5E7", $borderColor="#9673A6")
+AddElementTag("applicationService", $bgColor="#FFF2CC", $borderColor="#D6B656")
+
+' Bounded Context: Identity & Access Management
+Boundary(iam_context, "Identity & Access Management Context") {
+    
+    Component(user_aggregate, "User Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(user_entity, "User", "Entity", "userId, email, profile", $tags="entity")
+        Component(user_role, "UserRole", "Entity", "Role assignment", $tags="entity")
+        Component(user_preferences, "UserPreferences", "Value Object", "Language, notifications", $tags="valueObject")
+    }
+    
+    Component(auth_service, "AuthenticationService", "Domain Service", "OAuth, JWT, Session", $tags="domainService")
+    Component(authorization_service, "AuthorizationService", "Domain Service", "RBAC, Permissions", $tags="domainService")
+    Component(user_repository, "UserRepository", "Repository", "User persistence", $tags="repository")
+}
+
+' Bounded Context: Vehicle Management
+Boundary(vehicle_context, "Vehicle Management Context") {
+    
+    Component(vehicle_aggregate, "Vehicle Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(vehicle_entity, "Vehicle", "Entity", "vehicleId, model, status", $tags="entity")
+        Component(vehicle_pricing, "Pricing", "Value Object", "price, currency", $tags="valueObject")
+        Component(vehicle_features, "Features", "Value Object", "seats, transmission", $tags="valueObject")
+        Component(availability, "Availability", "Value Object", "status, dates", $tags="valueObject")
+    }
+    
+    Component(operator_aggregate, "Operator Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(operator_entity, "Operator", "Entity", "operatorId, name", $tags="entity")
+        Component(operator_branding, "Branding", "Value Object", "colors, logo", $tags="valueObject")
+    }
+    
+    Component(vehicle_catalog_service, "VehicleCatalogService", "Domain Service", "Search, Filter", $tags="domainService")
+    Component(vehicle_repository, "VehicleRepository", "Repository", "Vehicle persistence", $tags="repository")
+    Component(operator_repository, "OperatorRepository", "Repository", "Operator persistence", $tags="repository")
+}
+
+' Bounded Context: Booking Management
+Boundary(booking_context, "Booking Management Context") {
+    
+    Component(booking_aggregate, "Booking Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(booking_entity, "Booking", "Entity", "bookingId, status", $tags="entity")
+        Component(driver_details, "DriverDetails", "Value Object", "name, license", $tags="valueObject")
+        Component(booking_period, "BookingPeriod", "Value Object", "pickup, return, nights", $tags="valueObject")
+        Component(price_breakdown, "PriceBreakdown", "Value Object", "base, CDW, addons", $tags="valueObject")
+        Component(addon_selection, "AddOnSelection", "Entity", "Selected extras", $tags="entity")
+    }
+    
+    Component(addon_aggregate, "AddOn Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(addon_entity, "AddOn", "Entity", "addOnId, name, price", $tags="entity")
+        Component(addon_category, "Category", "Value Object", "Insurance, Equipment", $tags="valueObject")
+    }
+    
+    Component(booking_service, "BookingService", "Domain Service", "Create, Modify, Cancel", $tags="domainService")
+    Component(pricing_service, "PricingService", "Domain Service", "Calculate total", $tags="domainService")
+    Component(validation_service, "ValidationService", "Domain Service", "Driver age, license", $tags="domainService")
+    Component(booking_repository, "BookingRepository", "Repository", "Booking persistence", $tags="repository")
+    Component(addon_repository, "AddOnRepository", "Repository", "AddOn persistence", $tags="repository")
+}
+
+' Bounded Context: Fleet Operations
+Boundary(fleet_context, "Fleet Operations Context") {
+    
+    Component(fleet_vehicle_aggregate, "FleetVehicle Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(fleet_vehicle_entity, "FleetVehicle", "Entity", "fleetId, operatorId", $tags="entity")
+        Component(gps_location, "GPSLocation", "Value Object", "lat, lng, timestamp", $tags="valueObject")
+        Component(vehicle_status, "VehicleStatus", "Value Object", "Available, Rented, etc", $tags="valueObject")
+        Component(maintenance_record, "MaintenanceRecord", "Entity", "History, schedule", $tags="entity")
+        Component(telematics_data, "TelematicsData", "Value Object", "speed, fuel, odometer", $tags="valueObject")
+    }
+    
+    Component(tracking_service, "TrackingService", "Domain Service", "GPS updates, history", $tags="domainService")
+    Component(maintenance_service, "MaintenanceService", "Domain Service", "Schedule, alerts", $tags="domainService")
+    Component(analytics_service, "AnalyticsService", "Domain Service", "Reports, metrics", $tags="domainService")
+    Component(fleet_repository, "FleetRepository", "Repository", "Fleet persistence", $tags="repository")
+}
+
+' Bounded Context: Payment Processing
+Boundary(payment_context, "Payment Processing Context") {
+    
+    Component(payment_aggregate, "Payment Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(payment_entity, "Payment", "Entity", "paymentId, amount", $tags="entity")
+        Component(card_info, "CardInfo", "Value Object", "last4, brand", $tags="valueObject")
+        Component(payment_status_vo, "PaymentStatus", "Value Object", "Pending, Paid, Failed", $tags="valueObject")
+        Component(refund, "Refund", "Entity", "Refund records", $tags="entity")
+    }
+    
+    Component(payment_service, "PaymentService", "Domain Service", "Process, Refund", $tags="domainService")
+    Component(payment_repository, "PaymentRepository", "Repository", "Payment persistence", $tags="repository")
+}
+
+' Bounded Context: Tourism Discovery
+Boundary(tourism_context, "Tourism Discovery Context") {
+    
+    Component(attraction_aggregate, "Attraction Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(attraction_entity, "Attraction", "Entity", "attractionId, name", $tags="entity")
+        Component(location_vo, "Location", "Value Object", "address, coordinates", $tags="valueObject")
+        Component(opening_hours, "OpeningHours", "Value Object", "schedule", $tags="valueObject")
+    }
+    
+    Component(restaurant_aggregate, "Restaurant Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(restaurant_entity, "Restaurant", "Entity", "restaurantId, cuisine", $tags="entity")
+    }
+    
+    Component(event_aggregate, "Event Aggregate", "Aggregate Root", $tags="aggregate") {
+        Component(event_entity, "Event", "Entity", "eventId, date", $tags="entity")
+    }
+    
+    Component(tourism_repository, "TourismRepository", "Repository", "Tourism data", $tags="repository")
+}
+
+' Application Services Layer
+Boundary(application_layer, "Application Services Layer") {
+    Component(booking_app_service, "BookingApplicationService", "App Service", "Orchestrate booking flow", $tags="applicationService")
+    Component(fleet_app_service, "FleetApplicationService", "App Service", "Orchestrate fleet ops", $tags="applicationService")
+    Component(user_app_service, "UserApplicationService", "App Service", "User management", $tags="applicationService")
+    Component(payment_app_service, "PaymentApplicationService", "App Service", "Payment orchestration", $tags="applicationService")
+}
+
+' Infrastructure Layer
+Boundary(infrastructure_layer, "Infrastructure Layer") {
+    ComponentDb(postgres_db, "PostgreSQL", "Database", "Users, Bookings, Payments")
+    ComponentDb(mongodb, "MongoDB", "Database", "Fleet, GPS History")
+    ComponentDb(redis, "Redis", "Cache", "Sessions, Catalog Cache")
+    Component(event_bus, "Event Bus", "Infrastructure", "Domain Events")
+}
+
+' External Systems
+Boundary(external_systems, "External Systems") {
+    Component_Ext(google_oauth, "Google OAuth", "External", "Authentication")
+    Component_Ext(stripe_gateway, "Stripe", "External", "Payment Gateway")
+    Component_Ext(eagle_iot, "Eagle IoT", "External", "GPS Tracking")
+    Component_Ext(mapbox, "Mapbox", "External", "Maps")
+}
+
+' Context Relationships
+Rel(iam_context, vehicle_context, "User browses vehicles")
+Rel(iam_context, booking_context, "User creates booking")
+Rel(vehicle_context, booking_context, "Vehicle availability")
+Rel(booking_context, payment_context, "Booking requires payment")
+Rel(vehicle_context, fleet_context, "Vehicle tracked in fleet")
+Rel(iam_context, fleet_context, "Fleet manager monitors")
+
+' Application Service Relationships
+Rel(booking_app_service, booking_service, "Uses")
+Rel(booking_app_service, vehicle_catalog_service, "Uses")
+Rel(booking_app_service, pricing_service, "Uses")
+Rel(booking_app_service, payment_service, "Uses")
+Rel(fleet_app_service, tracking_service, "Uses")
+Rel(fleet_app_service, maintenance_service, "Uses")
+Rel(fleet_app_service, analytics_service, "Uses")
+Rel(user_app_service, auth_service, "Uses")
+Rel(user_app_service, authorization_service, "Uses")
+
+' Repository to Infrastructure
+Rel(user_repository, postgres_db, "Persists")
+Rel(vehicle_repository, postgres_db, "Persists")
+Rel(booking_repository, postgres_db, "Persists")
+Rel(payment_repository, postgres_db, "Persists")
+Rel(fleet_repository, mongodb, "Persists")
+Rel(vehicle_catalog_service, redis, "Caches")
+
+' External System Integrations
+Rel(auth_service, google_oauth, "Authenticates")
+Rel(payment_service, stripe_gateway, "Processes")
+Rel(tracking_service, eagle_iot, "Streams from")
+Rel(tourism_repository, mapbox, "Geocodes")
+
+' Domain Events
+Rel(booking_aggregate, event_bus, "BookingCreated")
+Rel(booking_aggregate, event_bus, "BookingConfirmed")
+Rel(booking_aggregate, event_bus, "BookingCancelled")
+Rel(payment_aggregate, event_bus, "PaymentProcessed")
+Rel(fleet_vehicle_aggregate, event_bus, "VehicleLocationUpdated")
+Rel(vehicle_aggregate, event_bus, "VehicleStatusChanged")
+
+SHOW_LEGEND()
+
+note right of iam_context
+    **Strategic Design:**
+    - Core Domain
+    - Handles authentication & authorization
+    - RBAC implementation
+    - User profile management
+end note
+
+note right of vehicle_context
+    **Strategic Design:**
+    - Core Domain
+    - Vehicle catalog management
+    - Multi-operator support
+    - Availability tracking
+end note
+
+note right of booking_context
+    **Strategic Design:**
+    - Core Domain
+    - Complex business rules
+    - Multi-step workflow
+    - Price calculations
+    - Validation logic
+end note
+
+note right of fleet_context
+    **Strategic Design:**
+    - Supporting Domain
+    - Real-time GPS tracking
+    - Maintenance scheduling
+    - Analytics & reporting
+end note
+
+note right of payment_context
+    **Strategic Design:**
+    - Generic Subdomain
+    - Payment processing
+    - Integration with Stripe
+    - Refund handling
+end note
+
+note right of tourism_context
+    **Strategic Design:**
+    - Supporting Domain
+    - Content management
+    - Location-based services
+end note
+
+@enduml

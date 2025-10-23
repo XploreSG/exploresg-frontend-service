@@ -1,0 +1,109 @@
+@startuml Timing Diagram - Real-Time GPS Tracking
+title Timing Diagram - Real-Time GPS Tracking Updates
+
+robust "Vehicle GPS Device" as vehicle
+concise "Eagle IoT Platform" as eagle
+concise "Backend WebSocket" as backend
+concise "React Frontend" as frontend
+concise "Mapbox Map" as map
+
+@0
+vehicle is "Idle"
+eagle is "Connected"
+backend is "Listening"
+frontend is "Initialized"
+map is "Rendered"
+
+@+2000
+vehicle is "Moving"
+note bottom
+    Vehicle starts journey
+    GPS device activates
+end note
+
+@+1000
+vehicle is "Moving"
+eagle is "Receiving"
+note bottom
+    GPS device sends location
+    lat: 1.3521, lng: 103.8198
+end note
+
+@+500
+vehicle is "Moving"
+eagle is "Processing"
+backend is "Receiving"
+note bottom
+    Eagle IoT processes data
+    and broadcasts to WebSocket
+end note
+
+@+300
+vehicle is "Moving"
+eagle is "Connected"
+backend is "Broadcasting"
+frontend is "Updating"
+note bottom
+    Frontend receives WebSocket message
+    {vehicleId, lat, lng, speed, heading}
+end note
+
+@+200
+vehicle is "Moving"
+backend is "Listening"
+frontend is "Rendering"
+map is "Updating"
+note bottom
+    Mapbox marker position updated
+    Animation: smooth transition
+end note
+
+@+1000
+vehicle is "Moving"
+map is "Rendered"
+note bottom
+    2-second cycle complete
+    Next update begins
+end note
+
+' Repeat cycle
+@+2000
+vehicle is "Moving"
+eagle is "Receiving"
+
+@+500
+vehicle is "Moving"
+eagle is "Processing"
+backend is "Receiving"
+
+@+300
+vehicle is "Moving"
+eagle is "Connected"
+backend is "Broadcasting"
+frontend is "Updating"
+
+@+200
+vehicle is "Moving"
+backend is "Listening"
+frontend is "Rendering"
+map is "Updating"
+
+@+1000
+vehicle is "Stopped"
+note bottom
+    Vehicle stops
+    Final position update
+end note
+
+@+2000
+vehicle is "Idle"
+eagle is "Connected"
+backend is "Listening"
+frontend is "Idle"
+map is "Rendered"
+note bottom
+    No more updates
+    Marker stays at last position
+end note
+
+@enduml

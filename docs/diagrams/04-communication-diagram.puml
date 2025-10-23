@@ -1,0 +1,58 @@
+@startuml Communication Diagram - User Authentication
+title Communication Diagram - Google OAuth Authentication Flow
+
+object ":User" as user
+object ":Browser\n(React SPA)" as browser
+object ":AuthContext" as authcontext
+object ":Google\nOAuth Service" as google
+object ":Backend\nAPI" as backend
+object ":JWT\nUtils" as jwt
+object ":localStorage" as storage
+object ":Database" as db
+
+user -> browser : 1: Click "Sign in with Google"
+browser -> google : 2: Redirect to OAuth consent
+google -> user : 3: Show consent screen
+user -> google : 4: Approve permissions
+google -> browser : 5: Redirect with auth code
+browser -> backend : 6: POST /api/auth/google\n{authorization_code}
+backend -> google : 7: Validate auth code
+google -> backend : 8: Return user profile\n{email, name, picture}
+backend -> db : 9: Check/Create user
+db -> backend : 10: Return user data
+backend -> jwt : 11: Generate JWT token
+jwt -> backend : 12: Return signed token
+backend -> browser : 13: Return {token, user}
+browser -> storage : 14: Store token & user
+storage -> browser : 15: Stored
+browser -> authcontext : 16: Update auth state
+authcontext -> browser : 17: State updated
+browser -> user : 18: Redirect to dashboard
+
+note right of google
+    OAuth 2.0 Flow:
+    - Authorization Code Grant
+    - Scopes: email, profile, openid
+end note
+
+note right of jwt
+    JWT Payload:
+    {
+      "userId": "uuid",
+      "email": "user@example.com",
+      "roles": ["ROLE_USER"],
+      "iat": timestamp,
+      "exp": timestamp
+    }
+end note
+
+note bottom
+    Data Flow:
+    1-5: OAuth authorization
+    6-8: Token validation
+    9-10: User management
+    11-12: Token generation
+    13-18: Client-side storage & state update
+end note
+
+@enduml
