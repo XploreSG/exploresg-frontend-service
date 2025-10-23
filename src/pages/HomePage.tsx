@@ -1,10 +1,12 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import StatsSection from "../components/StatsSection";
 import TestimonialsSection from "../components/TestimonialsSection";
 import FeaturesSection from "../components/FeaturesSection";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
   const featuresAnimation = useScrollAnimation();
   const statsAnimation = useScrollAnimation();
   const testimonialsAnimation = useScrollAnimation();
@@ -60,12 +62,14 @@ const HomePage: React.FC = () => {
           {/* CTA Buttons */}
           <div className="hero-animate mb-8 flex flex-col items-center gap-3 delay-300 sm:mb-12 sm:flex-row sm:justify-center sm:gap-4">
             <button
+              onClick={() => navigate('/rentals')}
               className="w-full rounded-md bg-indigo-600 px-6 py-2.5 font-semibold text-white shadow hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none sm:w-auto sm:px-8 sm:py-3"
               style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}
             >
               Start Exploring
             </button>
             <button
+              onClick={() => navigate('/about')}
               className="w-full rounded-md bg-white px-6 py-2.5 font-semibold text-indigo-700 hover:bg-indigo-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none sm:w-auto sm:px-8 sm:py-3"
               style={{ fontSize: "clamp(0.875rem, 1.5vw, 1rem)" }}
             >
