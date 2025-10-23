@@ -58,31 +58,34 @@ const Footer: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/attractions"
+                    onClick={() => window.scrollTo(0, 0)}
                     className="text-gray-600 transition-colors hover:text-teal-600"
                     style={{ fontSize: "clamp(0.875rem, 2vw, 0.938rem)" }}
                   >
                     Attractions
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/food"
+                    onClick={() => window.scrollTo(0, 0)}
                     className="text-gray-600 transition-colors hover:text-teal-600"
                     style={{ fontSize: "clamp(0.875rem, 2vw, 0.938rem)" }}
                   >
                     Food & Dining
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
+                  <Link
+                    to="/events"
+                    onClick={() => window.scrollTo(0, 0)}
                     className="text-gray-600 transition-colors hover:text-teal-600"
                     style={{ fontSize: "clamp(0.875rem, 2vw, 0.938rem)" }}
                   >
                     Events
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

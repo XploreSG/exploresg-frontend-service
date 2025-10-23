@@ -327,6 +327,7 @@ const YourDayPage = () => {
                   </button>
                 </div>
                 <div className="flex-1">
+                <div className="flex-1">
                   <img
                     src="https://images.unsplash.com/photo-1551782450-17144efb9c50?auto=format&fit=crop&w=400&q=80"
                     alt="Maxwell Food Centre"
@@ -345,6 +346,8 @@ const YourDayPage = () => {
                     <span className="text-gray-400">(1,234)</span>
                     <span className="text-gray-400">• 0.8 km</span>
                   </div>
+                  <button className="mt-2 w-full rounded-lg border border-blue-600 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50">
+                    Book Table
                   <button className="mt-2 w-full rounded-lg border border-blue-600 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50">
                     Book Table
                   </button>

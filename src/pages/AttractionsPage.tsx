@@ -1,70 +1,156 @@
-import React from "react";
+import React, { useRef } from "react";
+import FilterablePage from "../components/FilterablePage";
+import ContentCard from "../components/ContentCard";
+import { useFilter } from "../hooks/useFilter";
 
 const AttractionsPage: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900">Attractions</h1>
-          <p className="mt-4 text-xl text-gray-600">
-            Discover Singapore's most iconic landmarks and hidden gems
-          </p>
-        </div>
+  const heroRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const { selectedFilter: selectedCategory, handleFilterChange: handleCategoryClick, resetFilter } = useFilter({ initialFilter: "All" });
 
-        <div className="mt-16 rounded-lg bg-white p-12 shadow-lg">
-          <div className="text-center">
-            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
-              <span className="text-4xl">🏛️</span>
-            </div>
-            <h2 className="mt-6 text-2xl font-semibold text-gray-900">
-              Coming Soon
-            </h2>
-            <p className="mt-4 text-gray-600">
-              We're working hard to bring you the best attractions in Singapore.
-              Stay tuned for amazing experiences!
-            </p>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-lg bg-gray-50 p-4">
-                <h3 className="font-semibold text-gray-900">
-                  Marina Bay Sands
-                </h3>
-                <p className="text-sm text-gray-600">Iconic skyline landmark</p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-4">
-                <h3 className="font-semibold text-gray-900">
-                  Gardens by the Bay
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Futuristic botanical wonder
-                </p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-4">
-                <h3 className="font-semibold text-gray-900">Merlion Park</h3>
-                <p className="text-sm text-gray-600">
-                  Singapore's national symbol
-                </p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-4">
-                <h3 className="font-semibold text-gray-900">Singapore Zoo</h3>
-                <p className="text-sm text-gray-600">
-                  Award-winning wildlife park
-                </p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-4">
-                <h3 className="font-semibold text-gray-900">Sentosa Island</h3>
-                <p className="text-sm text-gray-600">Resort destination</p>
-              </div>
-              <div className="rounded-lg bg-gray-50 p-4">
-                <h3 className="font-semibold text-gray-900">Chinatown</h3>
-                <p className="text-sm text-gray-600">
-                  Cultural heritage district
-                </p>
-              </div>
-            </div>
-          </div>
+  const attractions = [
+    {
+      id: 1,
+      name: "Marina Bay Sands",
+      description: "Iconic integrated resort with luxury hotel, casino, shopping mall, and the famous infinity pool.",
+      image: "/assets/attractions/marina-bay-sands.jpg",
+      rating: 4.5,
+      reviews: 12500,
+      location: "Marina Bay",
+      category: "Landmark",
+      price: "S$20-50"
+    },
+    {
+      id: 2,
+      name: "Gardens by the Bay",
+      description: "Award-winning nature park featuring the iconic Supertree Grove and climate-controlled conservatories.",
+      image: "/assets/attractions/gardens-by-the-bay.jpg",
+      rating: 4.7,
+      reviews: 18900,
+      location: "Marina Bay",
+      category: "Nature",
+      price: "S$8-28"
+    },
+    {
+      id: 3,
+      name: "Singapore Flyer",
+      description: "One of the world's largest observation wheels offering panoramic views of Singapore's skyline.",
+      image: "/assets/attractions/singapore-flyer.jpg",
+      rating: 4.2,
+      reviews: 8900,
+      location: "Marina Bay",
+      category: "Landmark",
+      price: "S$33"
+    },
+    {
+      id: 4,
+      name: "Universal Studios Singapore",
+      description: "Southeast Asia's only Universal Studios theme park with thrilling rides and attractions.",
+      image: "/assets/attractions/sentosa-island.jpg",
+      rating: 4.4,
+      reviews: 25600,
+      location: "Sentosa Island",
+      category: "Theme Park",
+      price: "S$79-89"
+    },
+    {
+      id: 5,
+      name: "Singapore Zoo",
+      description: "World-renowned zoo featuring over 2,800 animals in naturalistic habitats.",
+      image: "/assets/attractions/singapore-zoo.jpg",
+      rating: 4.6,
+      reviews: 15200,
+      location: "Mandai",
+      category: "Nature",
+      price: "S$37-41"
+    },
+    {
+      id: 6,
+      name: "Chinatown",
+      description: "Historic district with traditional shophouses, temples, and authentic Chinese cuisine.",
+      image: "/assets/attractions/chinatown.jpg",
+      rating: 4.3,
+      reviews: 9800,
+      location: "Chinatown",
+      category: "Cultural",
+      price: "Free"
+    },
+    {
+      id: 7,
+      name: "Little India",
+      description: "Vibrant cultural district with colorful temples, spice shops, and authentic Indian restaurants.",
+      image: "/assets/attractions/little-india.jpg",
+      rating: 4.1,
+      reviews: 7200,
+      location: "Little India",
+      category: "Cultural",
+      price: "Free"
+    },
+    {
+      id: 8,
+      name: "Singapore Botanic Gardens",
+      description: "UNESCO World Heritage site featuring the National Orchid Garden and lush tropical landscapes.",
+      image: "/assets/attractions/botanic-gardens.jpg",
+      rating: 4.8,
+      reviews: 11200,
+      location: "Orchard",
+      category: "Nature",
+      price: "Free"
+    }
+  ];
+
+  const categories = ["All", "Landmark", "Nature", "Theme Park", "Cultural", "Museum", "Religious", "Shopping"];
+
+  const filteredAttractions = selectedCategory === "All" 
+    ? attractions 
+    : attractions.filter(attraction => attraction.category === selectedCategory);
+
+  const additionalContent = (
+    <div className="bg-white rounded-2xl shadow-lg p-8">
+      <h2 className="text-3xl font-bold text-gray-900 mb-6">Plan Your Visit</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-gray-700">
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-3">Getting Around</h3>
+          <p className="mb-2">Singapore has an excellent public transportation system. The MRT (Mass Rapid Transit) is the most efficient way to get to most attractions.</p>
+          <p>Consider purchasing an EZ-Link card or a Singapore Tourist Pass for hassle-free travel.</p>
+        </div>
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-3">Best Time to Visit</h3>
+          <p className="mb-2">Singapore is a year-round destination, but the cooler months from February to April are often preferred. Avoid the haze season (June to September) if possible.</p>
+          <p>Check local weather forecasts and event calendars before your trip.</p>
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <FilterablePage
+      heroTitle="Discover Singapore's Iconic Attractions"
+      heroSubtitle="From lush gardens to thrilling theme parks, explore the best of the Lion City"
+      heroGradient="from-red-600 to-red-800"
+      filterOptions={categories}
+      selectedFilter={selectedCategory}
+      onFilterChange={handleCategoryClick}
+      onResetFilter={resetFilter}
+      contentRef={contentRef}
+      heroRef={heroRef}
+      additionalContent={additionalContent}
+    >
+      {filteredAttractions.map((attraction) => (
+        <ContentCard
+          key={attraction.id}
+          name={attraction.name}
+          description={attraction.description}
+          image={attraction.image}
+          imageAlt={attraction.name}
+          rating={attraction.rating}
+          reviews={attraction.reviews}
+          distance={attraction.location}
+          category={attraction.category}
+          price={attraction.price}
+        />
+      ))}
+    </FilterablePage>
   );
 };
 
