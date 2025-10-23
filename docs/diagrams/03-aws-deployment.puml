@@ -1,0 +1,146 @@
+@startuml AWS Deployment Architecture
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/NetworkingContentDelivery/CloudFront.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/Compute/ECS.puml
+!include AWSPuml/Containers/EKS.puml
+!include AWSPuml/Database/RDS.puml
+!include AWSPuml/Database/DynamoDB.puml
+!include AWSPuml/Database/ElastiCache.puml
+!include AWSPuml/SecurityIdentityCompliance/CertificateManager.puml
+!include AWSPuml/NetworkingContentDelivery/Route53.puml
+!include AWSPuml/NetworkingContentDelivery/VPC.puml
+!include AWSPuml/NetworkingContentDelivery/ElasticLoadBalancing.puml
+!include AWSPuml/ManagementGovernance/CloudWatch.puml
+!include AWSPuml/Storage/SimpleStorageService.puml
+
+' Define color scheme
+skinparam backgroundColor #FFFFFF
+
+title AWS Cloud Deployment Architecture - ExploreSingapore
+
+' Users
+actor "End Users" as users
+
+' Route 53
+Route53(route53, "Route 53", "DNS Management")
+
+' CloudFront CDN
+CloudFront(cdn, "CloudFront CDN", "Global Content Delivery")
+
+' Certificate Manager
+CertificateManager(acm, "ACM", "SSL/TLS Certificates")
+
+' S3 for static assets
+SimpleStorageService(s3, "S3 Bucket", "Static Assets\n(Images, Logos)")
+
+VPCGroup(vpc) {
+    ' Application Load Balancer
+    ElasticLoadBalancing(alb, "Application Load Balancer", "HTTPS Traffic Distribution")
+    
+    ' Public Subnet
+    package "Public Subnet (Multi-AZ)" {
+        ' ECS Fargate for Frontend
+        ECS(ecs_frontend, "ECS Fargate", "Frontend Service\n(Nginx + React)")
+    }
+    
+    ' Private Subnet
+    package "Private Subnet (Multi-AZ)" {
+        ' ECS for Backend Services
+        ECS(ecs_backend, "ECS Fargate", "Backend API Services")
+        
+        ' RDS PostgreSQL
+        RDS(rds, "RDS PostgreSQL", "Primary Database\n(Multi-AZ)")
+        
+        ' ElastiCache Redis
+        ElastiCache(redis, "ElastiCache Redis", "Session & Cache")
+        
+        ' DynamoDB for Fleet Data
+        DynamoDB(dynamodb, "DynamoDB", "Fleet Vehicle Data\n(NoSQL)")
+    }
+}
+
+' CloudWatch Monitoring
+CloudWatch(cloudwatch, "CloudWatch", "Monitoring & Logs")
+
+' External Services
+cloud "External Services" as external {
+    [Google OAuth]
+    [Mapbox API]
+    [Open-Meteo API]
+    [Eagle IoT Platform]
+    [Stripe Payment]
+}
+
+' User Flow
+users --> route53 : exploresg.com
+route53 --> cdn : Resolve DNS
+cdn --> acm : SSL/TLS
+cdn --> s3 : Static Assets
+cdn --> alb : Dynamic Content
+
+' VPC Flow
+alb --> ecs_frontend : HTTPS/443
+ecs_frontend --> ecs_backend : REST API
+ecs_backend --> rds : Query Data
+ecs_backend --> redis : Cache/Session
+ecs_backend --> dynamodb : Fleet Data
+
+' Monitoring
+ecs_frontend --> cloudwatch : Logs & Metrics
+ecs_backend --> cloudwatch : Logs & Metrics
+rds --> cloudwatch : DB Metrics
+redis --> cloudwatch : Cache Metrics
+
+' External Integrations
+ecs_frontend --> external : API Calls
+ecs_backend --> external : Webhooks
+
+note right of cdn
+    CloudFront Benefits:
+    - Global Edge Locations
+    - DDoS Protection
+    - HTTPS Enforcement
+    - Caching Static Assets
+    - Low Latency
+end note
+
+note right of ecs_frontend
+    Frontend Container:
+    - Docker Image from ECR
+    - Nginx + React Build
+    - Auto-scaling (2-10 tasks)
+    - Health checks enabled
+    - Blue/Green Deployment
+end note
+
+note right of ecs_backend
+    Backend Container:
+    - Node.js API Services
+    - Auto-scaling (2-20 tasks)
+    - Service Discovery
+    - Load Balancing
+    - Rolling Updates
+end note
+
+note right of rds
+    Database Configuration:
+    - PostgreSQL 15
+    - Multi-AZ for HA
+    - Automated Backups
+    - Encryption at Rest
+    - Read Replicas
+end note
+
+note bottom
+    Security Features:
+    - VPC Isolation
+    - Security Groups
+    - Network ACLs
+    - Secrets Manager for credentials
+    - WAF on CloudFront/ALB
+    - IAM roles for services
+end note
+
+@enduml

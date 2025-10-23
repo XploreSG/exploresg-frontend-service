@@ -1,0 +1,222 @@
+@startuml React Component Hierarchy
+!define COMPONENT(x) rectangle x
+
+skinparam rectangleBorderColor<<provider>> DarkBlue
+skinparam rectangleBorderColor<<page>> DarkGreen
+skinparam rectangleBorderColor<<component>> DarkOrange
+skinparam rectangleBorderColor<<feature>> DarkRed
+skinparam rectangleBackgroundColor<<provider>> LightBlue
+skinparam rectangleBackgroundColor<<page>> LightGreen
+skinparam rectangleBackgroundColor<<component>> LightYellow
+skinparam rectangleBackgroundColor<<feature>> LightPink
+
+title React Component Hierarchy - ExploreSingapore Application
+
+package "App Root" {
+    COMPONENT(App) <<provider>> {
+        COMPONENT(GoogleOAuthProvider) <<provider>>
+        COMPONENT(Router) <<provider>>
+        COMPONENT(BookingProvider) <<provider>>
+        COMPONENT(AuthProvider) <<provider>>
+        COMPONENT(LoadingProvider) <<provider>>
+        
+        ' Layout Components
+        COMPONENT(RoleBanner) <<component>>
+        COMPONENT(Navbar) <<component>>
+        COMPONENT(Routes) <<provider>>
+        COMPONENT(Footer) <<component>>
+    }
+}
+
+package "Public Pages" <<page>> {
+    COMPONENT(HomePage) <<page>>
+    COMPONENT(AttractionsPage) <<page>>
+    COMPONENT(FoodPage) <<page>>
+    COMPONENT(EventsPage) <<page>>
+    COMPONENT(AboutPage) <<page>>
+    COMPONENT(ExplorePage) <<page>>
+    COMPONENT(SignInPage) <<page>>
+}
+
+package "User Pages (Protected)" <<page>> {
+    COMPONENT(UserVehicleBrowsePage) <<page>> {
+        COMPONENT(DatePickerSection) <<component>>
+        COMPONENT(SearchFilters) <<component>>
+        COMPONENT(VehicleGrid) <<feature>> {
+            COMPONENT(RentalCard) <<component>>
+        }
+    }
+    
+    COMPONENT(BookingFlow) <<page>> {
+        COMPONENT(BookingProgress) <<component>>
+        
+        COMPONENT(RentalAddOnPage) <<page>> {
+            COMPONENT(CDWSelector) <<component>>
+            COMPONENT(ExtrasSelector) <<component>>
+            COMPONENT(PriceSummary) <<component>>
+        }
+        
+        COMPONENT(DriverDetailsPage) <<page>> {
+            COMPONENT(PersonalInfoForm) <<component>>
+            COMPONENT(LicenseInfoForm) <<component>>
+            COMPONENT(EmergencyContactForm) <<component>>
+        }
+        
+        COMPONENT(ReviewPage) <<page>> {
+            COMPONENT(BookingSummary) <<component>>
+            COMPONENT(RentalCardSummary) <<component>>
+        }
+        
+        COMPONENT(PaymentPage) <<page>> {
+            COMPONENT(PaymentForm) <<component>>
+            COMPONENT(CardInput) <<component>>
+        }
+        
+        COMPONENT(ConfirmationPage) <<page>> {
+            COMPONENT(ConfirmationDetails) <<component>>
+        }
+    }
+    
+    COMPONENT(YourDayPage) <<page>> {
+        COMPONENT(WeatherWidget) <<component>>
+        COMPONENT(BookingCard) <<component>>
+        COMPONENT(RecommendationsSection) <<component>>
+    }
+    
+    COMPONENT(ProfilePage) <<page>> {
+        COMPONENT(ProfileHeader) <<component>>
+        COMPONENT(PreferencesForm) <<component>>
+    }
+}
+
+package "Fleet Manager Pages (Protected)" <<page>> {
+    COMPONENT(FleetAdminDashboardPage) <<page>> {
+        COMPONENT(StatsSection) <<component>>
+        COMPONENT(FleetCharts) <<feature>> {
+            COMPONENT(BarChart) <<component>>
+            COMPONENT(DoughnutChart) <<component>>
+        }
+    }
+    
+    COMPONENT(FleetAdminListPage) <<page>> {
+        COMPONENT(FleetSearchFilters) <<component>>
+        COMPONENT(FleetTable) <<feature>> {
+            COMPONENT(TableHeader) <<component>>
+            COMPONENT(TableRow) <<component>>
+            COMPONENT(ActionButtons) <<component>>
+        }
+        COMPONENT(FleetPagination) <<component>>
+    }
+    
+    COMPONENT(FleetDetailPage) <<page>> {
+        COMPONENT(VehicleInfo) <<component>>
+        COMPONENT(MaintenanceHistory) <<component>>
+        COMPONENT(RentalHistory) <<component>>
+        COMPONENT(LocationMap) <<component>>
+    }
+    
+    COMPONENT(EagleViewPage) <<page>> {
+        COMPONENT(MapboxMap) <<feature>> {
+            COMPONENT(VehicleMarker) <<component>>
+            COMPONENT(MarkerPopup) <<component>>
+        }
+        COMPONENT(VehicleSidebar) <<feature>> {
+            COMPONENT(SearchBar) <<component>>
+            COMPONENT(StatusFilter) <<component>>
+            COMPONENT(VehicleList) <<component>>
+        }
+        COMPONENT(VehicleDrawer) <<component>>
+    }
+}
+
+package "Admin Pages (Protected)" <<page>> {
+    COMPONENT(AdminConsole) <<page>> {
+        COMPONENT(UserManagement) <<feature>>
+        COMPONENT(SystemConfig) <<feature>>
+        COMPONENT(AuditLogs) <<feature>>
+    }
+    
+    COMPONENT(AccessDeniedPage) <<page>>
+}
+
+package "Shared Components" <<component>> {
+    COMPONENT(LoadingOverlay) <<component>>
+    COMPONENT(InlineLogoLoader) <<component>>
+    COMPONENT(TestimonialCard) <<component>>
+    COMPONENT(FeaturesSection) <<component>>
+    COMPONENT(StatsSection) <<component>>
+    COMPONENT(SocialLoginButtons) <<component>>
+    COMPONENT(ProtectedRoleRoute) <<component>>
+}
+
+' Relationships
+App --> GoogleOAuthProvider
+GoogleOAuthProvider --> Router
+Router --> BookingProvider
+BookingProvider --> AuthProvider
+AuthProvider --> LoadingProvider
+
+Routes --> HomePage
+Routes --> AttractionsPage
+Routes --> FoodPage
+Routes --> EventsPage
+Routes --> AboutPage
+Routes --> ExplorePage
+Routes --> SignInPage
+
+Routes --> UserVehicleBrowsePage
+Routes --> BookingFlow
+Routes --> YourDayPage
+Routes --> ProfilePage
+
+Routes --> FleetAdminDashboardPage
+Routes --> FleetAdminListPage
+Routes --> FleetDetailPage
+Routes --> EagleViewPage
+
+Routes --> AdminConsole
+Routes --> AccessDeniedPage
+
+' Context Usage (shown with dashed lines)
+UserVehicleBrowsePage ..> BookingProvider : uses
+BookingFlow ..> BookingProvider : uses
+YourDayPage ..> AuthProvider : uses
+FleetAdminDashboardPage ..> AuthProvider : uses
+FleetAdminListPage ..> AuthProvider : uses
+EagleViewPage ..> AuthProvider : uses
+AdminConsole ..> AuthProvider : uses
+
+note right of BookingProvider
+    Provides:
+    - selectedCar
+    - bookingDates
+    - selectedAddOns
+    - driverDetails
+    - totalPrice
+end note
+
+note right of AuthProvider
+    Provides:
+    - user
+    - token
+    - login()
+    - logout()
+    - primaryRole
+    - hasRole()
+end note
+
+note right of ProtectedRoleRoute
+    RBAC Guard Component
+    Checks user role against
+    allowedRoles prop
+end note
+
+note bottom
+    Component Types:
+    - Provider: Context/State Management
+    - Page: Route-level component
+    - Feature: Complex business logic
+    - Component: Reusable UI element
+end note
+
+@enduml

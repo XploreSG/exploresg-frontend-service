@@ -1,0 +1,158 @@
+@startuml Data Flow Diagram
+title Data Flow Diagram - ExploreSingapore Application
+
+skinparam defaultFontSize 12
+skinparam defaultTextAlignment center
+
+' External Entities
+actor "Guest User" as guest
+actor "Registered User" as user
+actor "Fleet Manager" as fleet_mgr
+actor "Admin" as admin
+
+' External Systems
+database "Google OAuth" as google
+database "Payment Gateway" as stripe
+database "Mapbox API" as mapbox
+database "Weather API" as weather
+database "Eagle IoT" as eagle
+
+' Main System Boundary
+rectangle "ExploreSingapore System" {
+    
+    ' Level 0 - System Context
+    circle "0\nExploreSG\nPlatform" as system
+    
+    ' Level 1 - Major Processes
+    circle "1.0\nUser\nAuthentication" as auth
+    circle "2.0\nVehicle\nBrowsing" as browse
+    circle "3.0\nBooking\nManagement" as booking
+    circle "4.0\nFleet\nManagement" as fleet
+    circle "5.0\nPayment\nProcessing" as payment
+    
+    ' Data Stores
+    database "D1\nUser\nDatabase" as db_user
+    database "D2\nVehicle\nInventory" as db_vehicle
+    database "D3\nBooking\nRecords" as db_booking
+    database "D4\nFleet\nData" as db_fleet
+    database "D5\nPayment\nTransactions" as db_payment
+}
+
+' External Entity to System
+guest --> system : Browse\nInformation
+user --> system : Make\nBooking
+fleet_mgr --> system : Manage\nFleet
+admin --> system : Configure\nSystem
+
+' System to External Systems
+system --> google : OAuth\nRequest
+google --> system : User\nProfile
+system --> stripe : Payment\nRequest
+stripe --> system : Payment\nConfirmation
+system --> mapbox : Map\nRequest
+mapbox --> system : Map\nTiles
+system --> weather : Weather\nRequest
+weather --> system : Weather\nData
+system --> eagle : GPS\nRequest
+eagle --> system : Location\nData
+
+' Level 1 Data Flows
+
+' Authentication Flow
+user --> auth : Login\nCredentials
+auth --> google : Verify\nCredentials
+google --> auth : User\nData
+auth --> db_user : Store/Update\nUser
+db_user --> auth : User\nRecord
+auth --> user : JWT\nToken
+
+' Browse Flow
+guest --> browse : Search\nCriteria
+browse --> db_vehicle : Query\nVehicles
+db_vehicle --> browse : Vehicle\nList
+browse --> guest : Available\nVehicles
+
+' Booking Flow
+user --> booking : Booking\nRequest
+booking --> db_vehicle : Check\nAvailability
+db_vehicle --> booking : Availability\nStatus
+booking --> db_booking : Create\nBooking
+db_booking --> booking : Booking\nID
+booking --> payment : Payment\nDetails
+payment --> stripe : Process\nPayment
+stripe --> payment : Payment\nResult
+payment --> db_payment : Store\nTransaction
+db_payment --> payment : Transaction\nID
+payment --> booking : Payment\nConfirmation
+booking --> db_booking : Update\nStatus
+booking --> user : Booking\nConfirmation
+
+' Fleet Management Flow
+fleet_mgr --> fleet : Fleet\nQuery
+fleet --> db_fleet : Retrieve\nFleet Data
+db_fleet --> fleet : Fleet\nRecords
+fleet --> eagle : GPS\nTracking
+eagle --> fleet : Vehicle\nLocations
+fleet --> db_fleet : Update\nLocations
+fleet --> fleet_mgr : Fleet\nDashboard
+
+' Admin Flow
+admin --> auth : User\nManagement
+auth --> db_user : CRUD\nOperations
+db_user --> auth : User\nData
+auth --> admin : Updated\nData
+
+note right of auth
+    Process 1.0: Authentication
+    - Verify Google OAuth
+    - Generate JWT tokens
+    - Manage user sessions
+    - Handle role assignments
+end note
+
+note right of browse
+    Process 2.0: Vehicle Browsing
+    - Search and filter vehicles
+    - Display availability
+    - Show pricing
+    - Vehicle details
+end note
+
+note right of booking
+    Process 3.0: Booking Management
+    - Validate booking details
+    - Check vehicle availability
+    - Calculate total price
+    - Coordinate with payment
+    - Update vehicle status
+    - Send confirmations
+end note
+
+note right of fleet
+    Process 4.0: Fleet Management
+    - Monitor vehicle status
+    - Track GPS locations
+    - Maintenance scheduling
+    - Analytics and reports
+    - Operator-specific views
+end note
+
+note right of payment
+    Process 5.0: Payment Processing
+    - Validate payment details
+    - Process transactions
+    - Handle refunds
+    - Store payment records
+    - Fraud detection
+end note
+
+note bottom
+    Data Stores:
+    D1: User profiles, roles, preferences
+    D2: Vehicle inventory, pricing, features
+    D3: Booking records, driver details, add-ons
+    D4: Fleet data, GPS history, maintenance
+    D5: Payment transactions, card tokens
+end note
+
+@enduml
