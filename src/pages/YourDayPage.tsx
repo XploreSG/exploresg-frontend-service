@@ -2,12 +2,12 @@ import { useAuth } from "../contexts/useAuth";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
 import { useMemo } from "react";
 import WeatherWidget from "../components/Weather/WeatherWidget";
-import type { BookingInfo } from "../types/rental";
-import { getOperatorInfo } from "../types/rental";
 import {
   formatBookingTimeLocation,
   formatBookingRef,
 } from "../utils/rentalUtils";
+import { useConfirmedBookings } from "../contexts/useConfirmedBookings";
+import { Link } from "react-router-dom";
 
 // Supported languages type
 type SupportedLanguage = "English" | "Chinese" | "Malay" | "Tamil";
@@ -45,28 +45,10 @@ const greetingsMap: Record<
 
 const YourDayPage = () => {
   const { user } = useAuth();
+  const { confirmedBookings } = useConfirmedBookings();
 
-  // Example booking data using shared interfaces
-  const exampleBooking: BookingInfo = useMemo(() => {
-    const operatorInfo = getOperatorInfo(102); // Hertz
-    return {
-      bookingRef: "#SG12345",
-      pickupTime: "9:00 AM",
-      dropoffTime: "5:00 PM",
-      pickupLocation: "Changi Airport Terminal 3",
-      dropoffLocation: "Marina Bay Sands",
-      price: 320,
-      carDetails: {
-        model: "Porsche 911 Carrera",
-        seats: 4,
-        luggage: 2,
-        transmission: "automatic" as const,
-        imageUrl: "/assets/cars/porsche-911-c.png",
-        operator: operatorInfo.name,
-        operatorStyling: operatorInfo.styling,
-      },
-    };
-  }, []);
+  // Example booking data using shared interfaces (removed - now using real bookings)
+  // const exampleBooking: BookingInfo = useMemo(() => { ... }, []);
 
   // Always compute greeting first, even if user is null
   const { greeting, emoji } = useMemo(() => {
@@ -128,57 +110,84 @@ const YourDayPage = () => {
           </div>
         </div>
 
-        {/* Example Ride */}
-        <div className="mb-6 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow">
-          <h1 className="mb-4 text-3xl font-bold text-gray-900">Your Ride</h1>
+        {/* Your Rides Section */}
+        {confirmedBookings.length > 0 ? (
+          <div className="mb-6 flex flex-col gap-2 rounded-2xl bg-white p-6 shadow">
+            <h1 className="mb-4 text-3xl font-bold text-gray-900">
+              Your Rides
+            </h1>
 
-          <div className="flex flex-col gap-3 rounded-2xl bg-white p-5 shadow">
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <div className="font-medium text-gray-800">
-                  {exampleBooking.carDetails.model}
+            {confirmedBookings.map((booking) => (
+              <div key={booking.bookingRef} className="mb-8">
+                <div className="flex flex-col gap-3 rounded-2xl bg-white p-5 shadow">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-800">
+                        {booking.carDetails.model}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {formatBookingTimeLocation(
+                          booking.pickupTime,
+                          booking.pickupLocation,
+                        )}
+                        <br />
+                        Drop-off:{" "}
+                        {formatBookingTimeLocation(
+                          booking.dropoffTime,
+                          booking.dropoffLocation,
+                        )}
+                      </div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <span
+                          className={`rounded px-2 py-0.5 text-xs font-bold ${booking.carDetails.operatorStyling.brand}`}
+                        >
+                          {booking.carDetails.operator}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          Booking Ref:{" "}
+                          {formatBookingRef(
+                            booking.bookingRef.replace("#", ""),
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-600">
-                  {formatBookingTimeLocation(
-                    exampleBooking.pickupTime,
-                    exampleBooking.pickupLocation,
-                  )}
-                  <br />
-                  Drop-off:{" "}
-                  {formatBookingTimeLocation(
-                    exampleBooking.dropoffTime,
-                    exampleBooking.dropoffLocation,
-                  )}
-                </div>
-                <div className="mt-1 flex items-center gap-2">
-                  <span
-                    className={`rounded px-2 py-0.5 text-xs font-bold ${exampleBooking.carDetails.operatorStyling.brand}`}
-                  >
-                    {exampleBooking.carDetails.operator}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    Booking Ref:{" "}
-                    {formatBookingRef(
-                      exampleBooking.bookingRef.replace("#", ""),
-                    )}
-                  </span>
+                <div>
+                  <RentalCardSummary
+                    {...booking.carDetails}
+                    price={booking.price}
+                    className="w-full"
+                  />
+                  <div className="relative w-full">
+                    <button className="absolute left-1/2 mx-auto mt-3 block w-36 -translate-x-1/2 translate-y-8 rounded-lg bg-blue-600 py-2 font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-blue-700">
+                      Get Directions
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mb-6 flex flex-col gap-4 rounded-2xl bg-white p-8 text-center shadow">
+            <div className="flex flex-col items-center gap-4">
+              <div className="text-6xl">🚗</div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                No Rides Booked Yet
+              </h2>
+              <p className="max-w-md text-gray-600">
+                Start exploring and book your perfect ride to make the most of
+                your day in Singapore!
+              </p>
+              <Link
+                to="/explore"
+                className="mt-4 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
+              >
+                Explore Vehicles
+              </Link>
             </div>
           </div>
-          <div className="mb-8">
-            <RentalCardSummary
-              {...exampleBooking.carDetails}
-              price={exampleBooking.price}
-              className="w-full"
-            />
-            <div className="relative w-full">
-              <button className="absolute left-1/2 mx-auto mt-3 block w-36 -translate-x-1/2 translate-y-8 rounded-lg bg-blue-600 py-2 font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 hover:bg-blue-700">
-                Get Directions
-              </button>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Main Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

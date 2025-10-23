@@ -5,11 +5,18 @@ import type { BookingDetailsResponse } from "../services/bookingApi";
 import { FaCheckCircle, FaEnvelope, FaIdCard, FaClock } from "react-icons/fa";
 import { useBooking } from "../contexts/bookingContextCore";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
+import { useConfirmedBookings } from "../contexts/useConfirmedBookings";
+import type { BookingInfo } from "../types/rental";
 
 const ConfirmationPage: React.FC = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
-  const { selectedCar, driverDetails: contextDriverDetails } = useBooking();
+  const {
+    selectedCar,
+    driverDetails: contextDriverDetails,
+    bookingDates,
+  } = useBooking();
+  const { addBooking } = useConfirmedBookings();
   const [booking, setBooking] = useState<BookingDetailsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +39,35 @@ const ConfirmationPage: React.FC = () => {
         const details = await getBookingDetails(bookingId);
         console.log("📦 ConfirmationPage: Received booking details:", details);
         setBooking(details);
+
+        // Add the booking to confirmed bookings if we have all the required data
+        if (selectedCar && bookingDates) {
+          const confirmedBooking: BookingInfo = {
+            bookingRef: `#${bookingId}`,
+            pickupTime:
+              bookingDates.pickup.split(",").slice(-1)[0].trim() || "TBD",
+            dropoffTime:
+              bookingDates.return.split(",").slice(-1)[0].trim() || "TBD",
+            pickupLocation: details.pickupLocation || "TBD",
+            dropoffLocation: details.returnLocation || "TBD",
+            price: details.totalAmount || 0,
+            carDetails: {
+              model: selectedCar.model,
+              seats: selectedCar.seats,
+              luggage: selectedCar.luggage,
+              transmission: selectedCar.transmission,
+              imageUrl: selectedCar.imageUrl,
+              operator: selectedCar.operator,
+              operatorStyling: selectedCar.operatorStyling,
+            },
+          };
+
+          console.log(
+            "✅ Adding booking to confirmed bookings:",
+            confirmedBooking,
+          );
+          addBooking(confirmedBooking);
+        }
       } catch (err) {
         console.error(
           "❌ ConfirmationPage: Failed to fetch booking details:",
@@ -44,7 +80,7 @@ const ConfirmationPage: React.FC = () => {
     };
 
     fetchBookingDetails();
-  }, [bookingId]);
+  }, [bookingId, selectedCar, bookingDates, addBooking]);
 
   if (isLoading) {
     return (
