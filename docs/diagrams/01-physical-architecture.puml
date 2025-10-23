@@ -1,0 +1,125 @@
+@startuml Physical Architecture
+!define RECTANGLE class
+
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+' Define colors
+skinparam component {
+    BackgroundColor<<frontend>> LightBlue
+    BackgroundColor<<backend>> LightGreen
+    BackgroundColor<<database>> LightYellow
+    BackgroundColor<<external>> LightCoral
+    BackgroundColor<<cache>> Wheat
+    BackgroundColor<<security>> LightPink
+}
+
+package "Client Tier" {
+    [Web Browser] <<frontend>>
+    [Mobile Browser] <<frontend>>
+}
+
+package "CDN / Load Balancer" {
+    [CloudFlare / AWS CloudFront] <<security>>
+}
+
+package "Application Tier (Docker Containers)" {
+    package "Frontend Service" {
+        [Nginx Web Server\n(Port 3000)] <<frontend>>
+        [React SPA\n(Static Build)] <<frontend>>
+    }
+    
+    package "Backend Services" {
+        [API Gateway\n(Port 8080)] <<backend>>
+        [Fleet API\n(Port 8081)] <<backend>>
+        [Auth Service] <<backend>>
+        [Booking Service] <<backend>>
+    }
+}
+
+package "Data Tier" {
+    database "PostgreSQL\nPrimary DB" <<database>>
+    database "MongoDB\nFleet Data" <<database>>
+    [Redis Cache] <<cache>>
+}
+
+package "External Services" {
+    cloud "Google OAuth 2.0" <<external>> as GoogleOAuth
+    cloud "Mapbox API" <<external>> as Mapbox
+    cloud "Open-Meteo\nWeather API" <<external>> as Weather
+    cloud "Eagle Telematics\nGPS IoT Platform" <<external>> as Eagle
+    cloud "Payment Gateway\n(Stripe - Future)" <<external>> as Stripe
+}
+
+package "Monitoring & Logging" {
+    [Application Insights /\nPrometheus] as Monitoring
+    [Elasticsearch\nLog Aggregation] as Logging
+}
+
+' Client connections
+[Web Browser] --> [CloudFlare / AWS CloudFront] : HTTPS
+[Mobile Browser] --> [CloudFlare / AWS CloudFront] : HTTPS
+
+' CDN to Frontend
+[CloudFlare / AWS CloudFront] --> [Nginx Web Server\n(Port 3000)] : HTTPS/443
+
+' Frontend serving
+[Nginx Web Server\n(Port 3000)] --> [React SPA\n(Static Build)] : Serves
+
+' Frontend to Backend API calls
+[React SPA\n(Static Build)] --> [API Gateway\n(Port 8080)] : REST API\nJWT Bearer Token
+[React SPA\n(Static Build)] --> [Fleet API\n(Port 8081)] : REST API\nJWT Bearer Token
+
+' API Gateway routing
+[API Gateway\n(Port 8080)] --> [Auth Service]
+[API Gateway\n(Port 8080)] --> [Booking Service]
+
+' Backend to Data
+[Auth Service] --> [PostgreSQL\nPrimary DB]
+[Booking Service] --> [PostgreSQL\nPrimary DB]
+[Fleet API\n(Port 8081)] --> [MongoDB\nFleet Data]
+[Fleet API\n(Port 8081)] --> [Redis Cache] : Session/Cache
+
+' External service integrations
+[React SPA\n(Static Build)] --> GoogleOAuth : OAuth 2.0\nAuthentication
+[React SPA\n(Static Build)] --> Mapbox : Map Rendering
+[React SPA\n(Static Build)] --> Weather : Weather Data
+[Fleet API\n(Port 8081)] --> Eagle : WebSocket\nGPS Tracking
+[Booking Service] --> Stripe : Payment\nProcessing
+
+' Monitoring connections
+[Nginx Web Server\n(Port 3000)] --> Monitoring
+[API Gateway\n(Port 8080)] --> Monitoring
+[Fleet API\n(Port 8081)] --> Monitoring
+[Auth Service] --> Logging
+[Booking Service] --> Logging
+
+note right of [CloudFlare / AWS CloudFront]
+    - DDoS Protection
+    - SSL/TLS Termination
+    - Global CDN
+    - Rate Limiting
+end note
+
+note right of [React SPA\n(Static Build)]
+    - Vite Build (Production)
+    - Code Splitting
+    - Lazy Loading
+    - PWA Support (Future)
+end note
+
+note right of [PostgreSQL\nPrimary DB]
+    - User Data
+    - Booking Records
+    - Transaction History
+    - Audit Logs
+end note
+
+note right of [MongoDB\nFleet Data]
+    - Vehicle Inventory
+    - GPS Coordinates
+    - Maintenance Records
+    - Telematics Data
+end note
+
+@enduml

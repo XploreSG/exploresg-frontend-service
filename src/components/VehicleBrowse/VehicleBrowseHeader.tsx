@@ -13,7 +13,7 @@ const VehicleBrowseHeader: React.FC<VehicleBrowseHeaderProps> = ({
   carImages = [
     "/assets/cars/vw-golf.png",
     "/assets/cars/bmw-440i.png",
-    "/assets/cars/bmw-5t.png",
+    "/assets/cars/bmw-5-t.png",
     "/assets/cars/maserati-grecale.png",
     "/assets/cars/vw-polo.png",
     "/assets/cars/porsche-911-c.png",

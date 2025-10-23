@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import { API_CONFIG, API_ENDPOINTS } from "../../config/api";
-import axios from "axios"; // <-- Import axios
+import axios from "axios";
 
 export interface SignupDetails {
   firstName: string;
@@ -23,14 +23,15 @@ interface SignUpFormProps {
 
 const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user, token } = useAuth(); // <-- Get user and custom token from context
+  const { user, token } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>("");
 
-  // Pre-fill form data from the AuthContext or location.state as a fallback
-  const [formData, setFormData] = useState<SignupDetails>({
-    firstName: user?.givenName || location.state?.user?.givenName || "",
-    lastName: user?.familyName || location.state?.user?.familyName || "",
-    email: user?.email || location.state?.user?.email || "",
+  // Minimal form data - only for callback compatibility
+  const formData: SignupDetails = {
+    firstName: user?.givenName || "",
+    lastName: user?.familyName || "",
+    email: user?.email || "",
     phone: "",
     dateOfBirth: "",
     drivingLicenseNumber: "",
@@ -38,275 +39,135 @@ const SignupForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
     preferredLanguage: "English",
     countryOfResidence: "Singapore",
     role: "USER",
-  });
-
-  const [errors, setErrors] = useState<Partial<SignupDetails>>({});
-
-  // This effect ensures the form stays populated even after a page refresh
-  useEffect(() => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        email: user.email,
-        firstName: user.givenName || prev.firstName,
-        lastName: user.familyName || prev.lastName,
-      }));
-    }
-  }, [user]);
-
-  const handleInputChange = (field: keyof SignupDetails, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Partial<SignupDetails> = {};
-    if (!formData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    if (!formData.phone.trim()) newErrors.phone = "Phone is required";
-    if (!formData.dateOfBirth)
-      newErrors.dateOfBirth = "Date of birth is required";
-    if (!formData.drivingLicenseNumber.trim())
-      newErrors.drivingLicenseNumber = "Driving license number is required";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    setIsLoading(true);
+    setError("");
 
-    // The custom token from our AuthContext is now the source of truth for authorization
     if (!token) {
-      alert("Authentication token not found. Please sign in again.");
+      setError("Authentication token not found. Please sign in again.");
       navigate("/login");
       return;
     }
 
-    const payload = {
-      givenName: formData.firstName,
-      familyName: formData.lastName,
-      phone: formData.phone,
-      dateOfBirth: formData.dateOfBirth,
-      drivingLicenseNumber: formData.drivingLicenseNumber,
-      passportNumber: formData.passportNumber || null,
-      preferredLanguage: formData.preferredLanguage,
-      countryOfResidence: formData.countryOfResidence,
-      requestedRole: formData.role, // Backend expects 'requestedRole' on this DTO
-    };
+    // ✨ Minimal signup: Send empty body to backend
+    // Backend will create user profile from JWT (email from Google OAuth)
+    // Driver details will be collected later during booking flow
+    const payload = {};
 
     try {
-      // Submit the form using axios and the custom JWT
       await axios.post(API_ENDPOINTS.USER.SIGNUP, payload, {
         headers: {
           ...API_CONFIG.headers,
-          Authorization: `Bearer ${token}`, // <-- Use the custom application token
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (onSubmit) onSubmit(formData);
-      navigate("/yourday"); // Navigate to the main dashboard on success
+      navigate("/yourday");
     } catch (err: unknown) {
       console.error("Signup failed:", err);
       if (axios.isAxiosError(err)) {
         const apiError =
           err.response?.data?.message || "An error occurred during signup.";
-        alert(apiError);
-        setErrors({ ...errors, email: apiError });
+        setError(apiError);
       } else {
-        alert("A network error occurred during signup.");
+        setError("A network error occurred during signup.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-3xl rounded-xl bg-white p-8 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
-          Complete Your Profile
-        </h1>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Fields */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                First Name *
-              </label>
-              <input
-                type="text"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange("firstName", e.target.value)}
-                className="w-full rounded-lg border px-4 py-3"
-              />
-              {errors.firstName && (
-                <p className="text-sm text-red-500">{errors.firstName}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Last Name *
-              </label>
-              <input
-                type="text"
-                value={formData.lastName}
-                onChange={(e) => handleInputChange("lastName", e.target.value)}
-                className="w-full rounded-lg border px-4 py-3"
-              />
-              {errors.lastName && (
-                <p className="text-sm text-red-500">{errors.lastName}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Email (read-only) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email (from Google)
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              readOnly
-              className="w-full cursor-not-allowed rounded-lg border bg-gray-100 px-4 py-3"
-            />
-          </div>
-
-          {/* Phone + DOB */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Phone *
-              </label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="w-full rounded-lg border px-4 py-3"
-                placeholder="e.g., +65 9123 4567"
-              />
-              {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Date of Birth *
-              </label>
-              <input
-                type="date"
-                value={formData.dateOfBirth}
-                onChange={(e) =>
-                  handleInputChange("dateOfBirth", e.target.value)
-                }
-                className="w-full rounded-lg border px-4 py-3"
-              />
-              {errors.dateOfBirth && (
-                <p className="text-sm text-red-500">{errors.dateOfBirth}</p>
-              )}
-            </div>
-          </div>
-
-          {/* License + Passport */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Driving License Number *
-              </label>
-              <input
-                type="text"
-                value={formData.drivingLicenseNumber}
-                onChange={(e) =>
-                  handleInputChange("drivingLicenseNumber", e.target.value)
-                }
-                className="w-full rounded-lg border px-4 py-3"
-              />
-              {errors.drivingLicenseNumber && (
-                <p className="text-sm text-red-500">
-                  {errors.drivingLicenseNumber}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Passport Number (Optional)
-              </label>
-              <input
-                type="text"
-                value={formData.passportNumber}
-                onChange={(e) =>
-                  handleInputChange("passportNumber", e.target.value)
-                }
-                className="w-full rounded-lg border px-4 py-3"
-              />
-            </div>
-          </div>
-
-          {/* Preferred Language + Country */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Preferred Language
-              </label>
-              <select
-                value={formData.preferredLanguage}
-                onChange={(e) =>
-                  handleInputChange("preferredLanguage", e.target.value)
-                }
-                className="w-full rounded-lg border px-4 py-3"
-              >
-                <option value="English">English</option>
-                <option value="Chinese">Chinese</option>
-                <option value="Malay">Malay</option>
-                <option value="Tamil">Tamil</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Country of Residence
-              </label>
-              <select
-                value={formData.countryOfResidence}
-                onChange={(e) =>
-                  handleInputChange("countryOfResidence", e.target.value)
-                }
-                className="w-full rounded-lg border px-4 py-3"
-              >
-                <option value="Singapore">Singapore</option>
-                <option value="Malaysia">Malaysia</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Role Selection - Only USER role available for signup.
-              Fleet Managers and Admins must be authorized by backend. */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Account Type
-            </label>
-            <select
-              value={formData.role}
-              disabled
-              className="w-full cursor-not-allowed rounded-lg border bg-gray-100 px-4 py-3"
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="w-full max-w-md rounded-2xl bg-white p-10 shadow-2xl">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+            <svg
+              className="h-8 w-8 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <option value="USER">User</option>
-            </select>
-            <p className="mt-1 text-xs text-gray-500">
-              All new accounts are created as User accounts
-            </p>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
           </div>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">
+            Welcome to ExploreSG!
+          </h1>
+          <p className="text-gray-600">
+            You're signed in as{" "}
+            <span className="font-semibold text-blue-600">
+              {user?.email || "user"}
+            </span>
+          </p>
+        </div>
 
-          {/* Submit */}
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <p className="text-sm text-gray-700">
+            🎉 Your account is almost ready! Click below to complete your signup
+            and start exploring amazing rental cars in Singapore.
+          </p>
+          <p className="mt-2 text-xs text-gray-500">
+            Note: Additional details like driver license will be collected when
+            you make your first booking.
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+            disabled={isLoading}
+            className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 font-semibold text-white shadow-lg transition hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Complete Signup
+            {isLoading ? (
+              <span className="flex items-center justify-center">
+                <svg
+                  className="mr-3 -ml-1 h-5 w-5 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Setting up your account...
+              </span>
+            ) : (
+              "Complete Signup & Start Exploring"
+            )}
           </button>
         </form>
+
+        <p className="mt-6 text-center text-xs text-gray-500">
+          By completing signup, you agree to our Terms of Service and Privacy
+          Policy
+        </p>
       </div>
     </div>
   );

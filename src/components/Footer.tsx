@@ -1,6 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+// 🔧 UPDATE THIS VERSION MANUALLY
+const APP_VERSION = "1.3.0";
+
 const Footer: React.FC = () => {
   return (
     <footer className="bg-transparent">
@@ -137,7 +140,7 @@ const Footer: React.FC = () => {
               className="text-center text-gray-500"
               style={{ fontSize: "clamp(0.813rem, 1.8vw, 0.875rem)" }}
             >
-              © 2025 ExploreSG. All rights reserved.
+              © 2025 ExploreSG. All rights reserved. • v{APP_VERSION}
             </p>
           </div>
         </div>

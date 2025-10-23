@@ -21,6 +21,7 @@ const RentalCard: React.FC<Props> = ({
   operator,
   operatorStyling,
   carId = "alphard-1",
+  publicModelId, // ⭐ Backend UUID (standardized field name)
   isLoading = false,
 }) => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ const RentalCard: React.FC<Props> = ({
           operator,
           operatorStyling,
           carId,
+          publicModelId, // ⭐ Pass the UUID to navigation state
         },
       },
     });
@@ -143,13 +145,19 @@ const RentalCard: React.FC<Props> = ({
         {/* Car Image - Fixed Height and Centered */}
         <div className="relative mb-4 flex flex-1 items-center justify-center">
           <div className="relative h-50 w-full">
-            <img
-              src={imageUrl}
-              alt={model}
-              className="h-full w-full object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-110"
-              onError={(e) => (e.currentTarget.style.display = "none")}
-              onLoad={() => setImageLoaded(true)}
-            />
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={model}
+                className="h-full w-full object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-110"
+                onError={(e) => (e.currentTarget.style.display = "none")}
+                onLoad={() => setImageLoaded(true)}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                <FaCogs className="h-16 w-16 text-gray-300" />
+              </div>
+            )}
 
             {/* Shimmer Effect */}
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover:translate-x-full" />

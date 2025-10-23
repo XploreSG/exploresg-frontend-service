@@ -1,0 +1,225 @@
+@startuml Entity Relationship Diagram
+!define TABLE(x) class x << (T,#FFAAAA) >>
+!define PK(x) <u>x</u>
+!define FK(x) <i>x</i>
+
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+entity "User" as user {
+    PK(user_id) : UUID
+    --
+    email : VARCHAR(255) UNIQUE
+    given_name : VARCHAR(100)
+    family_name : VARCHAR(100)
+    picture : VARCHAR(500)
+    preferred_language : VARCHAR(10)
+    google_id : VARCHAR(255) UNIQUE
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "UserRole" as user_role {
+    PK(user_role_id) : UUID
+    --
+    FK(user_id) : UUID
+    role_name : ENUM('USER', 'FLEET_MANAGER', 'MANAGER', 'SUPPORT', 'ADMIN')
+    granted_at : TIMESTAMP
+    granted_by : UUID
+}
+
+entity "Vehicle" as vehicle {
+    PK(vehicle_id) : UUID
+    --
+    public_model_id : VARCHAR(50) UNIQUE
+    name : VARCHAR(200)
+    model : VARCHAR(100)
+    plate_number : VARCHAR(20) UNIQUE
+    FK(operator_id) : INTEGER
+    image_url : VARCHAR(500)
+    price_per_night : DECIMAL(10,2)
+    seats : INTEGER
+    luggage : INTEGER
+    transmission : ENUM('AUTOMATIC', 'MANUAL')
+    status : ENUM('AVAILABLE', 'RENTED', 'MAINTENANCE', 'OUT_OF_SERVICE')
+    features : JSON
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "Operator" as operator {
+    PK(operator_id) : INTEGER
+    --
+    uuid : UUID UNIQUE
+    name : VARCHAR(100)
+    contact_email : VARCHAR(255)
+    contact_phone : VARCHAR(20)
+    styling_config : JSON
+    created_at : TIMESTAMP
+}
+
+entity "Booking" as booking {
+    PK(booking_id) : UUID
+    --
+    booking_ref : VARCHAR(20) UNIQUE
+    FK(user_id) : UUID
+    FK(vehicle_id) : UUID
+    status : ENUM('PENDING', 'RESERVED', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED')
+    pickup_date : TIMESTAMP
+    return_date : TIMESTAMP
+    nights : INTEGER
+    cdw_level : ENUM('BASIC', 'PLUS', 'MAX')
+    total_price : DECIMAL(10,2)
+    payment_status : ENUM('PENDING', 'PROCESSING', 'PAID', 'FAILED', 'REFUNDED')
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "DriverDetails" as driver {
+    PK(driver_id) : UUID
+    --
+    FK(booking_id) : UUID
+    first_name : VARCHAR(100)
+    last_name : VARCHAR(100)
+    email : VARCHAR(255)
+    phone : VARCHAR(20)
+    date_of_birth : DATE
+    license_number : VARCHAR(50)
+    license_expiry : DATE
+    license_country : VARCHAR(50)
+    emergency_contact : VARCHAR(100)
+    emergency_phone : VARCHAR(20)
+    street_address : VARCHAR(255)
+    city : VARCHAR(100)
+    postal_code : VARCHAR(20)
+    country : VARCHAR(50)
+}
+
+entity "AddOn" as addon {
+    PK(addon_id) : UUID
+    --
+    name : VARCHAR(100)
+    description : TEXT
+    price : DECIMAL(10,2)
+    category : ENUM('INSURANCE', 'EQUIPMENT', 'SERVICE', 'CROSS_BORDER')
+    is_one_time : BOOLEAN
+    is_active : BOOLEAN
+}
+
+entity "BookingAddOn" as booking_addon {
+    PK(booking_addon_id) : UUID
+    --
+    FK(booking_id) : UUID
+    FK(addon_id) : UUID
+    quantity : INTEGER
+    price : DECIMAL(10,2)
+}
+
+entity "FleetVehicle" as fleet {
+    PK(fleet_id) : UUID
+    --
+    FK(vehicle_id) : UUID
+    current_latitude : DECIMAL(10,8)
+    current_longitude : DECIMAL(11,8)
+    current_speed : DECIMAL(5,2)
+    heading : DECIMAL(5,2)
+    fuel_level : INTEGER
+    odometer : INTEGER
+    last_maintenance_date : DATE
+    next_maintenance_date : DATE
+    maintenance_notes : TEXT
+    eagle_device_id : VARCHAR(100)
+    updated_at : TIMESTAMP
+}
+
+entity "GPSHistory" as gps {
+    PK(gps_id) : UUID
+    --
+    FK(fleet_id) : UUID
+    latitude : DECIMAL(10,8)
+    longitude : DECIMAL(11,8)
+    altitude : DECIMAL(8,2)
+    speed : DECIMAL(5,2)
+    heading : DECIMAL(5,2)
+    accuracy : DECIMAL(5,2)
+    recorded_at : TIMESTAMP
+}
+
+entity "Payment" as payment {
+    PK(payment_id) : UUID
+    --
+    FK(booking_id) : UUID
+    amount : DECIMAL(10,2)
+    currency : VARCHAR(3)
+    payment_method : VARCHAR(50)
+    stripe_payment_id : VARCHAR(255)
+    status : ENUM('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED')
+    card_last_four : VARCHAR(4)
+    processed_at : TIMESTAMP
+    refunded_at : TIMESTAMP
+}
+
+entity "AuditLog" as audit {
+    PK(audit_id) : UUID
+    --
+    FK(user_id) : UUID
+    action : VARCHAR(100)
+    entity_type : VARCHAR(50)
+    entity_id : UUID
+    old_value : JSON
+    new_value : JSON
+    ip_address : VARCHAR(45)
+    user_agent : VARCHAR(500)
+    created_at : TIMESTAMP
+}
+
+' Relationships
+user ||--o{ user_role : "has"
+user ||--o{ booking : "creates"
+user ||--o{ audit : "performs"
+
+operator ||--o{ vehicle : "owns"
+
+vehicle ||--o{ booking : "booked in"
+vehicle ||--|| fleet : "tracked as"
+
+booking ||--|| driver : "includes"
+booking ||--o{ booking_addon : "has"
+booking ||--o{ payment : "paid via"
+
+addon ||--o{ booking_addon : "selected in"
+
+fleet ||--o{ gps : "records"
+
+note right of booking
+    Constraints:
+    - pickup_date < return_date
+    - nights = return_date - pickup_date
+    - total_price calculated from vehicle + CDW + add-ons
+    - Can't book if vehicle status != AVAILABLE
+end note
+
+note right of driver
+    Validations:
+    - age(date_of_birth) >= 21
+    - license_expiry > pickup_date
+    - email format valid
+end note
+
+note right of fleet
+    Real-time data:
+    - Updated every 2 seconds (simulation)
+    - Updated via WebSocket (production)
+    - GPS history stored for analytics
+end note
+
+note bottom
+    Indexes:
+    - user(email), user(google_id)
+    - vehicle(plate_number), vehicle(public_model_id)
+    - booking(booking_ref), booking(user_id), booking(vehicle_id)
+    - fleet(vehicle_id), fleet(eagle_device_id)
+    - gps(fleet_id, recorded_at)
+end note
+
+@enduml
