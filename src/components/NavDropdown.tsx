@@ -83,7 +83,7 @@ const NavDropdown: React.FC<NavDropdownProps> = ({
           )}
         </button>
         {isOpen && (
-          <div className="absolute right-0 z-20 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+          <div className="absolute left-0 z-20 mt-2 w-48 origin-top-left rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
             {items.map((item) => (
               <Link
                 key={item.name}
