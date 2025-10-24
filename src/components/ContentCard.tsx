@@ -84,7 +84,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
 
           {/* Status Badge (Top-Left) - Overlaid on Image */}
           {status && (
-            <div className="absolute top-2 left-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-700 px-2 py-1 shadow-lg drop-shadow-2xl transition-all duration-300 group-hover:scale-110 sm:top-3 sm:left-3 sm:rounded-2xl sm:px-3">
+            <div className="absolute top-0 left-0 rounded-xl bg-gradient-to-r from-green-600 to-emerald-700 px-2 py-1 shadow-lg drop-shadow-2xl transition-all duration-300 group-hover:scale-110 sm:rounded-2xl sm:px-3">
               <div className="text-center text-xs font-bold text-white sm:text-sm">
                 {status}
               </div>
