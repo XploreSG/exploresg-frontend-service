@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { HeartIcon, SparklesIcon } from "@heroicons/react/24/solid";
 import { HeartIcon as HeartOutlineIcon } from "@heroicons/react/24/outline";
 import { useCollection } from "../hooks/useCollection";
+import { useAuth } from "../contexts/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface CollectButtonProps {
   id: string;
@@ -18,6 +20,8 @@ const CollectButton: React.FC<CollectButtonProps> = ({
 }) => {
   const { isCollected, addToCollection, removeFromCollection } =
     useCollection();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const collected = isCollected(id);
   const [showAnimation, setShowAnimation] = useState(false);
 
@@ -31,6 +35,13 @@ const CollectButton: React.FC<CollectButtonProps> = ({
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+
+    // Check if user is signed in
+    if (!user) {
+      // Redirect to sign-in page if not authenticated
+      navigate("/login");
+      return;
+    }
 
     if (collected) {
       removeFromCollection(id);
@@ -49,8 +60,20 @@ const CollectButton: React.FC<CollectButtonProps> = ({
             ? "bg-red-600 text-white hover:bg-red-700"
             : "bg-white/90 text-gray-700 hover:bg-white hover:text-red-600"
         }`}
-        aria-label={collected ? "Remove from collection" : "Add to collection"}
-        title={collected ? "Remove from collection" : "Add to collection"}
+        aria-label={
+          !user
+            ? "Sign in to collect"
+            : collected
+              ? "Remove from collection"
+              : "Add to collection"
+        }
+        title={
+          !user
+            ? "Sign in to collect places"
+            : collected
+              ? "Remove from collection"
+              : "Add to collection"
+        }
       >
         {collected ? (
           <HeartIcon className="h-5 w-5" />
@@ -76,7 +99,14 @@ const CollectButton: React.FC<CollectButtonProps> = ({
           ? "bg-red-600 text-white shadow-lg hover:bg-red-700 hover:shadow-xl"
           : "bg-white/90 text-gray-800 shadow-md hover:bg-white hover:text-red-600 hover:shadow-lg"
       }`}
-      aria-label={collected ? "Remove from collection" : "Add to collection"}
+      aria-label={
+        !user
+          ? "Sign in to collect"
+          : collected
+            ? "Remove from collection"
+            : "Add to collection"
+      }
+      title={!user ? "Sign in to collect places" : undefined}
     >
       {collected ? (
         <>
@@ -86,7 +116,7 @@ const CollectButton: React.FC<CollectButtonProps> = ({
       ) : (
         <>
           <HeartOutlineIcon className="h-5 w-5" />
-          <span>Collect</span>
+          <span>{!user ? "Sign in to Collect" : "Collect"}</span>
         </>
       )}
 
