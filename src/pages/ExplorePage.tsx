@@ -594,7 +594,7 @@ const ExplorePage: React.FC = () => {
             <HeartIcon className="h-6 w-6" />
             <span className="text-xs font-semibold">Mine</span>
             {collectedItems.length > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white ring-2 ring-white">
+              <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-md ring-2 ring-white">
                 {collectedItems.length}
               </span>
             )}
