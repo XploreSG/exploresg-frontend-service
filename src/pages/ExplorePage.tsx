@@ -9,9 +9,11 @@ import {
   SparklesIcon,
   CalendarDaysIcon,
   BuildingStorefrontIcon,
+  HeartIcon,
 } from "@heroicons/react/24/solid";
 import { createRoot } from "react-dom/client";
 import CollectButton from "../components/CollectButton";
+import { useCollection } from "../hooks/useCollection";
 
 // Use centralized MAPBOX_TOKEN that supports runtime env injection
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -171,9 +173,10 @@ interface MarkerData {
   element: HTMLElement;
   popup: mapboxgl.Popup;
   type: PlaceType;
+  placeId: string;
 }
 
-type FilterType = "all" | PlaceType;
+type FilterType = "all" | PlaceType | "collections";
 
 const ExplorePage: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -182,6 +185,7 @@ const ExplorePage: React.FC = () => {
   // Local map loading state (use a small inline loader instead of the global overlay)
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
+  const { collectedItems } = useCollection();
 
   // Function to update marker sizes based on zoom level
   const updateMarkerSizes = useCallback(() => {
@@ -203,40 +207,55 @@ const ExplorePage: React.FC = () => {
   }, []);
 
   // Function to filter markers based on type
-  const filterMarkers = useCallback((filterType: FilterType) => {
-    if (!mapInstance.current) return;
+  const filterMarkers = useCallback(
+    (filterType: FilterType) => {
+      if (!mapInstance.current) return;
 
-    const visibleMarkers: MarkerData[] = [];
+      const visibleMarkers: MarkerData[] = [];
 
-    markersRef.current.forEach((markerData) => {
-      const shouldShow = filterType === "all" || markerData.type === filterType;
+      markersRef.current.forEach((markerData) => {
+        let shouldShow = false;
 
-      if (shouldShow) {
-        // Show marker
-        markerData.marker.addTo(mapInstance.current!);
-        visibleMarkers.push(markerData);
-      } else {
-        // Hide marker and close its popup
-        markerData.popup.remove();
-        markerData.element.classList.remove("marker-active");
-        markerData.marker.remove();
+        if (filterType === "all") {
+          shouldShow = true;
+        } else if (filterType === "collections") {
+          // Show only collected items
+          shouldShow = collectedItems.some(
+            (item) => item.id === markerData.placeId,
+          );
+        } else {
+          // Filter by type
+          shouldShow = markerData.type === filterType;
+        }
+
+        if (shouldShow) {
+          // Show marker
+          markerData.marker.addTo(mapInstance.current!);
+          visibleMarkers.push(markerData);
+        } else {
+          // Hide marker and close its popup
+          markerData.popup.remove();
+          markerData.element.classList.remove("marker-active");
+          markerData.marker.remove();
+        }
+      });
+
+      // Adjust map view to fit visible markers
+      if (visibleMarkers.length > 0) {
+        const bounds = new mapboxgl.LngLatBounds();
+        visibleMarkers.forEach((markerData) => {
+          bounds.extend(markerData.marker.getLngLat());
+        });
+
+        mapInstance.current.fitBounds(bounds, {
+          padding: { top: 80, bottom: 150, left: 80, right: 80 },
+          maxZoom: 14,
+          duration: 800,
+        });
       }
-    });
-
-    // Adjust map view to fit visible markers
-    if (visibleMarkers.length > 0) {
-      const bounds = new mapboxgl.LngLatBounds();
-      visibleMarkers.forEach((markerData) => {
-        bounds.extend(markerData.marker.getLngLat());
-      });
-
-      mapInstance.current.fitBounds(bounds, {
-        padding: { top: 80, bottom: 150, left: 80, right: 80 },
-        maxZoom: 14,
-        duration: 800,
-      });
-    }
-  }, []);
+    },
+    [collectedItems],
+  );
 
   // Handle filter change
   const handleFilterChange = useCallback(
@@ -297,12 +316,13 @@ const ExplorePage: React.FC = () => {
         anchor: "center",
       }).setLngLat(geometry.coordinates as [number, number]);
 
-      // Store marker data with type
+      // Store marker data with type and placeId
       const markerData: MarkerData = {
         marker,
         element: el,
         popup,
         type: properties?.type as PlaceType,
+        placeId: properties?.id || "",
       };
 
       // Standard click behavior: toggle popup
@@ -559,6 +579,25 @@ const ExplorePage: React.FC = () => {
           >
             <BuildingStorefrontIcon className="h-6 w-6" />
             <span className="text-xs font-semibold">Food</span>
+          </button>
+
+          {/* My Collections Filter */}
+          <button
+            onClick={() => handleFilterChange("collections")}
+            className={`relative flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl drop-shadow-2xl transition-all duration-200 ${
+              activeFilter === "collections"
+                ? "bg-rose-600 text-white shadow-lg ring-2 ring-rose-900/20"
+                : "bg-rose-100/60 text-rose-600 backdrop-blur-sm hover:bg-rose-200/80"
+            }`}
+            aria-label="Show my collections"
+          >
+            <HeartIcon className="h-6 w-6" />
+            <span className="text-xs font-semibold">Mine</span>
+            {collectedItems.length > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white ring-2 ring-white">
+                {collectedItems.length}
+              </span>
+            )}
           </button>
         </div>
       </div>
