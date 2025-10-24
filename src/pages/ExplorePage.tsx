@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, useCallback, useState } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useCallback,
+  useState,
+  useMemo,
+} from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./Explore.css";
@@ -185,7 +191,75 @@ const ExplorePage: React.FC = () => {
   // Local map loading state (use a small inline loader instead of the global overlay)
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const { collectedItems } = useCollection();
+
+  // Get filtered places based on active filter
+  const filteredPlaces = useMemo(() => {
+    return allPlacesGeoJSON.features.filter((feature) => {
+      const properties = feature.properties;
+      if (!properties) return false;
+
+      // Apply type filter
+      let matchesFilter = false;
+      if (activeFilter === "all") {
+        matchesFilter = true;
+      } else if (activeFilter === "collections") {
+        matchesFilter = collectedItems.some(
+          (item) => item.id === properties.id,
+        );
+      } else {
+        matchesFilter = properties.type === activeFilter;
+      }
+
+      // Apply search filter
+      const matchesSearch =
+        searchQuery.trim() === "" ||
+        properties.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        properties.description
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        properties.location
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        properties.category?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return matchesFilter && matchesSearch;
+    });
+  }, [activeFilter, searchQuery, collectedItems]);
+
+  // Function to zoom to a specific place
+  const zoomToPlace = useCallback(
+    (coordinates: [number, number], placeId: string) => {
+      if (!mapInstance.current) return;
+
+      // Fly to the location
+      mapInstance.current.flyTo({
+        center: coordinates,
+        zoom: 15,
+        duration: 1500,
+      });
+
+      // Find and open the marker's popup
+      const markerData = markersRef.current.find((m) => m.placeId === placeId);
+      if (markerData) {
+        // Close all other popups first
+        markersRef.current.forEach((m) => {
+          if (m !== markerData && m.popup.isOpen()) {
+            m.popup.remove();
+            m.element.classList.remove("marker-active");
+          }
+        });
+
+        // Open this marker's popup
+        markerData.popup
+          .setLngLat(markerData.marker.getLngLat())
+          .addTo(mapInstance.current);
+        markerData.element.classList.add("marker-active");
+      }
+    },
+    [],
+  );
 
   // Function to update marker sizes based on zoom level
   const updateMarkerSizes = useCallback(() => {
@@ -521,6 +595,126 @@ const ExplorePage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Search Sidebar - Top Right */}
+      <div className="absolute top-6 right-6 z-30 w-80 space-y-3">
+        {/* Search Bar */}
+        <div className="rounded-md bg-white/80 p-3 shadow backdrop-blur">
+          <label htmlFor="search-places" className="sr-only">
+            Search places
+          </label>
+          <input
+            id="search-places"
+            type="text"
+            placeholder="Search places..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+
+        {/* Places List */}
+        <div
+          className="places-list overflow-y-auto rounded-md bg-white/90 shadow-lg backdrop-blur"
+          style={{
+            maxHeight: "calc(100vh - 16rem)",
+          }}
+        >
+          <div className="space-y-2 p-2">
+            {filteredPlaces.length === 0 ? (
+              <div className="p-4 text-center text-sm text-gray-500">
+                {searchQuery ? "No places found" : "No places available"}
+              </div>
+            ) : (
+              filteredPlaces.map((feature) => {
+                const props = feature.properties;
+                if (!props) return null;
+
+                return (
+                  <button
+                    key={props.id}
+                    onClick={() =>
+                      zoomToPlace(
+                        feature.geometry.coordinates as [number, number],
+                        props.id,
+                      )
+                    }
+                    className="flex w-full items-center gap-3 rounded-lg border-2 border-gray-200 bg-white p-3 transition-all hover:border-gray-300 hover:shadow-md"
+                  >
+                    {/* Place Thumbnail */}
+                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white">
+                      <img
+                        src={props.image || "/placeholder.jpg"}
+                        alt={props.name || "Place"}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src =
+                            "https://via.placeholder.com/64x64?text=No+Image";
+                        }}
+                      />
+                    </div>
+
+                    {/* Place Info */}
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-semibold text-gray-900">
+                        {props.name}
+                      </div>
+                      <div className="truncate text-xs text-gray-600">
+                        {props.location}
+                      </div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <span
+                          className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium text-white ${
+                            props.type === "attraction"
+                              ? "bg-purple-600"
+                              : props.type === "event"
+                                ? "bg-cyan-600"
+                                : props.type === "food"
+                                  ? "bg-orange-600"
+                                  : "bg-gray-600"
+                          }`}
+                        >
+                          {props.type}
+                        </span>
+                        {props.rating && (
+                          <span className="flex items-center gap-0.5 text-xs text-yellow-600">
+                            <span>★</span>
+                            <span className="font-semibold">
+                              {props.rating}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        /* Minimalist scrollbar */
+        .places-list::-webkit-scrollbar {
+          width: 6px;
+        }
+        .places-list::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .places-list::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.4);
+          border-radius: 3px;
+        }
+        .places-list::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.6);
+        }
+        /* Firefox */
+        .places-list {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+        }
+      `}</style>
 
       {/* Fixed Filter Bar at Bottom */}
       <div className="filter-bar fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform">
