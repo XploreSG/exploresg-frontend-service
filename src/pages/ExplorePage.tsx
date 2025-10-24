@@ -140,17 +140,12 @@ const createPopupHTML = (properties: GeoJSON.GeoJsonProperties): string => {
             ${properties.description || ""}
           </p>
 
-          <!-- Location -->
-          <div class="mb-3 flex items-center gap-1 text-xs text-gray-300">
-            <span>📍</span>
-            <span class="font-medium">${properties.location || ""}</span>
-          </div>
-
-          <!-- Footer - Category & Reviews -->
+          <!-- Footer - Category & Location -->
           <div class="mt-auto flex items-center justify-between">
-            <span class="text-xs text-gray-300">
-              (${properties.reviews || 0} reviews)
-            </span>
+            <div class="flex items-center gap-1 text-xs text-gray-300">
+              <span>📍</span>
+              <span class="font-medium">${properties.location || ""}</span>
+            </div>
             <span class="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm">
               ${properties.category || ""}
             </span>
