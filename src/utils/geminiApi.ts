@@ -83,21 +83,26 @@ export const sendToGemini = async (message: string, conversationHistory: ChatMes
   } catch (error) {
     console.error('Gemini API error:', error);
     console.error('Error details:', error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
+    
+    // Type guard to check if error is an Error object
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    console.error('Error message:', errorMessage);
+    console.error('Error stack:', errorStack);
     
     // Check if it's a CORS error
-    if (error.message.includes('CORS') || error.message.includes('cross-origin')) {
+    if (errorMessage.includes('CORS') || errorMessage.includes('cross-origin')) {
       console.error('CORS error detected - this is likely the issue');
     }
     
     // Check if it's an API key error
-    if (error.message.includes('API_KEY') || error.message.includes('permission') || error.message.includes('quota')) {
+    if (errorMessage.includes('API_KEY') || errorMessage.includes('permission') || errorMessage.includes('quota')) {
       console.error('API key or permission error detected');
     }
     
     // Check if it's an overload error
-    if (error.message.includes('overloaded') || error.message.includes('503')) {
+    if (errorMessage.includes('overloaded') || errorMessage.includes('503')) {
       console.error('Model overloaded - this is a temporary Google server issue');
     }
     
@@ -127,8 +132,9 @@ export const getQuickResponse = async (message: string): Promise<string> => {
             const response = await sendToGemini(message);
             console.log('Gemini response received');
             return response;
-          } catch (error: any) {
-            console.log(`Attempt ${attempt} failed:`, error.message);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.log(`Attempt ${attempt} failed:`, errorMessage);
             
             if (attempt === 2) {
               // Last attempt failed, throw the error

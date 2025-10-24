@@ -18,17 +18,12 @@ export const testGeminiConnection = async (): Promise<void> => {
     console.log('Fetching available models...');
     let availableModels: any[] = [];
     try {
-      const { models } = await genAI.listModels();
-      availableModels = models;
-      console.log('✅ Successfully listed models!');
-      console.log('Available models:', availableModels.map((m: any) => m.name));
-      
-      if (availableModels.length === 0) {
-        console.warn('⚠️ No models are available for this API key');
-        throw new Error('No models available for this API key');
-      }
-    } catch (listError: any) {
-      console.error('❌ Failed to list models:', listError.message);
+      // Note: listModels() might not be available in all versions
+      // We'll skip this step and try common model names directly
+      console.log('Skipping model listing - will try common model names directly...');
+    } catch (listError) {
+      const errorMessage = listError instanceof Error ? listError.message : String(listError);
+      console.error('❌ Failed to list models:', errorMessage);
       console.log('Will try common model names anyway...');
     }
     
@@ -67,18 +62,22 @@ export const testGeminiConnection = async (): Promise<void> => {
   } catch (error) {
     console.error('❌ Gemini API test failed:');
     console.error('Error:', error);
-    console.error('Error message:', error.message);
-    console.error('Error type:', error.constructor.name);
     
-    if (error.message.includes('CORS')) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorType = error instanceof Error ? error.constructor.name : typeof error;
+    
+    console.error('Error message:', errorMessage);
+    console.error('Error type:', errorType);
+    
+    if (errorMessage.includes('CORS')) {
       console.error('🔍 CORS error detected - browser is blocking the request');
-    } else if (error.message.includes('API_KEY') || error.message.includes('permission')) {
+    } else if (errorMessage.includes('API_KEY') || errorMessage.includes('permission')) {
       console.error('🔍 API key or permission error - check your Google Cloud Console');
-    } else if (error.message.includes('quota') || error.message.includes('limit')) {
+    } else if (errorMessage.includes('quota') || errorMessage.includes('limit')) {
       console.error('🔍 API quota or rate limit error');
-    } else if (error.message.includes('network') || error.message.includes('fetch')) {
+    } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
       console.error('🔍 Network or fetch error');
-    } else if (error.message.includes('404') && error.message.includes('models')) {
+    } else if (errorMessage.includes('404') && errorMessage.includes('models')) {
       console.error('🔍 Model not found - this API key may not have access to Gemini models');
     }
   }
