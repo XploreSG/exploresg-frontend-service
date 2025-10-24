@@ -325,7 +325,7 @@ const CollectionsPage: React.FC = () => {
                       imageAlt={props.name}
                       rating={props.rating || 4.5}
                       reviews={props.reviews || 100}
-                      distance={props.distance || "N/A"}
+                      distance={props.location || "Singapore"}
                       category={props.category}
                       price={props.price}
                       status={props.status}
