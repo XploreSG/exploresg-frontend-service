@@ -23,15 +23,14 @@ interface ContentCardProps {
 const getTypeGradient = (type?: PlaceType): string => {
   switch (type) {
     case "attraction":
-      // Attractions (Blue/Purple)
-      // return "from-blue-500 via-indigo-400 to-purple-600";
-      return "from-violet-500/30 via-purple-500 to-emerald-600/40";
+      // Attractions (Rich Red Gradient)
+      return "from-red-300 via-red-400 via-red-500 via-red-600 to-red-700";
     case "event":
-      // Events (Red/Orange)
-      return "from-blue-500/30 via-teal-500 to-emerald-600/40";
+      // Events (Rich Blue Gradient)
+      return "from-blue-300 via-blue-400 via-blue-500 via-blue-600 to-blue-700";
     case "food":
-      // Food (Green/Teal)
-      return "from-orange-500/30 via-red-400 to-emerald-600/40";
+      // Food (Rich Orange-Red Gradient)
+      return "from-orange-300 via-orange-400 via-orange-500 via-orange-600 to-red-500";
     default:
       // Default (Gray/Slate)
       return "from-gray-500 via-slate-400 to-gray-600";
@@ -56,12 +55,14 @@ const ContentCard: React.FC<ContentCardProps> = ({
   const gradientColors = getTypeGradient(type);
 
   return (
-    <div className="group relative h-[34rem] w-full cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl">
+    <div className="group relative h-[34rem] w-full cursor-pointer overflow-hidden rounded-2xl shadow-xl transition-all duration-500 hover:-translate-y-3 hover:scale-[1.02] hover:shadow-3xl hover:brightness-110">
       {/* Main Gradient Background */}
       <div
-        className={`absolute inset-0 bg-gradient-to-b ${gradientColors} from-30% via-gray-300 via-60% to-gray-800 to-95%`}
+        className={`absolute inset-0 bg-gradient-to-br ${gradientColors} from-5% via-20% via-40% via-65% to-85%`}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-slate-600/10 to-indigo-600/0 transition-opacity duration-500 group-hover:opacity-200" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/5 to-white/10 transition-opacity duration-500 group-hover:opacity-100" />
+        <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-white/5 to-transparent" />
       </div>
 
       {/* Content (cross-fades with skeleton) */}
@@ -121,29 +122,30 @@ const ContentCard: React.FC<ContentCardProps> = ({
             {description}
           </p>
 
-          {/* Footer - Location & Category */}
+          {/* Footer - Location & Collect Button */}
           <div className="mt-auto flex items-center justify-between">
             <div className="flex items-center gap-1 text-xs text-gray-300 transition-colors group-hover:text-white sm:text-sm">
               <span>📍</span>
               <span className="font-medium">{distance}</span>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              {/* Collect Button */}
-              <CollectButton
-                id={id}
-                name={name}
-                type={type || "attraction"}
-                variant="full"
-              />
-              {/* Category Tag */}
-              <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm transition-all duration-300 group-hover:scale-105 group-hover:brightness-110 sm:text-sm">
-                {category}
-              </span>
-            </div>
+            {/* Collect Button */}
+            <CollectButton
+              id={id}
+              name={name}
+              type={type || "attraction"}
+              variant="full"
+            />
+          </div>
+
+          {/* Category Tag - Centered at bottom */}
+          <div className="mt-3 flex justify-center">
+            <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm transition-all duration-300 group-hover:scale-105 group-hover:brightness-110 sm:text-sm">
+              {category}
+            </span>
           </div>
 
           {/* Animated Border */}
-          <div className="absolute -bottom-4 left-0 h-1 w-0 bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-500 group-hover:w-full sm:-bottom-6" />
+          <div className="absolute -bottom-2 left-0 h-2 w-0 bg-gradient-to-r from-white/60 via-white/80 to-white/60 transition-all duration-700 group-hover:w-full shadow-lg" />
         </div>
 
         {children}
