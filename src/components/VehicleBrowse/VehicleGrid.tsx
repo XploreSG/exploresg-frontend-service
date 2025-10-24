@@ -17,7 +17,7 @@ const VehicleGrid: React.FC<VehicleGridProps> = ({
   const placeholders = Array.from({ length: placeholderCount });
 
   return (
-    <div className="grid grid-cols-1 justify-center justify-items-center gap-10 md:[grid-template-columns:repeat(auto-fit,minmax(320px,320px))] lg:gap-12">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
       {isLoading
         ? placeholders.map((_, i) => (
             <RentalCard

@@ -25,6 +25,7 @@ import SignUpForm from "./components/Auth/SignUpForm";
 import type { SignupDetails } from "./components/Auth/SignUpForm";
 import ProfilePage from "./pages/ProfilePage";
 import ExplorePage from "./pages/ExplorePage";
+import CollectionsPage from "./pages/CollectionsPage";
 import ProtectedRoleRoute from "./components/Auth/ProtectedRoleRoute";
 import FleetAdminDashboardPage from "./pages/FleetAdminDashboardPage";
 import FleetAdminListPage from "./pages/FleetAdminListPage";
@@ -63,6 +64,7 @@ const App = () => {
                 />
                 <Route path="/login" element={<SignInPage />} />
                 <Route path="/explore" element={<ExplorePage />} />
+                <Route path="/collections" element={<CollectionsPage />} />
                 <Route
                   path="/signup"
                   element={

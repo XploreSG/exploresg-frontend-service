@@ -1,6 +1,6 @@
 import { useAuth } from "../contexts/useAuth";
 import RentalCardSummary from "../components/Rentals/RentalCardSummary";
-import { useMemo } from "react";
+import { useMemo, useState, useRef } from "react";
 import WeatherWidget from "../components/Weather/WeatherWidget";
 import {
   formatBookingTimeLocation,
@@ -8,6 +8,10 @@ import {
 } from "../utils/rentalUtils";
 import { useConfirmedBookings } from "../contexts/useConfirmedBookings";
 import { Link } from "react-router-dom";
+import { useCollection } from "../hooks/useCollection";
+import { allPlacesGeoJSON } from "../data/places";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import ContentCard from "../components/ContentCard";
 
 // Supported languages type
 type SupportedLanguage = "English" | "Chinese" | "Malay" | "Tamil";
@@ -46,6 +50,31 @@ const greetingsMap: Record<
 const YourDayPage = () => {
   const { user } = useAuth();
   const { confirmedBookings } = useConfirmedBookings();
+  const { collectedItems } = useCollection();
+  const [collectionFilter, setCollectionFilter] = useState<
+    "all" | "attraction" | "event" | "food"
+  >("all");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Filter collected items based on selected filter
+  const filteredCollections = useMemo(() => {
+    if (collectionFilter === "all") return collectedItems;
+    return collectedItems.filter((item) => item.type === collectionFilter);
+  }, [collectedItems, collectionFilter]);
+
+  // Scroll functions
+  const scroll = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 350; // Card width (320) + gap (24) + extra (6)
+      const newScrollLeft =
+        scrollContainerRef.current.scrollLeft +
+        (direction === "left" ? -scrollAmount : scrollAmount);
+      scrollContainerRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: "smooth",
+      });
+    }
+  };
 
   // Example booking data using shared interfaces (removed - now using real bookings)
   // const exampleBooking: BookingInfo = useMemo(() => { ... }, []);
@@ -186,6 +215,158 @@ const YourDayPage = () => {
                 Explore Vehicles
               </Link>
             </div>
+          </div>
+        )}
+
+        {/* Your Collections Carousel */}
+        {collectedItems.length > 0 && (
+          <div className="mb-6 rounded-2xl bg-white p-6 shadow">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Your Collections
+              </h2>
+              <Link
+                to="/collections"
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+              >
+                View All →
+              </Link>
+            </div>
+
+            {/* Filter Buttons */}
+            <div className="mb-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => setCollectionFilter("all")}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                  collectionFilter === "all"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                All ({collectedItems.length})
+              </button>
+              <button
+                onClick={() => setCollectionFilter("attraction")}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                  collectionFilter === "attraction"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                🎡 Attractions (
+                {collectedItems.filter((i) => i.type === "attraction").length})
+              </button>
+              <button
+                onClick={() => setCollectionFilter("event")}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                  collectionFilter === "event"
+                    ? "bg-teal-600 text-white shadow-sm"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                🎉 Events (
+                {collectedItems.filter((i) => i.type === "event").length})
+              </button>
+              <button
+                onClick={() => setCollectionFilter("food")}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                  collectionFilter === "food"
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                🍜 Food (
+                {collectedItems.filter((i) => i.type === "food").length})
+              </button>
+            </div>
+
+            {/* Scrollable Carousel */}
+            <div className="relative">
+              {/* Left Scroll Button */}
+              <button
+                onClick={() => scroll("left")}
+                className="absolute top-1/2 left-0 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-gray-50"
+                aria-label="Scroll left"
+              >
+                <ChevronLeftIcon className="h-6 w-6 text-gray-700" />
+              </button>
+
+              {/* Carousel Container */}
+              <div
+                ref={scrollContainerRef}
+                className="carousel-container flex gap-6 overflow-x-scroll scroll-smooth pb-4"
+              >
+                <style>{`
+                  .carousel-container {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                    -webkit-overflow-scrolling: touch;
+                  }
+                  .carousel-container::-webkit-scrollbar {
+                    display: none;
+                  }
+                `}</style>
+                {filteredCollections.map((item) => {
+                  // Find the full place data
+                  const placeData = allPlacesGeoJSON.features.find(
+                    (feature) => feature.properties?.id === item.id,
+                  );
+
+                  if (!placeData || !placeData.properties) {
+                    return null;
+                  }
+
+                  const props = placeData.properties;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="max-w-[320px] min-w-[320px] flex-shrink-0"
+                    >
+                      <ContentCard
+                        id={props.id}
+                        name={props.name}
+                        description={props.description}
+                        image={props.image}
+                        imageAlt={props.name}
+                        rating={props.rating || 4.5}
+                        reviews={props.reviews || 100}
+                        distance={props.location || "Singapore"}
+                        category={props.category}
+                        price={props.price}
+                        status={props.status}
+                        type={item.type}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Right Scroll Button */}
+              <button
+                onClick={() => scroll("right")}
+                className="absolute top-1/2 right-0 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-gray-50"
+                aria-label="Scroll right"
+              >
+                <ChevronRightIcon className="h-6 w-6 text-gray-700" />
+              </button>
+            </div>
+
+            {/* Empty State */}
+            {filteredCollections.length === 0 && (
+              <div className="py-12 text-center text-gray-500">
+                <p className="mb-2 text-lg font-semibold">
+                  No{" "}
+                  {collectionFilter !== "all"
+                    ? collectionFilter + "s"
+                    : "collections"}{" "}
+                  yet
+                </p>
+                <p className="text-sm">
+                  Start exploring and collect your favorite places!
+                </p>
+              </div>
+            )}
           </div>
         )}
 
