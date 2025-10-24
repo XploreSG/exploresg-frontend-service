@@ -4,6 +4,12 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "./Explore.css";
 import { allPlacesGeoJSON, type PlaceType } from "../data/places";
 import { MAPBOX_TOKEN } from "../config/api";
+import {
+  MapIcon,
+  SparklesIcon,
+  CalendarDaysIcon,
+  BuildingStorefrontIcon,
+} from "@heroicons/react/24/solid";
 
 // Use centralized MAPBOX_TOKEN that supports runtime env injection
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -162,7 +168,10 @@ interface MarkerData {
   marker: mapboxgl.Marker;
   element: HTMLElement;
   popup: mapboxgl.Popup;
+  type: PlaceType;
 }
+
+type FilterType = "all" | PlaceType;
 
 const ExplorePage: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -170,6 +179,7 @@ const ExplorePage: React.FC = () => {
   const markersRef = useRef<MarkerData[]>([]);
   // Local map loading state (use a small inline loader instead of the global overlay)
   const [isMapLoading, setIsMapLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<FilterType>("all");
 
   // Function to update marker sizes based on zoom level
   const updateMarkerSizes = useCallback(() => {
@@ -189,6 +199,51 @@ const ExplorePage: React.FC = () => {
       element.style.height = `${newSize}px`;
     });
   }, []);
+
+  // Function to filter markers based on type
+  const filterMarkers = useCallback((filterType: FilterType) => {
+    if (!mapInstance.current) return;
+
+    const visibleMarkers: MarkerData[] = [];
+
+    markersRef.current.forEach((markerData) => {
+      const shouldShow = filterType === "all" || markerData.type === filterType;
+
+      if (shouldShow) {
+        // Show marker
+        markerData.marker.addTo(mapInstance.current!);
+        visibleMarkers.push(markerData);
+      } else {
+        // Hide marker and close its popup
+        markerData.popup.remove();
+        markerData.element.classList.remove("marker-active");
+        markerData.marker.remove();
+      }
+    });
+
+    // Adjust map view to fit visible markers
+    if (visibleMarkers.length > 0) {
+      const bounds = new mapboxgl.LngLatBounds();
+      visibleMarkers.forEach((markerData) => {
+        bounds.extend(markerData.marker.getLngLat());
+      });
+
+      mapInstance.current.fitBounds(bounds, {
+        padding: { top: 80, bottom: 150, left: 80, right: 80 },
+        maxZoom: 14,
+        duration: 800,
+      });
+    }
+  }, []);
+
+  // Handle filter change
+  const handleFilterChange = useCallback(
+    (filterType: FilterType) => {
+      setActiveFilter(filterType);
+      filterMarkers(filterType);
+    },
+    [filterMarkers],
+  );
 
   // Memoized marker creation function
   const createMarker = useCallback(
@@ -222,8 +277,13 @@ const ExplorePage: React.FC = () => {
         anchor: "center",
       }).setLngLat(geometry.coordinates as [number, number]);
 
-      // Store marker data
-      const markerData = { marker, element: el, popup };
+      // Store marker data with type
+      const markerData: MarkerData = {
+        marker,
+        element: el,
+        popup,
+        type: properties?.type as PlaceType,
+      };
 
       // Standard click behavior: toggle popup
       el.addEventListener("click", (e) => {
@@ -421,6 +481,67 @@ const ExplorePage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Fixed Filter Bar at Bottom */}
+      <div className="filter-bar fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform">
+        <div className="flex items-center gap-3 rounded-full bg-white/80 px-6 py-3 shadow-2xl ring-1 ring-white/20 backdrop-blur-xl">
+          {/* All Filter */}
+          <button
+            onClick={() => handleFilterChange("all")}
+            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 ${
+              activeFilter === "all"
+                ? "bg-gray-700 text-white shadow-lg ring-2 ring-gray-900/20"
+                : "bg-gray-100/60 text-gray-600 backdrop-blur-sm hover:bg-gray-200/80"
+            }`}
+            aria-label="Show all places"
+          >
+            <MapIcon className="h-6 w-6" />
+            <span className="text-xs font-semibold">All</span>
+          </button>
+
+          {/* Attractions Filter */}
+          <button
+            onClick={() => handleFilterChange("attraction")}
+            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 ${
+              activeFilter === "attraction"
+                ? "bg-purple-600 text-white shadow-lg ring-2 ring-purple-900/20"
+                : "bg-purple-100/60 text-purple-600 backdrop-blur-sm hover:bg-purple-200/80"
+            }`}
+            aria-label="Show attractions"
+          >
+            <SparklesIcon className="h-6 w-6" />
+            <span className="text-xs font-semibold">Places</span>
+          </button>
+
+          {/* Events Filter */}
+          <button
+            onClick={() => handleFilterChange("event")}
+            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 ${
+              activeFilter === "event"
+                ? "bg-cyan-600 text-white shadow-lg ring-2 ring-cyan-900/20"
+                : "bg-cyan-100/60 text-cyan-600 backdrop-blur-sm hover:bg-cyan-200/80"
+            }`}
+            aria-label="Show events"
+          >
+            <CalendarDaysIcon className="h-6 w-6" />
+            <span className="text-xs font-semibold">Events</span>
+          </button>
+
+          {/* Food Filter */}
+          <button
+            onClick={() => handleFilterChange("food")}
+            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 ${
+              activeFilter === "food"
+                ? "bg-orange-600 text-white shadow-lg ring-2 ring-orange-900/20"
+                : "bg-orange-100/60 text-orange-600 backdrop-blur-sm hover:bg-orange-200/80"
+            }`}
+            aria-label="Show food places"
+          >
+            <BuildingStorefrontIcon className="h-6 w-6" />
+            <span className="text-xs font-semibold">Food</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
