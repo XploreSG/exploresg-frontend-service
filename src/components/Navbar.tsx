@@ -3,6 +3,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { IS_DEVELOPMENT } from "../config/api";
 import { getOperatorInfoFromUserId } from "../types/rental";
+import NavDropdown from "./NavDropdown";
+
+interface NavItem {
+  name: string;
+  href: string;
+}
 
 const Navbar: React.FC = () => {
   const { user, logout, hasRole, primaryRole } = useAuth();
@@ -21,10 +27,15 @@ const Navbar: React.FC = () => {
       : null;
   }, [hasRole, user?.userId]);
 
+  const mainNavLinks: NavItem[] = [
+    { name: "Attractions", href: "/attractions" },
+    { name: "Explore", href: "/explore" },
+    { name: "Events", href: "/events" },
+    { name: "Food", href: "/food" },
+  ];
+
   const navigation = useMemo(() => {
-    // Do not show the Explore route to fleet admin users
-    const isFleetAdmin = hasRole(["FLEET_MANAGER", "FLEET_ADMIN"]);
-    const nav = isFleetAdmin ? [] : [{ name: "Explore", href: "/explore" }];
+    const nav: NavItem[] = [];
 
     // Show Rentals to guests and USERs
     if (!user || hasRole("USER")) {
@@ -151,6 +162,11 @@ const Navbar: React.FC = () => {
               )} */}
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-2">
+              <NavDropdown
+                title="Discover"
+                items={mainNavLinks}
+                isActive={isActive}
+              />
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -279,6 +295,12 @@ const Navbar: React.FC = () => {
       {mobileMenuOpen && (
         <div className="sm:hidden" id="mobile-menu">
           <div className="space-y-1 px-2 pt-2 pb-3">
+            <NavDropdown
+              title="Discover"
+              items={mainNavLinks}
+              isActive={isActive}
+              closeMobileMenu={() => setMobileMenuOpen(false)}
+            />
             {navigation.map((item) => (
               <Link
                 key={item.name}
