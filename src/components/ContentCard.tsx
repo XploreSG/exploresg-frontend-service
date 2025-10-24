@@ -42,7 +42,6 @@ const ContentCard: React.FC<ContentCardProps> = ({
   image,
   imageAlt,
   rating,
-  reviews,
   distance,
   category,
   price,
@@ -119,17 +118,12 @@ const ContentCard: React.FC<ContentCardProps> = ({
             {description}
           </p>
 
-          {/* Location */}
-          <div className="mb-3 flex items-center gap-1 text-xs text-gray-300 transition-colors group-hover:text-white sm:text-sm">
-            <span>📍</span>
-            <span className="font-medium">{distance}</span>
-          </div>
-
-          {/* Footer - Category & Reviews */}
+          {/* Footer - Location & Category */}
           <div className="mt-auto flex items-center justify-between">
-            <span className="text-xs text-gray-300 transition-colors group-hover:text-white sm:text-sm">
-              ({reviews} reviews)
-            </span>
+            <div className="flex items-center gap-1 text-xs text-gray-300 transition-colors group-hover:text-white sm:text-sm">
+              <span>📍</span>
+              <span className="font-medium">{distance}</span>
+            </div>
             <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm transition-all duration-300 group-hover:scale-105 group-hover:brightness-110 sm:text-sm">
               {category}
             </span>
