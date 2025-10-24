@@ -36,6 +36,7 @@ import BookingFlow from "./pages/BookingFlow";
 import EagleViewPage from "./pages/EagleViewPage";
 import { BookingProvider } from "./contexts/BookingProvider";
 import { ConfirmedBookingsProvider } from "./contexts/ConfirmedBookingsContext";
+import ChatWidget from "./components/ChatWidget";
 
 const App = () => {
   return (
@@ -133,6 +134,7 @@ const App = () => {
               </Routes>
             </main>
             <Footer />
+            <ChatWidget />
           </div>
         </Router>
       </ConfirmedBookingsProvider>
