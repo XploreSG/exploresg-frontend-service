@@ -2,7 +2,8 @@ import React, { useRef, useEffect, useCallback, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./Explore.css";
-import { places } from "../data/places.geojson";
+import { allPlacesGeoJSON } from "../data/places";
+// import type { PlaceType } from "../data/places";
 import { MAPBOX_TOKEN } from "../config/api";
 
 // Use centralized MAPBOX_TOKEN that supports runtime env injection
@@ -159,22 +160,26 @@ const ExplorePage: React.FC = () => {
 
   // Memoized marker creation function
   const createMarker = useCallback(
-    (feature: (typeof places.features)[0], index: number) => {
+    (feature: GeoJSON.Feature<GeoJSON.Point>, index: number) => {
       const { geometry, properties } = feature;
 
       // Create custom marker element
       const el = document.createElement("div");
       el.className = "marker";
       el.setAttribute("role", "button");
-      el.setAttribute("aria-label", `View ${properties.title}`);
+      el.setAttribute("aria-label", `View ${properties?.name || "place"}`);
       el.setAttribute("tabindex", "0");
       el.setAttribute("data-marker-id", index.toString());
 
       // Create popup with basic information card
       const popup = new mapboxgl.Popup(POPUP_CONFIG).setHTML(
         `<div class="info-card">
-          <h3 class="info-title">${properties.title}</h3>
-          <p class="info-description">${properties.description}</p>
+          <h3 class="info-title">${properties?.name || "Unknown"}</h3>
+          <p class="info-description">${properties?.description || ""}</p>
+          <div class="info-meta">
+            <span class="info-category">${properties?.category || ""}</span>
+            <span class="info-price">${properties?.price || ""}</span>
+          </div>
           <button class="info-btn">Get Directions</button>
         </div>`,
       );
@@ -262,7 +267,7 @@ const ExplorePage: React.FC = () => {
         setIsMapLoading(false);
 
         // Add markers after map is loaded
-        places.features.forEach((feature, index) => {
+        allPlacesGeoJSON.features.forEach((feature, index) => {
           const markerData = createMarker(feature, index);
           markerData.marker.addTo(map);
           markersRef.current.push(markerData);
@@ -272,9 +277,9 @@ const ExplorePage: React.FC = () => {
         updateMarkerSizes();
 
         // Fit map to markers bounds with padding
-        if (places.features.length > 0) {
+        if (allPlacesGeoJSON.features.length > 0) {
           const bounds = new mapboxgl.LngLatBounds();
-          places.features.forEach((feature) => {
+          allPlacesGeoJSON.features.forEach((feature) => {
             bounds.extend(feature.geometry.coordinates as [number, number]);
           });
           map.fitBounds(bounds, {
