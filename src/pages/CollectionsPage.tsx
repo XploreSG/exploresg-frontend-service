@@ -47,8 +47,11 @@ const CollectionsPage: React.FC = () => {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900 sm:text-4xl">
-            Your Collections
+          <h1
+            className="mb-4 text-5xl font-bold text-gray-900 sm:text-6xl"
+            style={{ fontFamily: "cursive" }}
+          >
+            Chope It!
           </h1>
           <p className="text-base text-gray-600">
             Track and manage your favorite places in Singapore
