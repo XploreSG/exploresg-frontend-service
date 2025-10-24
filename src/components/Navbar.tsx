@@ -9,7 +9,6 @@ import {
   MagnifyingGlassIcon,
   CalendarIcon,
   MapPinIcon,
-  HeartIcon,
 } from "@heroicons/react/24/outline";
 
 interface NavItem {
@@ -40,7 +39,6 @@ const Navbar: React.FC = () => {
     { name: "Events", href: "/events", icon: CalendarIcon },
     { name: "Food", href: "/food", icon: MapPinIcon },
     { name: "Explore", href: "/explore", icon: MagnifyingGlassIcon },
-    { name: "Collections", href: "/collections", icon: HeartIcon },
   ];
 
   const navigation = useMemo(() => {
@@ -271,6 +269,13 @@ const Navbar: React.FC = () => {
                       onClick={() => setProfileOpen(false)}
                     >
                       Your profile
+                    </Link>
+                    <Link
+                      to="/collections"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      Your collections
                     </Link>
                     <Link
                       to="/settings"
