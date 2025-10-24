@@ -16,6 +16,8 @@ import {
   CalendarDaysIcon,
   BuildingStorefrontIcon,
   HeartIcon,
+  Bars3BottomLeftIcon,
+  StarIcon,
 } from "@heroicons/react/24/solid";
 import { createRoot } from "react-dom/client";
 import CollectButton from "../components/CollectButton";
@@ -183,6 +185,7 @@ interface MarkerData {
 }
 
 type FilterType = "all" | PlaceType | "collections";
+type SortType = "name" | "rating";
 
 const ExplorePage: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -192,11 +195,12 @@ const ExplorePage: React.FC = () => {
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortType>("name");
   const { collectedItems } = useCollection();
 
-  // Get filtered places based on active filter
+  // Get filtered and sorted places based on active filter
   const filteredPlaces = useMemo(() => {
-    return allPlacesGeoJSON.features.filter((feature) => {
+    const filtered = allPlacesGeoJSON.features.filter((feature) => {
       const properties = feature.properties;
       if (!properties) return false;
 
@@ -226,7 +230,25 @@ const ExplorePage: React.FC = () => {
 
       return matchesFilter && matchesSearch;
     });
-  }, [activeFilter, searchQuery, collectedItems]);
+
+    // Sort the filtered results
+    return filtered.sort((a, b) => {
+      const propsA = a.properties;
+      const propsB = b.properties;
+
+      if (!propsA || !propsB) return 0;
+
+      if (sortBy === "name") {
+        return (propsA.name || "").localeCompare(propsB.name || "");
+      } else if (sortBy === "rating") {
+        const ratingA = parseFloat(propsA.rating) || 0;
+        const ratingB = parseFloat(propsB.rating) || 0;
+        return ratingB - ratingA; // Descending order (highest first)
+      }
+
+      return 0;
+    });
+  }, [activeFilter, searchQuery, collectedItems, sortBy]);
 
   // Function to zoom to a specific place
   const zoomToPlace = useCallback(
@@ -611,6 +633,34 @@ const ExplorePage: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
+        </div>
+
+        {/* Sort Buttons */}
+        <div className="rounded-md bg-white/80 p-2 shadow backdrop-blur">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setSortBy("name")}
+              className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-[11px] font-semibold transition-all ${
+                sortBy === "name"
+                  ? "bg-indigo-500 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Bars3BottomLeftIcon className="h-3.5 w-3.5" />
+              <span>Name</span>
+            </button>
+            <button
+              onClick={() => setSortBy("rating")}
+              className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-[11px] font-semibold transition-all ${
+                sortBy === "rating"
+                  ? "bg-indigo-500 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <StarIcon className="h-3.5 w-3.5" />
+              <span>Rating</span>
+            </button>
+          </div>
         </div>
 
         {/* Places List */}
