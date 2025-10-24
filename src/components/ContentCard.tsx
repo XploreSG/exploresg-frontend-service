@@ -1,8 +1,10 @@
 import React from "react";
+import CollectButton from "./CollectButton";
 
 type PlaceType = "attraction" | "event" | "food";
 
 interface ContentCardProps {
+  id: string;
   name: string;
   description: string;
   image: string;
@@ -37,6 +39,7 @@ const getTypeGradient = (type?: PlaceType): string => {
 };
 
 const ContentCard: React.FC<ContentCardProps> = ({
+  id,
   name,
   description,
   image,
@@ -124,9 +127,19 @@ const ContentCard: React.FC<ContentCardProps> = ({
               <span>📍</span>
               <span className="font-medium">{distance}</span>
             </div>
-            <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm transition-all duration-300 group-hover:scale-105 group-hover:brightness-110 sm:text-sm">
-              {category}
-            </span>
+            <div className="flex flex-col items-end gap-2">
+              {/* Collect Button */}
+              <CollectButton
+                id={id}
+                name={name}
+                type={type || "attraction"}
+                variant="full"
+              />
+              {/* Category Tag */}
+              <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm transition-all duration-300 group-hover:scale-105 group-hover:brightness-110 sm:text-sm">
+                {category}
+              </span>
+            </div>
           </div>
 
           {/* Animated Border */}

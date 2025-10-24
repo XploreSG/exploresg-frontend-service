@@ -76,6 +76,7 @@ const EventsPage: React.FC = () => {
       {filteredEvents.map((event) => (
         <ContentCard
           key={event.id}
+          id={event.id}
           name={event.name}
           description={event.description}
           image={event.image}

@@ -80,6 +80,7 @@ const AttractionsPage: React.FC = () => {
       {filteredAttractions.map((attraction) => (
         <ContentCard
           key={attraction.id}
+          id={attraction.id}
           name={attraction.name}
           description={attraction.description}
           image={attraction.image}

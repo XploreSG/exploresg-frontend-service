@@ -81,6 +81,7 @@ const FoodPage: React.FC = () => {
       {filteredEateries.map((eatery) => (
         <ContentCard
           key={eatery.id}
+          id={eatery.id}
           name={eatery.name}
           description={eatery.description}
           image={eatery.image}

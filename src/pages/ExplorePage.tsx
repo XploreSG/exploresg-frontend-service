@@ -10,6 +10,8 @@ import {
   CalendarDaysIcon,
   BuildingStorefrontIcon,
 } from "@heroicons/react/24/solid";
+import { createRoot } from "react-dom/client";
+import CollectButton from "../components/CollectButton";
 
 // Use centralized MAPBOX_TOKEN that supports runtime env injection
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -120,6 +122,9 @@ const createPopupHTML = (properties: GeoJSON.GeoJsonProperties): string => {
           `
               : ""
           }
+          
+          <!-- Collect Button Container -->
+          <div class="absolute bottom-2 right-2" id="collect-button-${properties.id}"></div>
         </div>
 
         <!-- Content Section -->
@@ -265,6 +270,24 @@ const ExplorePage: React.FC = () => {
         closeButton: true, // Show close button
         closeOnMove: false, // Don't close when map moves
       }).setHTML(createPopupHTML(properties));
+
+      // Mount collect button when popup opens
+      popup.on("open", () => {
+        const buttonContainer = document.getElementById(
+          `collect-button-${properties?.id}`,
+        );
+        if (buttonContainer && properties) {
+          const root = createRoot(buttonContainer);
+          root.render(
+            <CollectButton
+              id={properties.id}
+              name={properties.name}
+              type={properties.type as PlaceType}
+              variant="icon"
+            />,
+          );
+        }
+      });
 
       // Create marker instance with proper anchor
       const marker = new mapboxgl.Marker({
