@@ -54,7 +54,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
   const gradientColors = getTypeGradient(type);
 
   return (
-    <div className="group relative h-[28rem] w-full cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl">
+    <div className="group relative h-[34rem] w-full cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl">
       {/* Main Gradient Background */}
       <div
         className={`absolute inset-0 bg-gradient-to-b ${gradientColors} from-30% via-gray-300 via-60% to-gray-800 to-95%`}
@@ -115,7 +115,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
           </div>
 
           {/* Description */}
-          <p className="mb-3 line-clamp-2 text-sm text-gray-200 transition-colors group-hover:text-white sm:text-base">
+          <p className="mb-3 line-clamp-4 text-sm text-gray-200 transition-colors group-hover:text-white sm:text-base">
             {description}
           </p>
 

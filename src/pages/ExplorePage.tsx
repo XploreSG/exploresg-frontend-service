@@ -38,6 +38,20 @@ const getTypeGradient = (type?: PlaceType): string => {
   }
 };
 
+// Get marker pin color based on type
+const getMarkerColor = (type?: PlaceType): string => {
+  switch (type) {
+    case "attraction":
+      return "#8b5cf6"; // Purple for attractions
+    case "event":
+      return "#06b6d4"; // Cyan/Teal for events
+    case "food":
+      return "#f97316"; // Orange for food
+    default:
+      return "#6b7280"; // Gray for default
+  }
+};
+
 // switch (type) {
 //   case "attraction":
 //     // Attractions (Blue/Purple)
@@ -154,110 +168,8 @@ const ExplorePage: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<MarkerData[]>([]);
-  // map load state is handled by global loader
-  const activeMarkerRef = useRef<MarkerData | null>(null);
-  const hoveredMarkerRef = useRef<MarkerData | null>(null);
-  const hoverTimeoutRef = useRef<number | null>(null);
   // Local map loading state (use a small inline loader instead of the global overlay)
   const [isMapLoading, setIsMapLoading] = useState(true);
-
-  // Function to handle marker hover (show popup)
-  const handleMarkerHover = useCallback((markerData: MarkerData) => {
-    // Clear any existing hover timeout
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-
-    // Don't show hover popup if this marker is already active (clicked)
-    if (activeMarkerRef.current === markerData) {
-      return;
-    }
-
-    // Close any existing hover popup
-    if (
-      hoveredMarkerRef.current &&
-      hoveredMarkerRef.current !== activeMarkerRef.current
-    ) {
-      if (hoveredMarkerRef.current.popup.isOpen()) {
-        hoveredMarkerRef.current.popup.remove();
-      }
-      hoveredMarkerRef.current.element.classList.remove("marker-hover");
-    }
-
-    // Set new hovered marker and show popup
-    hoveredMarkerRef.current = markerData;
-    markerData.element.classList.add("marker-hover");
-
-    if (mapInstance.current) {
-      markerData.popup
-        .setLngLat(markerData.marker.getLngLat())
-        .addTo(mapInstance.current);
-    }
-  }, []);
-
-  // Function to handle marker hover leave (hide popup after delay)
-  const handleMarkerHoverLeave = useCallback((markerData: MarkerData) => {
-    // Don't hide if this marker is active (clicked)
-    if (activeMarkerRef.current === markerData) {
-      return;
-    }
-
-    // Set timeout to hide popup after a short delay
-    hoverTimeoutRef.current = window.setTimeout(() => {
-      if (hoveredMarkerRef.current === markerData) {
-        markerData.element.classList.remove("marker-hover");
-        if (markerData.popup.isOpen()) {
-          markerData.popup.remove();
-        }
-        hoveredMarkerRef.current = null;
-      }
-      hoverTimeoutRef.current = null;
-    }, 300); // 300ms delay before hiding
-  }, []);
-
-  // Function to handle marker click (pin popup)
-  const handleMarkerClick = useCallback((markerData: MarkerData) => {
-    // Clear hover timeout
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-
-    // If there's an active marker, deactivate it
-    if (activeMarkerRef.current) {
-      activeMarkerRef.current.element.classList.remove("marker-active");
-      if (activeMarkerRef.current.popup.isOpen()) {
-        activeMarkerRef.current.popup.remove();
-      }
-    }
-
-    // If there's a hovered marker that's not the clicked one, hide it
-    if (hoveredMarkerRef.current && hoveredMarkerRef.current !== markerData) {
-      hoveredMarkerRef.current.element.classList.remove("marker-hover");
-      if (hoveredMarkerRef.current.popup.isOpen()) {
-        hoveredMarkerRef.current.popup.remove();
-      }
-      hoveredMarkerRef.current = null;
-    }
-
-    // If clicking the same active marker, deactivate it
-    if (activeMarkerRef.current === markerData) {
-      activeMarkerRef.current = null;
-      return;
-    }
-
-    // Activate the new marker
-    markerData.element.classList.add("marker-active");
-    activeMarkerRef.current = markerData;
-
-    // Show the popup (pinned)
-    if (mapInstance.current) {
-      markerData.popup
-        .setLngLat(markerData.marker.getLngLat())
-        .addTo(mapInstance.current);
-    }
-  }, []);
 
   // Function to update marker sizes based on zoom level
   const updateMarkerSizes = useCallback(() => {
@@ -286,15 +198,23 @@ const ExplorePage: React.FC = () => {
       // Create custom marker element
       const el = document.createElement("div");
       el.className = "marker";
+
+      // Set marker color based on type
+      const markerColor = getMarkerColor(properties?.type as PlaceType);
+      el.style.backgroundColor = markerColor;
+
       el.setAttribute("role", "button");
       el.setAttribute("aria-label", `View ${properties?.name || "place"}`);
       el.setAttribute("tabindex", "0");
       el.setAttribute("data-marker-id", index.toString());
 
-      // Create popup with basic information card
-      const popup = new mapboxgl.Popup(POPUP_CONFIG).setHTML(
-        createPopupHTML(properties),
-      );
+      // Create popup with ContentCard styling
+      const popup = new mapboxgl.Popup({
+        ...POPUP_CONFIG,
+        closeOnClick: false, // Don't close on map click
+        closeButton: true, // Show close button
+        closeOnMove: false, // Don't close when map moves
+      }).setHTML(createPopupHTML(properties));
 
       // Create marker instance with proper anchor
       const marker = new mapboxgl.Marker({
@@ -302,33 +222,49 @@ const ExplorePage: React.FC = () => {
         anchor: "center",
       }).setLngLat(geometry.coordinates as [number, number]);
 
-      // Store popup separately in markerData
+      // Store marker data
       const markerData = { marker, element: el, popup };
 
-      // Add click handler
-      el.addEventListener("click", () => {
-        handleMarkerClick(markerData);
-      });
+      // Standard click behavior: toggle popup
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
 
-      // Add keyboard support
-      el.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleMarkerClick(markerData);
+        // Close all other popups
+        markersRef.current.forEach((m) => {
+          if (m !== markerData && m.popup.isOpen()) {
+            m.popup.remove();
+            m.element.classList.remove("marker-active");
+          }
+        });
+
+        // Toggle this popup
+        if (popup.isOpen()) {
+          popup.remove();
+          el.classList.remove("marker-active");
+        } else {
+          if (mapInstance.current) {
+            popup.setLngLat(marker.getLngLat()).addTo(mapInstance.current);
+            el.classList.add("marker-active");
+          }
         }
       });
 
-      // Add hover handlers for popup display
-      el.addEventListener("mouseenter", () => {
-        handleMarkerHover(markerData);
+      // Keyboard support
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          el.click();
+        }
       });
-      el.addEventListener("mouseleave", () => {
-        handleMarkerHoverLeave(markerData);
+
+      // Listen for popup close to update marker state
+      popup.on("close", () => {
+        el.classList.remove("marker-active");
       });
 
       return markerData;
     },
-    [handleMarkerClick, handleMarkerHover, handleMarkerHoverLeave],
+    [],
   );
 
   // Initialize map
@@ -410,7 +346,35 @@ const ExplorePage: React.FC = () => {
         setIsMapLoading(false);
       });
 
+      // Close popups on map click
+      map.on("click", () => {
+        markersRef.current.forEach(({ popup, element }) => {
+          if (popup.isOpen()) {
+            popup.remove();
+            element.classList.remove("marker-active");
+          }
+        });
+      });
+
+      // Close popups on escape key
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          markersRef.current.forEach(({ popup, element }) => {
+            if (popup.isOpen()) {
+              popup.remove();
+              element.classList.remove("marker-active");
+            }
+          });
+        }
+      };
+      document.addEventListener("keydown", handleEscape);
+
       mapInstance.current = map;
+
+      // Store the cleanup function for the escape listener
+      return () => {
+        document.removeEventListener("keydown", handleEscape);
+      };
     } catch (error) {
       console.error("Failed to initialize map:", error);
       // hide local loader on any thrown error
@@ -419,18 +383,9 @@ const ExplorePage: React.FC = () => {
 
     // Cleanup function
     return () => {
-      // Clear hover timeout
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-        hoverTimeoutRef.current = null;
-      }
-
-      // Reset marker references
-      activeMarkerRef.current = null;
-      hoveredMarkerRef.current = null;
-
       // Remove all markers
-      markersRef.current.forEach(({ marker, element }) => {
+      markersRef.current.forEach(({ marker, element, popup }) => {
+        popup.remove();
         marker.remove();
         element.remove();
       });
