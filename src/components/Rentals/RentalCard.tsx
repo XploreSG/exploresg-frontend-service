@@ -55,7 +55,7 @@ const RentalCard: React.FC<Props> = ({
   return (
     <div
       onClick={handleCardClick}
-      className={`group relative h-[22rem] w-full sm:h-96 ${isLoading ? "cursor-default" : "cursor-pointer hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"} overflow-hidden rounded-xl shadow-lg transition-all duration-300`}
+      className={`group relative h-[28rem] w-full ${isLoading ? "cursor-default" : "cursor-pointer hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"} overflow-hidden rounded-xl shadow-lg transition-all duration-300`}
     >
       {/* Main Gradient Background */}
       <div
@@ -68,18 +68,17 @@ const RentalCard: React.FC<Props> = ({
       <div
         className={`relative z-10 flex h-full flex-col p-4 transition-opacity duration-500 ease-out sm:p-6 ${isLoading || !imageLoaded ? "opacity-0" : "opacity-100"}`}
       >
-        {/* Promo Badge */}
+        {/* Promo Badge - Pinned to Top-Right */}
         {promoText && (
-          <div
-            className="absolute top-0 -right-2 mr-1 rotate-12 rounded-xl bg-gradient-to-r from-blue-600 to-violet-700 px-2 py-1 shadow-lg drop-shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-0 group-hover:from-red-600 sm:-right-4 sm:mr-2 sm:rounded-2xl sm:px-3"
-            style={{ fontSize: "clamp(0.625rem, 2vw, 0.75rem)" }}
-          >
-            <div className="text-center font-bold text-white">{promoText}</div>
+          <div className="absolute top-0 right-0 rounded-xl bg-gradient-to-r from-blue-600 to-violet-700 px-2 py-1 shadow-lg drop-shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:from-red-600 sm:rounded-2xl sm:px-3">
+            <div className="text-center text-xs font-bold text-white sm:text-sm">
+              {promoText}
+            </div>
           </div>
         )}
 
         {/* Header - Responsive Height */}
-        <div className="mb-3 h-16 sm:mb-4 sm:h-20">
+        <div className="mb-2 h-14 sm:mb-3 sm:h-16">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <h2
@@ -108,7 +107,7 @@ const RentalCard: React.FC<Props> = ({
           </div>
 
           {/* Icons Row - Responsive */}
-          <div className="mt-2 flex gap-2 text-gray-300 group-hover:text-white sm:mt-3 sm:gap-4">
+          <div className="mt-1.5 flex gap-2 text-gray-300 group-hover:text-white sm:mt-2 sm:gap-3">
             <div
               className="flex items-center gap-0.5 transition-transform group-hover:scale-110 sm:gap-1"
               style={{ fontSize: "clamp(0.625rem, 1.5vw, 0.75rem)" }}
@@ -143,8 +142,8 @@ const RentalCard: React.FC<Props> = ({
         </div>
 
         {/* Car Image - Fixed Height and Centered */}
-        <div className="relative mb-4 flex flex-1 items-center justify-center">
-          <div className="relative h-50 w-full">
+        <div className="relative mb-3 flex flex-1 items-center justify-center sm:mb-4">
+          <div className="relative h-48 w-full">
             {imageUrl ? (
               <img
                 src={imageUrl}
@@ -199,7 +198,7 @@ const RentalCard: React.FC<Props> = ({
         className={`absolute inset-0 z-20 flex flex-col p-4 transition-opacity duration-500 ease-out sm:p-6 ${isLoading || !imageLoaded ? "opacity-100" : "pointer-events-none opacity-0"}`}
         aria-hidden={true}
       >
-        <div className="mb-3 h-16 sm:mb-4 sm:h-20">
+        <div className="mb-2 h-14 sm:mb-3 sm:h-16">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="h-5 w-28 animate-pulse rounded bg-gray-300/80 sm:h-6 sm:w-36" />
@@ -208,7 +207,7 @@ const RentalCard: React.FC<Props> = ({
             <div className="h-5 w-12 animate-pulse rounded bg-gray-300/80 sm:h-6 sm:w-16" />
           </div>
 
-          <div className="mt-2 flex gap-2 sm:mt-3 sm:gap-4">
+          <div className="mt-1.5 flex gap-2 sm:mt-2 sm:gap-3">
             <div className="h-3.5 w-8 animate-pulse rounded bg-gray-300/70 sm:h-4 sm:w-10" />
             <div className="h-3.5 w-8 animate-pulse rounded bg-gray-300/70 sm:h-4 sm:w-10" />
             <div className="h-3.5 w-12 animate-pulse rounded bg-gray-300/70 sm:h-4 sm:w-16" />
@@ -216,7 +215,7 @@ const RentalCard: React.FC<Props> = ({
         </div>
 
         <div className="relative mb-3 flex flex-1 items-center justify-center sm:mb-4">
-          <div className="h-40 w-full animate-pulse rounded-md bg-gray-200/80 sm:h-50" />
+          <div className="h-48 w-full animate-pulse rounded-md bg-gray-200/80" />
         </div>
 
         <div className="relative mt-auto space-y-1.5 sm:space-y-2">
