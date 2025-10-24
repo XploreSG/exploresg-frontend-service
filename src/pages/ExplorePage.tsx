@@ -197,7 +197,10 @@ const ExplorePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortType>("name");
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
-  const [hoveredPlace, setHoveredPlace] = useState<string | null>(null);
+  const [hoveredPlace, setHoveredPlace] = useState<{
+    name: string;
+    top: number;
+  } | null>(null);
   const { collectedItems } = useCollection();
 
   // Get filtered and sorted places based on active filter
@@ -654,9 +657,12 @@ const ExplorePage: React.FC = () => {
       >
         {/* Hovered Place Name - Pops out on left side of sidebar */}
         {!sidebarExpanded && hoveredPlace && (
-          <div className="pointer-events-none absolute top-0 right-full mr-2 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-xl backdrop-blur">
+          <div
+            className="pointer-events-none absolute right-full mr-2 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-xl backdrop-blur"
+            style={{ top: `${hoveredPlace.top}px` }}
+          >
             <p className="text-sm font-semibold whitespace-nowrap text-gray-900">
-              {hoveredPlace}
+              {hoveredPlace.name}
             </p>
           </div>
         )}
@@ -819,7 +825,15 @@ const ExplorePage: React.FC = () => {
                       );
                       setSidebarExpanded(true);
                     }}
-                    onMouseEnter={() => setHoveredPlace(props.name)}
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const parentRect =
+                        e.currentTarget.parentElement?.parentElement?.parentElement?.getBoundingClientRect();
+                      const relativeTop = parentRect
+                        ? rect.top - parentRect.top
+                        : 0;
+                      setHoveredPlace({ name: props.name, top: relativeTop });
+                    }}
                     onMouseLeave={() => setHoveredPlace(null)}
                     className="group relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border-2 border-gray-200 bg-white transition-all duration-200 hover:scale-110 hover:border-indigo-400 hover:shadow-lg"
                     title={props.name}
