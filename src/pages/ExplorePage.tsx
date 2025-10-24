@@ -651,7 +651,7 @@ const ExplorePage: React.FC = () => {
 
       {/* Dynamic Sidebar - Top Right */}
       <div
-        className={`absolute top-6 right-0 z-30 transition-all duration-500 ease-out ${
+        className={`absolute top-0 right-0 z-30 transition-all duration-500 ease-out ${
           sidebarExpanded ? "w-80" : "w-20"
         }`}
       >
@@ -804,9 +804,9 @@ const ExplorePage: React.FC = () => {
         {/* Collapsed Thumbnails Strip - Visible when collapsed */}
         {!sidebarExpanded && (
           <div
-            className="thumbnail-strip absolute top-0 right-6 overflow-y-auto rounded-l-lg bg-white/90 shadow-lg backdrop-blur transition-all duration-300"
+            className="thumbnail-strip absolute top-0 right-0 overflow-y-auto rounded-l-lg bg-white/90 shadow-lg backdrop-blur transition-all duration-300"
             style={{
-              maxHeight: "calc(100vh - 12rem)",
+              maxHeight: "100vh",
               width: "80px",
             }}
           >
