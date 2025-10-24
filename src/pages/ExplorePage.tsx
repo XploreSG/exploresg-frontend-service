@@ -658,7 +658,7 @@ const ExplorePage: React.FC = () => {
         {/* Hovered Place Name - Pops out on left side of sidebar */}
         {!sidebarExpanded && hoveredPlace && (
           <div
-            className="pointer-events-none absolute right-full mr-2 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-xl backdrop-blur"
+            className="animate-slide-in-left pointer-events-none absolute right-full mr-2 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-xl backdrop-blur transition-all duration-300 ease-out"
             style={{ top: `${hoveredPlace.top}px` }}
           >
             <p className="text-sm font-semibold whitespace-nowrap text-gray-900">
@@ -868,6 +868,22 @@ const ExplorePage: React.FC = () => {
       </div>
 
       <style>{`
+        /* Slide in animation for name pop-out */
+        @keyframes slide-in-left {
+          from {
+            opacity: 0;
+            transform: translateX(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        .animate-slide-in-left {
+          animation: slide-in-left 0.2s ease-out;
+        }
+
         /* Minimalist scrollbar for places list */
         .places-list::-webkit-scrollbar {
           width: 6px;
