@@ -55,7 +55,7 @@ const RentalCard: React.FC<Props> = ({
   return (
     <div
       onClick={handleCardClick}
-      className={`group relative h-[22rem] w-full max-w-[20rem] sm:h-96 sm:w-80 ${isLoading ? "cursor-default" : "cursor-pointer hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"} overflow-hidden rounded-xl shadow-lg transition-all duration-300`}
+      className={`group relative h-[22rem] w-full sm:h-96 ${isLoading ? "cursor-default" : "cursor-pointer hover:-translate-y-2 hover:scale-105 hover:shadow-2xl"} overflow-hidden rounded-xl shadow-lg transition-all duration-300`}
     >
       {/* Main Gradient Background */}
       <div
