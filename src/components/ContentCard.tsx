@@ -136,7 +136,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
                 variant="full"
               />
               {/* Category Tag */}
-              <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm transition-all duration-300 group-hover:scale-105 group-hover:brightness-110 sm:text-sm">
+              <span className="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm transition-all duration-300 group-hover:scale-105 group-hover:brightness-110">
                 {category}
               </span>
             </div>
