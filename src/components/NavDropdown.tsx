@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 interface DropdownLink {
   name: string;
   href: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 interface NavDropdownProps {
@@ -87,13 +88,14 @@ const NavDropdown: React.FC<NavDropdownProps> = ({
               <Link
                 key={item.name}
                 to={item.href}
-                className={`block px-4 py-2 text-sm ${
+                className={`flex items-center px-4 py-2 text-sm ${
                   isActive(item.href)
                     ? "bg-indigo-50 text-indigo-700"
                     : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
                 }`}
                 onClick={() => setIsOpen(false)}
               >
+                <item.icon className="mr-3 h-5 w-5" />
                 {item.name}
               </Link>
             ))}
@@ -132,13 +134,14 @@ const NavDropdown: React.FC<NavDropdownProps> = ({
               <Link
                 key={item.name}
                 to={item.href}
-                className={`block rounded-md px-3 py-2 text-base font-semibold transition-all duration-200 ${
+                className={`flex items-center rounded-md px-3 py-2 text-base font-semibold transition-all duration-200 ${
                   isActive(item.href)
                     ? "bg-indigo-50 text-indigo-700 shadow-sm"
                     : "text-gray-700 hover:bg-indigo-100 hover:text-indigo-700"
                 }`}
                 onClick={handleMobileLinkClick}
               >
+                <item.icon className="mr-3 h-5 w-5" />
                 {item.name}
               </Link>
             ))}

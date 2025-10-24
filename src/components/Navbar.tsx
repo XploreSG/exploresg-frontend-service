@@ -4,10 +4,17 @@ import { useAuth } from "../contexts/useAuth";
 import { IS_DEVELOPMENT } from "../config/api";
 import { getOperatorInfoFromUserId } from "../types/rental";
 import NavDropdown from "./NavDropdown";
+import {
+  BuildingLibraryIcon,
+  MagnifyingGlassIcon,
+  CalendarIcon,
+  MapPinIcon,
+} from "@heroicons/react/24/outline";
 
 interface NavItem {
   name: string;
   href: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const Navbar: React.FC = () => {
@@ -28,14 +35,14 @@ const Navbar: React.FC = () => {
   }, [hasRole, user?.userId]);
 
   const mainNavLinks: NavItem[] = [
-    { name: "Attractions", href: "/attractions" },
-    { name: "Explore", href: "/explore" },
-    { name: "Events", href: "/events" },
-    { name: "Food", href: "/food" },
+    { name: "Attractions", href: "/attractions", icon: BuildingLibraryIcon },
+    { name: "Events", href: "/events", icon: CalendarIcon },
+    { name: "Food", href: "/food", icon: MapPinIcon },
+    { name: "Explore", href: "/explore", icon: MagnifyingGlassIcon },
   ];
 
   const navigation = useMemo(() => {
-    const nav: NavItem[] = [];
+    const nav: Omit<NavItem, "icon">[] = [];
 
     // Show Rentals to guests and USERs
     if (!user || hasRole("USER")) {
