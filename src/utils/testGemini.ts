@@ -6,7 +6,6 @@ export const testGeminiConnection = async (): Promise<void> => {
     
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     console.log('API Key available:', !!apiKey);
-    console.log('API Key starts with:', apiKey ? apiKey.substring(0, 10) + '...' : 'Not set');
     
     if (!apiKey || apiKey === 'your_gemini_api_key_here') {
       throw new Error('API key not configured');
@@ -49,7 +48,7 @@ export const testGeminiConnection = async (): Promise<void> => {
         const text = response.text();
         
         console.log(`✅ SUCCESS! Gemini API test successful with model: ${modelName}!`);
-        console.log('Response:', text);
+        console.log('Response received (length):', text.length, 'characters');
         return;
         
       } catch (modelError: any) {
