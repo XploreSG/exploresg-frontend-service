@@ -43,88 +43,109 @@ const CollectionsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-4xl font-bold text-gray-900 sm:text-5xl">
-            Your Collection
+        <div className="mb-8">
+          <h1 className="mb-2 text-3xl font-bold text-gray-900 sm:text-4xl">
+            Your Collections
           </h1>
-          <p className="text-lg text-gray-600">
-            Track your journey through Singapore's best places
+          <p className="text-base text-gray-600">
+            Track and manage your favorite places in Singapore
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
           {/* Total Collected */}
-          <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl">
-            <div className="absolute top-4 right-4 opacity-20">
-              <FaHeart className="text-6xl" />
-            </div>
-            <div className="relative z-10">
-              <div className="mb-2 text-5xl font-bold">{totalCollected}</div>
-              <div className="text-sm font-semibold tracking-wider uppercase opacity-90">
-                Places Collected
+          <div className="group relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Collected
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-gray-900">
+                  {totalCollected}
+                </p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+                <FaHeart className="text-2xl text-blue-600" />
               </div>
             </div>
           </div>
 
           {/* Badges Earned */}
-          <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 p-6 text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl">
-            <div className="absolute top-4 right-4 opacity-20">
-              <FaTrophy className="text-6xl" />
-            </div>
-            <div className="relative z-10">
-              <div className="mb-2 text-5xl font-bold">
-                {unlockedBadges}/{badges.length}
+          <div className="group relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Badges Earned
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-gray-900">
+                  {unlockedBadges}
+                  <span className="text-lg text-gray-400">
+                    /{badges.length}
+                  </span>
+                </p>
               </div>
-              <div className="text-sm font-semibold tracking-wider uppercase opacity-90">
-                Badges Earned
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-50">
+                <FaTrophy className="text-2xl text-yellow-600" />
               </div>
             </div>
           </div>
 
           {/* Next Badge Progress */}
-          <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 p-6 text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl">
-            <div className="absolute top-4 right-4 opacity-20">
-              <FaFire className="text-6xl" />
-            </div>
-            <div className="relative z-10">
-              {nextBadge ? (
-                <>
-                  <div className="mb-2 text-5xl font-bold">
-                    {Math.round(getProgressToNext())}%
-                  </div>
-                  <div className="text-sm font-semibold tracking-wider uppercase opacity-90">
-                    To "{nextBadge.name}"
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="mb-2 text-5xl font-bold">🎉</div>
-                  <div className="text-sm font-semibold tracking-wider uppercase opacity-90">
-                    All Badges Unlocked!
-                  </div>
-                </>
-              )}
+          <div className="group relative overflow-hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 transition-all hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                {nextBadge ? (
+                  <>
+                    <p className="text-sm font-medium text-gray-600">
+                      Next Achievement
+                    </p>
+                    <p className="mt-2 text-xl font-semibold text-gray-900">
+                      {nextBadge.name}
+                    </p>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-100">
+                      <div
+                        className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                        style={{ width: `${getProgressToNext()}%` }}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium text-gray-600">Status</p>
+                    <p className="mt-2 text-xl font-semibold text-gray-900">
+                      All Complete!
+                    </p>
+                  </>
+                )}
+              </div>
+              <div className="ml-4 flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50">
+                <FaFire className="text-2xl text-indigo-600" />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
           {/* Left Sidebar - Badges */}
           <div className="lg:col-span-1">
-            <div className="sticky top-4 rounded-2xl bg-white p-6 shadow-xl">
-              <div className="mb-6 flex items-center gap-3">
-                <FaTrophy className="text-2xl text-yellow-500" />
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Achievements
-                </h2>
+            <div className="sticky top-4 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5">
+              <div className="border-b border-gray-100 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-50">
+                    <FaTrophy className="text-xl text-yellow-600" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Achievements
+                  </h2>
+                </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="max-h-[600px] space-y-3 overflow-y-auto p-6">
                 {badges.map((badge) => {
                   const progress =
                     badge.category === "all"
@@ -138,26 +159,26 @@ const CollectionsPage: React.FC = () => {
                   return (
                     <div
                       key={badge.id}
-                      className={`group rounded-xl border-2 p-4 transition-all duration-300 ${
+                      className={`group rounded-lg border p-4 transition-all duration-200 ${
                         badge.unlocked
-                          ? "border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50 shadow-md hover:scale-105"
-                          : "border-gray-200 bg-gray-50"
+                          ? "border-yellow-200 bg-yellow-50/50 hover:bg-yellow-50"
+                          : "border-gray-200 bg-white hover:border-gray-300"
                       }`}
                     >
                       <div className="mb-3 flex items-center gap-3">
                         <div
-                          className={`text-4xl transition-transform ${
+                          className={`text-3xl transition-transform ${
                             badge.unlocked
                               ? "group-hover:scale-110"
-                              : "grayscale"
+                              : "opacity-40 grayscale"
                           }`}
                         >
                           {badge.icon}
                         </div>
                         <div className="flex-1">
                           <h3
-                            className={`font-bold ${
-                              badge.unlocked ? "text-gray-800" : "text-gray-500"
+                            className={`text-sm font-semibold ${
+                              badge.unlocked ? "text-gray-900" : "text-gray-500"
                             }`}
                           >
                             {badge.name}
@@ -171,7 +192,7 @@ const CollectionsPage: React.FC = () => {
                           </p>
                         </div>
                         {badge.unlocked && (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-white shadow-md">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">
                             ✓
                           </div>
                         )}
@@ -182,13 +203,13 @@ const CollectionsPage: React.FC = () => {
                         <div>
                           <div className="mb-1 flex justify-between text-xs text-gray-500">
                             <span>Progress</span>
-                            <span>
+                            <span className="font-medium">
                               {progress}/{badge.requirement}
                             </span>
                           </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+                          <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
+                              className="h-full rounded-full bg-indigo-600 transition-all duration-500"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -204,46 +225,48 @@ const CollectionsPage: React.FC = () => {
           {/* Right Content - Collection Grid */}
           <div className="lg:col-span-2">
             {/* Filter Tabs */}
-            <div className="mb-6 rounded-2xl bg-white p-4 shadow-xl">
-              <div className="flex items-center gap-3">
-                <FaFilter className="text-gray-400" />
+            <div className="mb-6 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-900/5">
+              <div className="flex items-center gap-3 p-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-50">
+                  <FaFilter className="text-gray-600" />
+                </div>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setFilter("all")}
-                    className={`rounded-lg px-4 py-2 font-semibold transition-all ${
+                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
                       filter === "all"
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        ? "bg-indigo-600 text-white shadow-sm"
+                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     All ({collectedItems.length})
                   </button>
                   <button
                     onClick={() => setFilter("attraction")}
-                    className={`rounded-lg px-4 py-2 font-semibold transition-all ${
+                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
                       filter === "attraction"
-                        ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     🎡 Attractions ({getCollectionCount("attraction")})
                   </button>
                   <button
                     onClick={() => setFilter("event")}
-                    className={`rounded-lg px-4 py-2 font-semibold transition-all ${
+                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
                       filter === "event"
-                        ? "bg-gradient-to-r from-green-500 to-teal-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        ? "bg-teal-600 text-white shadow-sm"
+                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     🎉 Events ({getCollectionCount("event")})
                   </button>
                   <button
                     onClick={() => setFilter("food")}
-                    className={`rounded-lg px-4 py-2 font-semibold transition-all ${
+                    className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
                       filter === "food"
-                        ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        ? "bg-orange-600 text-white shadow-sm"
+                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     🍜 Food ({getCollectionCount("food")})
@@ -254,19 +277,21 @@ const CollectionsPage: React.FC = () => {
 
             {/* Collection Grid */}
             {sortedItems.length === 0 ? (
-              <div className="rounded-2xl bg-white p-12 text-center shadow-xl">
-                <FaMapMarkerAlt className="mx-auto mb-4 text-6xl text-gray-300" />
-                <h3 className="mb-2 text-2xl font-bold text-gray-800">
+              <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-gray-900/5">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50">
+                  <FaMapMarkerAlt className="text-3xl text-gray-400" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">
                   {filter === "all"
                     ? "No Collections Yet"
                     : `No ${filter}s Collected Yet`}
                 </h3>
-                <p className="mb-6 text-gray-600">
+                <p className="mb-6 text-sm text-gray-600">
                   Start exploring Singapore and collect your favorite places!
                 </p>
                 <Link
                   to="/explore"
-                  className="inline-block rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+                  className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-500"
                 >
                   Start Exploring
                 </Link>
@@ -276,10 +301,10 @@ const CollectionsPage: React.FC = () => {
                 {sortedItems.map((item) => {
                   // Find the full place data from GeoJSON
                   const placeData = allPlacesGeoJSON.features.find(
-                    (feature) => feature.properties.id === item.id,
+                    (feature) => feature.properties?.id === item.id,
                   );
 
-                  if (!placeData) {
+                  if (!placeData || !placeData.properties) {
                     // Fallback if place data not found
                     return (
                       <div
