@@ -83,16 +83,16 @@ const createPopupHTML = (properties: GeoJSON.GeoJsonProperties): string => {
   const gradientColors = getTypeGradient(properties.type as PlaceType);
 
   return `
-    <div class="group relative w-full overflow-hidden rounded-xl shadow-lg" style="width: 270px; height: 480px;">
+    <div class="group relative w-full overflow-hidden rounded-xl shadow-lg" style="width: 380px; height: 180px;">
       <!-- Gradient Background -->
-      <div class="absolute inset-0 bg-gradient-to-b ${gradientColors} from-30% via-gray-300 via-60% to-gray-800 to-95%">
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-slate-600/10 to-indigo-600/0"></div>
+      <div class="absolute inset-0 bg-gradient-to-r ${gradientColors} from-30% via-gray-300 via-60% to-gray-800 to-95%">
+        <div class="absolute inset-0 bg-gradient-to-b from-blue-600/0 via-slate-600/10 to-indigo-600/0"></div>
       </div>
 
-      <!-- Content -->
-      <div class="relative z-10 flex h-full flex-col p-4">
-        <!-- Image Section -->
-        <div class="relative mb-3 flex h-40 items-center justify-center overflow-hidden rounded-lg">
+      <!-- Content - Horizontal Layout -->
+      <div class="relative z-10 flex h-full flex-row p-3 gap-3">
+        <!-- Image Section (Left Side) -->
+        <div class="relative flex w-40 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg">
           <img
             src="${properties.image || "/placeholder.jpg"}"
             alt="${properties.name}"
@@ -106,7 +106,7 @@ const createPopupHTML = (properties: GeoJSON.GeoJsonProperties): string => {
           ${
             properties.status
               ? `
-            <div class="absolute top-0 left-0 rounded-xl bg-gradient-to-r from-green-600 to-emerald-700 px-2 py-1 shadow-lg drop-shadow-2xl">
+            <div class="absolute top-1 left-1 rounded-lg bg-gradient-to-r from-green-600 to-emerald-700 px-1.5 py-0.5 shadow-lg drop-shadow-2xl">
               <div class="text-center text-xs font-bold text-white">${properties.status}</div>
             </div>
           `
@@ -116,44 +116,46 @@ const createPopupHTML = (properties: GeoJSON.GeoJsonProperties): string => {
           ${
             properties.price
               ? `
-            <div class="absolute top-0 right-0 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 px-2 py-1 shadow-lg drop-shadow-2xl">
+            <div class="absolute top-1 right-1 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-600 px-1.5 py-0.5 shadow-lg drop-shadow-2xl">
               <div class="text-center text-xs font-bold text-white">${properties.price}</div>
             </div>
           `
               : ""
           }
-          
-          <!-- Collect Button Container -->
-          <div class="absolute bottom-2 right-2" id="collect-button-${properties.id}"></div>
         </div>
 
-        <!-- Content Section -->
-        <div class="flex flex-1 flex-col">
+        <!-- Content Section (Right Side) -->
+        <div class="flex flex-1 flex-col min-w-0">
           <!-- Header with Rating -->
-          <div class="mb-2 flex items-start justify-between gap-2">
-            <h3 class="line-clamp-2 flex-1 text-base font-semibold leading-tight text-white">
+          <div class="mb-1.5 flex items-start justify-between gap-2">
+            <h3 class="line-clamp-2 flex-1 text-sm font-semibold leading-tight text-white">
               ${properties.name || "Unknown"}
             </h3>
-            <div class="flex flex-shrink-0 items-center gap-1 rounded-md bg-black/20 px-2 py-1 text-yellow-400 backdrop-blur-sm">
-              <span class="text-sm">★</span>
+            <div class="flex flex-shrink-0 items-center gap-1 rounded-md bg-black/20 px-1.5 py-0.5 text-yellow-400 backdrop-blur-sm">
+              <span class="text-xs">★</span>
               <span class="text-xs font-semibold">${properties.rating || "N/A"}</span>
             </div>
           </div>
 
           <!-- Description -->
-          <p class="mb-3 line-clamp-3 text-sm text-gray-200">
+          <p class="mb-2 line-clamp-3 text-xs text-gray-200">
             ${properties.description || ""}
           </p>
 
-          <!-- Footer - Category & Location -->
-          <div class="mt-auto flex items-center justify-between">
-            <div class="flex items-center gap-1 text-xs text-gray-300">
-              <span>📍</span>
-              <span class="font-medium">${properties.location || ""}</span>
+          <!-- Footer - Category & Location with Collect Button -->
+          <div class="mt-auto flex items-end justify-between gap-2">
+            <div class="flex flex-col gap-1 flex-1 min-w-0">
+              <div class="flex items-center gap-1 text-xs text-gray-300">
+                <span>📍</span>
+                <span class="font-medium truncate">${properties.location || ""}</span>
+              </div>
+              <span class="self-start rounded-full bg-black/20 px-2 py-0.5 text-xs font-semibold text-white shadow-md backdrop-blur-sm">
+                ${properties.category || ""}
+              </span>
             </div>
-            <span class="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm">
-              ${properties.category || ""}
-            </span>
+            
+            <!-- Collect Button Container -->
+            <div class="flex-shrink-0" id="collect-button-${properties.id}"></div>
           </div>
 
           <!-- Animated Border -->
