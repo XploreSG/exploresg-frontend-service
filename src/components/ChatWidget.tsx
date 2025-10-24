@@ -5,7 +5,7 @@ import {
   handleReaction as updateReaction, 
   copyToClipboard, 
   clearChatHistory,
-  loadChatHistory
+  getInitialMessage
 } from '../utils/chatUtils';
 import { CONTAINER_STYLES, ANIMATION_STYLES } from '../constants/chatStyles';
 import { useChat } from '../hooks/useChat';
@@ -34,7 +34,7 @@ const ChatWidget: React.FC = () => {
   };
 
   const handleClearChat = () => {
-    setMessages(loadChatHistory());
+    setMessages(getInitialMessage());
     clearChatHistory();
   };
 
