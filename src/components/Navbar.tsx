@@ -9,6 +9,7 @@ import {
   MagnifyingGlassIcon,
   CalendarIcon,
   MapPinIcon,
+  HeartIcon,
 } from "@heroicons/react/24/outline";
 
 interface NavItem {
@@ -39,6 +40,7 @@ const Navbar: React.FC = () => {
     { name: "Events", href: "/events", icon: CalendarIcon },
     { name: "Food", href: "/food", icon: MapPinIcon },
     { name: "Explore", href: "/explore", icon: MagnifyingGlassIcon },
+    { name: "Collections", href: "/collections", icon: HeartIcon },
   ];
 
   const navigation = useMemo(() => {

@@ -1,9 +1,12 @@
 import React from "react";
 import { useAuth } from "../contexts/useAuth";
-import { FaBookmark, FaRegHeart } from "react-icons/fa";
+import { useCollection } from "../hooks/useCollection";
+import { FaBookmark, FaRegHeart, FaTrophy, FaFire } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const ProfilePage: React.FC = () => {
   const { user, logout } = useAuth();
+  const { collectedItems, badges, getCollectionCount } = useCollection();
 
   if (!user) {
     return (
@@ -19,11 +22,18 @@ const ProfilePage: React.FC = () => {
 
   const fullName = [user.givenName, user.familyName].filter(Boolean).join(" ");
 
+  // Calculate stats
+  const totalCollected = collectedItems.length;
+  const unlockedBadges = badges.filter((b) => b.unlocked).length;
+  const attractionCount = getCollectionCount("attraction");
+  const eventCount = getCollectionCount("event");
+  const foodCount = getCollectionCount("food");
+
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-6xl">
         {/* Profile Header */}
-        <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg">
+        <div className="mb-8 rounded-2xl bg-white p-6 shadow-xl">
           <div className="flex flex-col items-center gap-4 sm:flex-row">
             <img
               src={user.picture || "/assets/default-avatar.png"}
@@ -48,11 +58,33 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
+        {/* Stats Overview */}
+        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-4 text-white shadow-lg">
+            <div className="mb-1 text-3xl font-bold">{totalCollected}</div>
+            <div className="text-sm opacity-90">Places Collected</div>
+          </div>
+          <div className="rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 p-4 text-white shadow-lg">
+            <div className="mb-1 text-3xl font-bold">{unlockedBadges}</div>
+            <div className="text-sm opacity-90">Badges Earned</div>
+          </div>
+          <div className="rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 p-4 text-white shadow-lg">
+            <div className="mb-1 text-3xl font-bold">{attractionCount}</div>
+            <div className="text-sm opacity-90">Attractions</div>
+          </div>
+          <div className="rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 p-4 text-white shadow-lg">
+            <div className="mb-1 text-3xl font-bold">
+              {foodCount + eventCount}
+            </div>
+            <div className="text-sm opacity-90">Food & Events</div>
+          </div>
+        </div>
+
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {/* Left Column for Details */}
-          <div className="md:col-span-1">
-            <div className="rounded-2xl bg-white p-6 shadow-lg">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Left Column - User Details */}
+          <div className="lg:col-span-1">
+            <div className="rounded-2xl bg-white p-6 shadow-xl">
               <h2 className="mb-4 text-xl font-semibold text-gray-800">
                 Your Details
               </h2>
@@ -80,11 +112,135 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column for Bookmarks and Collections */}
-          <div className="md:col-span-2">
+          {/* Right Column - Achievements & Collections */}
+          <div className="lg:col-span-2">
             <div className="space-y-8">
-              {/* Your Bookmarks Section */}
-              <div className="rounded-2xl bg-white p-6 shadow-lg">
+              {/* Badge Showcase */}
+              <div className="rounded-2xl bg-white p-6 shadow-xl">
+                <div className="mb-6 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FaTrophy className="text-2xl text-yellow-500" />
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      Achievements
+                    </h2>
+                  </div>
+                  <Link
+                    to="/collections"
+                    className="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-105 hover:shadow-lg"
+                  >
+                    View All →
+                  </Link>
+                </div>
+
+                {/* Badge Grid */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                  {badges.slice(0, 6).map((badge) => (
+                    <div
+                      key={badge.id}
+                      className={`group relative rounded-xl border-2 p-4 text-center transition-all duration-300 ${
+                        badge.unlocked
+                          ? "border-yellow-400 bg-gradient-to-br from-yellow-50 to-orange-50 shadow-md hover:scale-105 hover:shadow-xl"
+                          : "border-gray-200 bg-gray-50 opacity-60"
+                      }`}
+                    >
+                      {badge.unlocked && (
+                        <div className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs text-white shadow-md">
+                          ✓
+                        </div>
+                      )}
+                      <div
+                        className={`mb-2 text-4xl transition-transform ${
+                          badge.unlocked ? "group-hover:scale-110" : "grayscale"
+                        }`}
+                      >
+                        {badge.icon}
+                      </div>
+                      <h3
+                        className={`mb-1 text-sm font-bold ${
+                          badge.unlocked ? "text-gray-800" : "text-gray-500"
+                        }`}
+                      >
+                        {badge.name}
+                      </h3>
+                      <p
+                        className={`text-xs ${
+                          badge.unlocked ? "text-gray-600" : "text-gray-400"
+                        }`}
+                      >
+                        {badge.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recent Collections Preview */}
+              <div className="rounded-2xl bg-white p-6 shadow-xl">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FaRegHeart className="text-xl text-red-500" />
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      Recent Collections
+                    </h2>
+                  </div>
+                  {totalCollected > 0 && (
+                    <Link
+                      to="/collections"
+                      className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+                    >
+                      View All ({totalCollected})
+                    </Link>
+                  )}
+                </div>
+
+                {totalCollected === 0 ? (
+                  <div className="text-center text-gray-500">
+                    <FaFire className="mx-auto mb-3 text-4xl text-gray-300" />
+                    <p className="mb-2 text-lg font-semibold">
+                      Start Your Collection!
+                    </p>
+                    <p className="mb-4 text-sm">
+                      Explore attractions, events, and food places to begin your
+                      journey.
+                    </p>
+                    <Link
+                      to="/explore"
+                      className="inline-block rounded-full bg-gradient-to-r from-red-500 to-pink-500 px-6 py-2 text-sm font-semibold text-white shadow-md transition-all hover:scale-105 hover:shadow-lg"
+                    >
+                      Start Exploring
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {collectedItems
+                      .slice(-6)
+                      .reverse()
+                      .map((item) => (
+                        <div
+                          key={item.id}
+                          className="group relative overflow-hidden rounded-lg border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-3 shadow-sm transition-all hover:scale-105 hover:border-red-400 hover:shadow-md"
+                        >
+                          <div className="mb-2 text-2xl">
+                            {item.type === "attraction"
+                              ? "🎡"
+                              : item.type === "event"
+                                ? "🎉"
+                                : "🍜"}
+                          </div>
+                          <h4 className="line-clamp-2 text-xs font-semibold text-gray-800">
+                            {item.name}
+                          </h4>
+                          <div className="absolute top-1 right-1">
+                            <FaRegHeart className="text-xs text-red-400" />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Bookmarks Section */}
+              <div className="rounded-2xl bg-white p-6 shadow-xl">
                 <div className="mb-4 flex items-center gap-3">
                   <FaBookmark className="text-xl text-blue-500" />
                   <h2 className="text-xl font-semibold text-gray-800">
@@ -94,26 +250,8 @@ const ProfilePage: React.FC = () => {
                 <div className="text-center text-gray-500">
                   <p>You haven't bookmarked any items yet.</p>
                   <p className="text-sm">
-                    Explore rentals and attractions to save them here!
+                    Explore rentals and save them here for quick access!
                   </p>
-                </div>
-              </div>
-
-              {/* Your Collections Section */}
-              <div className="rounded-2xl bg-white p-6 shadow-lg">
-                <div className="mb-4 flex items-center gap-3">
-                  <FaRegHeart className="text-xl text-red-500" />
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    Your Collections
-                  </h2>
-                </div>
-                <div className="text-center text-gray-500">
-                  <p>
-                    Create collections of your favorite places and activities.
-                  </p>
-                  <button className="mt-2 rounded-full bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100">
-                    Create a New Collection
-                  </button>
                 </div>
               </div>
             </div>
