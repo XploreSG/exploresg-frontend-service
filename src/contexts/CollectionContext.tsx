@@ -1,34 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-
-export interface CollectedItem {
-  id: string;
-  type: "attraction" | "event" | "food";
-  name: string;
-  collectedAt: number; // timestamp
-}
-
-export interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  requirement: number;
-  category: "all" | "attraction" | "event" | "food";
-  unlocked: boolean;
-}
-
-interface CollectionContextType {
-  collectedItems: CollectedItem[];
-  badges: Badge[];
-  addToCollection: (item: CollectedItem) => void;
-  removeFromCollection: (id: string) => void;
-  isCollected: (id: string) => boolean;
-  getCollectionCount: (type?: "attraction" | "event" | "food") => number;
-}
-
-const CollectionContext = createContext<CollectionContextType | undefined>(
-  undefined,
-);
+import React, { useState, useEffect } from "react";
+import {
+  CollectionContext,
+  type CollectedItem,
+  type Badge,
+} from "./CollectionContext";
 
 const STORAGE_KEY = "exploresg_collection";
 
@@ -168,12 +143,4 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({
       {children}
     </CollectionContext.Provider>
   );
-};
-
-export const useCollection = () => {
-  const context = useContext(CollectionContext);
-  if (context === undefined) {
-    throw new Error("useCollection must be used within a CollectionProvider");
-  }
-  return context;
 };

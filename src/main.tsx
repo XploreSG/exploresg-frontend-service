@@ -6,7 +6,7 @@ import App from "./App.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { FleetProvider } from "./contexts/FleetContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
-import { CollectionProvider } from "./contexts/CollectionContext";
+import { CollectionProvider } from "./contexts/CollectionContext.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { getEnvVar, getResolvedEnv } from "./config/runtimeEnv";
 

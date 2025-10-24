@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { HeartIcon, SparklesIcon } from "@heroicons/react/24/solid";
 import { HeartIcon as HeartOutlineIcon } from "@heroicons/react/24/outline";
-import { useCollection } from "../contexts/CollectionContext";
+import { useCollection } from "../hooks/useCollection";
 
 interface CollectButtonProps {
   id: string;
