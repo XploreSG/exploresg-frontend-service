@@ -2,8 +2,7 @@ import React, { useRef, useEffect, useCallback, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./Explore.css";
-import { allPlacesGeoJSON } from "../data/places";
-// import type { PlaceType } from "../data/places";
+import { allPlacesGeoJSON, type PlaceType } from "../data/places";
 import { MAPBOX_TOKEN } from "../config/api";
 
 // Use centralized MAPBOX_TOKEN that supports runtime env injection
@@ -22,7 +21,128 @@ const POPUP_CONFIG = {
   offset: 25,
   closeButton: true,
   closeOnClick: false,
+  maxWidth: "400px",
 } as const;
+
+// Type-based gradient themes (matching ContentCard)
+const getTypeGradient = (type?: PlaceType): string => {
+  switch (type) {
+    case "attraction":
+      return "from-violet-500/60 via-purple-500 to-emerald-600/40";
+    case "event":
+      return "from-blue-500/60 via-teal-500 to-emerald-600/40";
+    case "food":
+      return "from-orange-500/60 via-red-400 to-emerald-600/40";
+    default:
+      return "from-gray-500 via-slate-400 to-gray-600";
+  }
+};
+
+// switch (type) {
+//   case "attraction":
+//     // Attractions (Blue/Purple)
+//     // return "from-blue-500 via-indigo-400 to-purple-600";
+//     return "from-violet-500/30 via-purple-500 to-emerald-600/40";
+//   case "event":
+//     // Events (Red/Orange)
+//     return "from-blue-500/30 via-teal-500 to-emerald-600/40";
+//   case "food":
+//     // Food (Green/Teal)
+//     return "from-orange-500/30 via-red-400 to-emerald-600/40";
+//   default:
+//     // Default (Gray/Slate)
+//     return "from-gray-500 via-slate-400 to-gray-600";
+// }
+
+// Generate ContentCard-styled HTML for popup
+const createPopupHTML = (properties: GeoJSON.GeoJsonProperties): string => {
+  if (!properties) return "";
+
+  const gradientColors = getTypeGradient(properties.type as PlaceType);
+
+  return `
+    <div class="group relative w-full overflow-hidden rounded-xl shadow-lg" style="width: 270px; height: 480px;">
+      <!-- Gradient Background -->
+      <div class="absolute inset-0 bg-gradient-to-b ${gradientColors} from-30% via-gray-300 via-60% to-gray-800 to-95%">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-slate-600/10 to-indigo-600/0"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="relative z-10 flex h-full flex-col p-4">
+        <!-- Image Section -->
+        <div class="relative mb-3 flex h-40 items-center justify-center overflow-hidden rounded-lg">
+          <img
+            src="${properties.image || "/placeholder.jpg"}"
+            alt="${properties.name}"
+            class="h-full w-full object-cover drop-shadow-lg"
+            onerror="this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'"
+          />
+          
+          <!-- Shimmer Effect -->
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none"></div>
+          
+          ${
+            properties.status
+              ? `
+            <div class="absolute top-0 left-0 rounded-xl bg-gradient-to-r from-green-600 to-emerald-700 px-2 py-1 shadow-lg drop-shadow-2xl">
+              <div class="text-center text-xs font-bold text-white">${properties.status}</div>
+            </div>
+          `
+              : ""
+          }
+          
+          ${
+            properties.price
+              ? `
+            <div class="absolute top-0 right-0 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 px-2 py-1 shadow-lg drop-shadow-2xl">
+              <div class="text-center text-xs font-bold text-white">${properties.price}</div>
+            </div>
+          `
+              : ""
+          }
+        </div>
+
+        <!-- Content Section -->
+        <div class="flex flex-1 flex-col">
+          <!-- Header with Rating -->
+          <div class="mb-2 flex items-start justify-between gap-2">
+            <h3 class="line-clamp-2 flex-1 text-base font-semibold leading-tight text-white">
+              ${properties.name || "Unknown"}
+            </h3>
+            <div class="flex flex-shrink-0 items-center gap-1 rounded-md bg-black/20 px-2 py-1 text-yellow-400 backdrop-blur-sm">
+              <span class="text-sm">★</span>
+              <span class="text-xs font-semibold">${properties.rating || "N/A"}</span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <p class="mb-3 line-clamp-3 text-sm text-gray-200">
+            ${properties.description || ""}
+          </p>
+
+          <!-- Location -->
+          <div class="mb-3 flex items-center gap-1 text-xs text-gray-300">
+            <span>📍</span>
+            <span class="font-medium">${properties.location || ""}</span>
+          </div>
+
+          <!-- Footer - Category & Reviews -->
+          <div class="mt-auto flex items-center justify-between">
+            <span class="text-xs text-gray-300">
+              (${properties.reviews || 0} reviews)
+            </span>
+            <span class="rounded-full bg-black/20 px-3 py-1 text-xs font-semibold text-white shadow-md backdrop-blur-sm">
+              ${properties.category || ""}
+            </span>
+          </div>
+
+          <!-- Animated Border -->
+          <div class="absolute -bottom-4 left-0 h-1 w-0 bg-gradient-to-r from-blue-400 to-purple-400"></div>
+        </div>
+      </div>
+    </div>
+  `;
+};
 
 interface MarkerData {
   marker: mapboxgl.Marker;
@@ -173,15 +293,7 @@ const ExplorePage: React.FC = () => {
 
       // Create popup with basic information card
       const popup = new mapboxgl.Popup(POPUP_CONFIG).setHTML(
-        `<div class="info-card">
-          <h3 class="info-title">${properties?.name || "Unknown"}</h3>
-          <p class="info-description">${properties?.description || ""}</p>
-          <div class="info-meta">
-            <span class="info-category">${properties?.category || ""}</span>
-            <span class="info-price">${properties?.price || ""}</span>
-          </div>
-          <button class="info-btn">Get Directions</button>
-        </div>`,
+        createPopupHTML(properties),
       );
 
       // Create marker instance with proper anchor
