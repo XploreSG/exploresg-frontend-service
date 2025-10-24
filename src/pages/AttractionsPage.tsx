@@ -89,6 +89,7 @@ const AttractionsPage: React.FC = () => {
           distance={attraction.location}
           category={attraction.category}
           price={attraction.price}
+          type={attraction.type}
         />
       ))}
     </FilterablePage>

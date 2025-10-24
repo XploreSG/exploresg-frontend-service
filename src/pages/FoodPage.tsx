@@ -90,6 +90,7 @@ const FoodPage: React.FC = () => {
           distance={eatery.location}
           category={eatery.category}
           price={eatery.price}
+          type={eatery.type}
         />
       ))}
     </FilterablePage>

@@ -86,6 +86,7 @@ const EventsPage: React.FC = () => {
           category={event.category}
           price={event.price}
           status={event.status}
+          type={event.type}
         />
       ))}
     </FilterablePage>
