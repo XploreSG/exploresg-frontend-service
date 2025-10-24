@@ -209,7 +209,7 @@ const YourDayPage = () => {
                 your day in Singapore!
               </p>
               <Link
-                to="/explore"
+                to="/rentals"
                 className="mt-4 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
               >
                 Explore Vehicles
