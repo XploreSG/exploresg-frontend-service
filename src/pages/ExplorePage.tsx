@@ -484,11 +484,11 @@ const ExplorePage: React.FC = () => {
 
       {/* Fixed Filter Bar at Bottom */}
       <div className="filter-bar fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform">
-        <div className="flex items-center gap-3 rounded-full bg-white/80 px-6 py-3 shadow-2xl ring-1 ring-white/20 backdrop-blur-xl">
+        <div className="flex items-center gap-3 rounded-full bg-white/30 px-6 py-3 shadow-2xl ring-1 ring-white/20 drop-shadow-2xl">
           {/* All Filter */}
           <button
             onClick={() => handleFilterChange("all")}
-            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 ${
+            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl drop-shadow-2xl transition-all duration-200 ${
               activeFilter === "all"
                 ? "bg-gray-700 text-white shadow-lg ring-2 ring-gray-900/20"
                 : "bg-gray-100/60 text-gray-600 backdrop-blur-sm hover:bg-gray-200/80"
@@ -502,7 +502,7 @@ const ExplorePage: React.FC = () => {
           {/* Attractions Filter */}
           <button
             onClick={() => handleFilterChange("attraction")}
-            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 ${
+            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl drop-shadow-2xl transition-all duration-200 ${
               activeFilter === "attraction"
                 ? "bg-purple-600 text-white shadow-lg ring-2 ring-purple-900/20"
                 : "bg-purple-100/60 text-purple-600 backdrop-blur-sm hover:bg-purple-200/80"
@@ -516,7 +516,7 @@ const ExplorePage: React.FC = () => {
           {/* Events Filter */}
           <button
             onClick={() => handleFilterChange("event")}
-            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 ${
+            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl drop-shadow-2xl transition-all duration-200 ${
               activeFilter === "event"
                 ? "bg-cyan-600 text-white shadow-lg ring-2 ring-cyan-900/20"
                 : "bg-cyan-100/60 text-cyan-600 backdrop-blur-sm hover:bg-cyan-200/80"
@@ -530,7 +530,7 @@ const ExplorePage: React.FC = () => {
           {/* Food Filter */}
           <button
             onClick={() => handleFilterChange("food")}
-            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200 ${
+            className={`flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-xl drop-shadow-2xl transition-all duration-200 ${
               activeFilter === "food"
                 ? "bg-orange-600 text-white shadow-lg ring-2 ring-orange-900/20"
                 : "bg-orange-100/60 text-orange-600 backdrop-blur-sm hover:bg-orange-200/80"
