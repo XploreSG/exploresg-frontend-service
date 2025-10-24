@@ -3,6 +3,7 @@ import { XMarkIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, TrashIcon } fro
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import type { ChatSidebarProps } from '../types/chat';
+import { saveScrollPosition, loadScrollPosition, createScrollToBottom } from '../utils/chatUtils';
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
   messages,
@@ -19,20 +20,13 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest'
-      });
-    }
+    createScrollToBottom(messagesEndRef.current);
   };
 
   // Save scroll position when scrolling
   const handleScroll = () => {
     if (messagesContainerRef.current) {
-      const scrollTop = messagesContainerRef.current.scrollTop;
-      localStorage.setItem('chatScrollPosition', scrollTop.toString());
+      saveScrollPosition(messagesContainerRef.current.scrollTop);
     }
   };
 
@@ -41,11 +35,10 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
   // Restore scroll position on mount
   useEffect(() => {
-    const savedScrollPosition = localStorage.getItem('chatScrollPosition');
+    const savedScrollPosition = loadScrollPosition();
     if (savedScrollPosition && messagesContainerRef.current) {
       const timer = setTimeout(() => {
-        const scrollTop = parseInt(savedScrollPosition, 10);
-        messagesContainerRef.current!.scrollTop = scrollTop;
+        messagesContainerRef.current!.scrollTop = savedScrollPosition;
         setHasRestoredInitialPosition(true);
       }, 100);
       return () => clearTimeout(timer);

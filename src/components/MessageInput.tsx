@@ -2,20 +2,21 @@ import React, { useState, type KeyboardEvent } from 'react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import type { MessageInputProps } from '../types/chat';
 import { INPUT_STYLES } from '../constants/chatStyles';
+import { validateMessage, isEnterKey } from '../utils/chatUtils';
 
 const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled = false }) => {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() && !disabled) {
+    if (validateMessage(message) && !disabled) {
       onSendMessage(message.trim());
       setMessage('');
     }
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (isEnterKey(e)) {
       e.preventDefault();
       handleSubmit(e);
     }
@@ -37,7 +38,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled = f
       </div>
       <button
         type="submit"
-        disabled={!message.trim() || disabled}
+        disabled={!validateMessage(message) || disabled}
         className={INPUT_STYLES.button}
         aria-label="Send message"
       >

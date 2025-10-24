@@ -1,4 +1,5 @@
 import type { Message } from '../types/chat';
+import React from 'react';
 
 export const createMessage = (
   content: string, 
@@ -122,4 +123,70 @@ export const formatTimestamp = (timestamp: Date): string => {
   if (days < 7) return `${days}d ago`;
   
   return timestamp.toLocaleDateString();
+};
+
+// Message status update utilities
+export const updateMessageStatus = (
+  messages: Message[], 
+  messageId: string, 
+  status: 'sending' | 'sent' | 'delivered' | 'read'
+): Message[] => {
+  return messages.map(msg => 
+    msg.id === messageId 
+      ? { ...msg, status }
+      : msg
+  );
+};
+
+// Scroll management utilities
+export const saveScrollPosition = (scrollTop: number): void => {
+  saveToLocalStorage('chatScrollPosition', scrollTop);
+};
+
+export const loadScrollPosition = (): number | null => {
+  const saved = localStorage.getItem('chatScrollPosition');
+  return saved ? parseInt(saved, 10) : null;
+};
+
+export const clearScrollPosition = (): void => {
+  localStorage.removeItem('chatScrollPosition');
+};
+
+// Body scroll management
+export const disableBodyScroll = (): void => {
+  document.body.style.overflow = 'hidden';
+};
+
+export const enableBodyScroll = (): void => {
+  document.body.style.overflow = '';
+  document.body.style.overflow = 'auto';
+};
+
+// Event handler utilities
+export const createEventHandler = <T extends (...args: any[]) => void>(
+  handler: T,
+  ...args: Parameters<T>
+): () => void => {
+  return () => handler(...args);
+};
+
+// Form validation utilities
+export const validateMessage = (message: string): boolean => {
+  return message.trim().length > 0;
+};
+
+// Keyboard event utilities
+export const isEnterKey = (e: React.KeyboardEvent): boolean => {
+  return e.key === 'Enter' && !e.shiftKey;
+};
+
+// Animation utilities
+export const createScrollToBottom = (element: HTMLElement | null) => {
+  if (!element) return;
+  
+  element.scrollIntoView({ 
+    behavior: 'smooth',
+    block: 'end',
+    inline: 'nearest'
+  });
 };
