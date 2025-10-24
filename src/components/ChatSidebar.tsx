@@ -2,28 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { XMarkIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, TrashIcon } from '@heroicons/react/24/outline';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
-
-interface Message {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-  status?: 'sending' | 'sent' | 'delivered' | 'read';
-  reactions?: { [emoji: string]: number };
-  userReactions?: string[];
-}
-
-interface ChatSidebarProps {
-  messages: Message[];
-  isLoading: boolean;
-  onSendMessage: (content: string) => void;
-  onClose: () => void;
-  isExpanded: boolean;
-  onToggleExpand: () => void;
-  onReaction?: (messageId: string, emoji: string) => void;
-  onCopyMessage?: (content: string) => void;
-  onClearChat?: () => void;
-}
+import type { ChatSidebarProps } from '../types/chat';
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
   messages,

@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import ChatSidebar from './ChatSidebar';
-
-interface Message {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-  status?: 'sending' | 'sent' | 'delivered' | 'read';
-  reactions?: { [emoji: string]: number };
-  userReactions?: string[];
-}
+import type { Message } from '../types/chat';
+import { createMessage, loadChatHistory, saveToLocalStorage, handleReaction as updateReaction, copyToClipboard, clearChatHistory } from '../utils/chatUtils';
+import { CONTAINER_STYLES, ANIMATION_STYLES } from '../constants/chatStyles';
 
 const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,29 +14,7 @@ const ChatWidget: React.FC = () => {
   });
   
   // Load chat history from localStorage
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const saved = localStorage.getItem('chatHistory');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return parsed.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }));
-      } catch (error) {
-        console.error('Error loading chat history:', error);
-      }
-    }
-    return [
-      {
-        id: '1',
-        content: "Hi! I'm your ExploreSG travel assistant. I can help you plan your Singapore itinerary, find the perfect rental car, and answer any questions about exploring Singapore. How can I help you today?",
-        role: 'assistant' as const,
-        timestamp: new Date(),
-        status: 'read' as const
-      }
-    ];
-  });
+  const [messages, setMessages] = useState<Message[]>(loadChatHistory);
   const [isLoading, setIsLoading] = useState(false);
 
   // Handle scroll restoration when chat state changes
@@ -69,77 +40,26 @@ const ChatWidget: React.FC = () => {
 
   // Save chat history to localStorage whenever messages change
   useEffect(() => {
-    localStorage.setItem('chatHistory', JSON.stringify(messages));
+    saveToLocalStorage('chatHistory', messages);
   }, [messages]);
 
   const addMessage = (content: string, role: 'user' | 'assistant', status?: 'sending' | 'sent' | 'delivered' | 'read') => {
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      role,
-      timestamp: new Date(),
-      status: status || (role === 'user' ? 'sending' : 'read'),
-      reactions: {},
-      userReactions: []
-    };
+    const newMessage = createMessage(content, role, status);
     setMessages(prev => [...prev, newMessage]);
     return newMessage;
   };
 
   const handleReaction = (messageId: string, emoji: string) => {
-    setMessages(prev => prev.map(msg => {
-      if (msg.id === messageId) {
-        const currentReactions = msg.reactions || {};
-        const currentUserReactions = msg.userReactions || [];
-        
-        // Toggle reaction
-        const hasReaction = currentUserReactions.includes(emoji);
-        const newUserReactions = hasReaction 
-          ? currentUserReactions.filter(r => r !== emoji)
-          : [...currentUserReactions, emoji];
-        
-        const newReactions = { ...currentReactions };
-        if (hasReaction) {
-          newReactions[emoji] = (newReactions[emoji] || 1) - 1;
-          if (newReactions[emoji] <= 0) {
-            delete newReactions[emoji];
-          }
-        } else {
-          newReactions[emoji] = (newReactions[emoji] || 0) + 1;
-        }
-        
-        return {
-          ...msg,
-          reactions: newReactions,
-          userReactions: newUserReactions
-        };
-      }
-      return msg;
-    }));
+    setMessages(prev => updateReaction(prev, messageId, emoji));
   };
 
   const handleCopyMessage = (content: string) => {
-    navigator.clipboard.writeText(content);
-    // You could add a toast notification here
+    copyToClipboard(content);
   };
 
   const handleClearChat = () => {
-    // Clear messages and reset to initial state
-    const initialMessage = {
-      id: '1',
-      content: "Hi! I'm your ExploreSG travel assistant. I can help you plan your Singapore itinerary, find the perfect rental car, and answer any questions about exploring Singapore. How can I help you today?",
-      role: 'assistant' as const,
-      timestamp: new Date(),
-      status: 'read' as const
-    };
-    
-    setMessages([initialMessage]);
-    
-    // Clear localStorage
-    localStorage.removeItem('chatHistory');
-    localStorage.removeItem('chatScrollPosition');
-    
-    console.log('Chat cleared');
+    setMessages(loadChatHistory());
+    clearChatHistory();
   };
 
   const handleToggleExpand = () => {
@@ -194,32 +114,32 @@ const ChatWidget: React.FC = () => {
 
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
-            {/* Chat Button */}
-            {!isOpen && (
-              <button
-                onClick={toggleChat}
-                className="bg-red-600/80 hover:bg-red-600 active:bg-red-700 text-white rounded-full p-4 sm:p-5 shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-200 touch-manipulation"
-                aria-label="Open chat"
-              >
-                <ChatBubbleLeftRightIcon className="h-6 w-6 sm:h-7 sm:w-7" />
-              </button>
-            )}
+    <div className={CONTAINER_STYLES.chatWidget}>
+      {/* Chat Button */}
+      {!isOpen && (
+        <button
+          onClick={toggleChat}
+          className={CONTAINER_STYLES.chatButton}
+          aria-label="Open chat"
+        >
+          <ChatBubbleLeftRightIcon className="h-6 w-6 sm:h-7 sm:w-7" />
+        </button>
+      )}
 
       {/* Chat Sidebar */}
       {isOpen && (
-        <div className="relative animate-in zoom-in-95 slide-in-from-bottom-4 slide-in-from-right-4 fade-in duration-300">
-                <ChatSidebar
-                  messages={messages}
-                  isLoading={isLoading}
-                  onSendMessage={sendMessage}
-                  onClose={() => setIsOpen(false)}
-                  isExpanded={isExpanded}
-                  onToggleExpand={handleToggleExpand}
-                  onReaction={handleReaction}
-                  onCopyMessage={handleCopyMessage}
-                  onClearChat={handleClearChat}
-                />
+        <div className={`relative ${ANIMATION_STYLES.zoomIn}`}>
+          <ChatSidebar
+            messages={messages}
+            isLoading={isLoading}
+            onSendMessage={sendMessage}
+            onClose={() => setIsOpen(false)}
+            isExpanded={isExpanded}
+            onToggleExpand={handleToggleExpand}
+            onReaction={handleReaction}
+            onCopyMessage={handleCopyMessage}
+            onClearChat={handleClearChat}
+          />
         </div>
       )}
     </div>

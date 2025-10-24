@@ -1,10 +1,7 @@
 import React, { useState, type KeyboardEvent } from 'react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
-
-interface MessageInputProps {
-  onSendMessage: (content: string) => void;
-  disabled?: boolean;
-}
+import type { MessageInputProps } from '../types/chat';
+import { INPUT_STYLES } from '../constants/chatStyles';
 
 const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled = false }) => {
   const [message, setMessage] = useState('');
@@ -33,7 +30,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled = f
           onKeyPress={handleKeyPress}
           placeholder="Type your message..."
           disabled={disabled}
-          className="w-full h-10 sm:h-12 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-sm touch-manipulation"
+          className={INPUT_STYLES.textarea}
           rows={1}
           style={{ maxHeight: '120px' }}
         />
@@ -41,7 +38,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled = f
       <button
         type="submit"
         disabled={!message.trim() || disabled}
-        className="bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-sm hover:scale-105 active:scale-95 flex-shrink-0 h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center touch-manipulation"
+        className={INPUT_STYLES.button}
         aria-label="Send message"
       >
         <PaperAirplaneIcon className="h-4 w-4 sm:h-5 sm:w-5" />

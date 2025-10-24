@@ -2,23 +2,8 @@ import React, { useState } from 'react';
 import { HeartIcon, HandThumbUpIcon, HandThumbDownIcon, FaceSmileIcon, CheckIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid, HandThumbUpIcon as ThumbsUpSolid, HandThumbDownIcon as ThumbsDownSolid, FaceSmileIcon as FaceSmileSolid } from '@heroicons/react/24/solid';
 import TypingIndicator from './TypingIndicator';
-
-interface Message {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-  status?: 'sending' | 'sent' | 'delivered' | 'read';
-  reactions?: { [emoji: string]: number };
-  userReactions?: string[];
-}
-
-interface MessageListProps {
-  messages: Message[];
-  isLoading: boolean;
-  onReaction?: (messageId: string, emoji: string) => void;
-  onCopyMessage?: (content: string) => void;
-}
+import type { MessageListProps } from '../types/chat';
+import { formatTimestamp } from '../utils/chatUtils';
 
 const MessageList: React.FC<MessageListProps> = ({ 
   messages, 
@@ -88,25 +73,6 @@ const MessageList: React.FC<MessageListProps> = ({
     }
   };
 
-  const formatTimestamp = (timestamp: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - timestamp.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    
-    return timestamp.toLocaleDateString([], { 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   return (
     <div className="space-y-4">
