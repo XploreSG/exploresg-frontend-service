@@ -196,6 +196,8 @@ const ExplorePage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortType>("name");
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [hoveredPlace, setHoveredPlace] = useState<string | null>(null);
   const { collectedItems } = useCollection();
 
   // Get filtered and sorted places based on active filter
@@ -618,134 +620,241 @@ const ExplorePage: React.FC = () => {
         </div>
       )}
 
-      {/* Search Sidebar - Top Right */}
-      <div className="absolute top-6 right-6 z-30 w-80 space-y-3">
-        {/* Search Bar */}
-        <div className="rounded-md bg-white/80 p-3 shadow backdrop-blur">
-          <label htmlFor="search-places" className="sr-only">
-            Search places
-          </label>
-          <input
-            id="search-places"
-            type="text"
-            placeholder="Search places..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+      {/* Toggle Button - Outside sidebar, on the right side, on top */}
+      <button
+        onClick={() => setSidebarExpanded(!sidebarExpanded)}
+        className={`absolute top-6 z-40 rounded-l-md bg-indigo-600 p-2 text-white shadow-lg backdrop-blur transition-all duration-500 hover:bg-indigo-700 ${
+          sidebarExpanded ? "right-80" : "right-20"
+        }`}
+        aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+        title={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+      >
+        <svg
+          className={`h-5 w-5 transition-transform duration-300 ${
+            sidebarExpanded ? "rotate-0" : "rotate-180"
+          }`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7"
           />
-        </div>
+        </svg>
+      </button>
 
-        {/* Sort Buttons */}
-        <div className="rounded-md bg-white/80 p-2 shadow backdrop-blur">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setSortBy("name")}
-              className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-[11px] font-semibold transition-all ${
-                sortBy === "name"
-                  ? "bg-indigo-500 text-white shadow-sm"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+      {/* Dynamic Sidebar - Top Right */}
+      <div
+        className={`absolute top-6 right-0 z-30 transition-all duration-500 ease-out ${
+          sidebarExpanded ? "w-80" : "w-20"
+        }`}
+      >
+        {/* Hovered Place Name - Pops out on left side of sidebar */}
+        {!sidebarExpanded && hoveredPlace && (
+          <div className="pointer-events-none absolute top-0 right-full mr-2 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-xl backdrop-blur">
+            <p className="text-sm font-semibold whitespace-nowrap text-gray-900">
+              {hoveredPlace}
+            </p>
+          </div>
+        )}
+
+        {/* Expanded Content */}
+        <div
+          className={`transition-all duration-500 ease-out ${
+            sidebarExpanded
+              ? "translate-x-0 scale-100 opacity-100"
+              : "pointer-events-none translate-x-8 scale-95 opacity-0"
+          }`}
+        >
+          <div className="mr-6 space-y-3">
+            {/* Search Bar */}
+            <div className="rounded-md bg-white/80 p-3 shadow backdrop-blur">
+              <label htmlFor="search-places" className="sr-only">
+                Search places
+              </label>
+              <input
+                id="search-places"
+                type="text"
+                placeholder="Search places..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Sort Buttons */}
+            <div className="rounded-md bg-white/80 p-2 shadow backdrop-blur">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setSortBy("name")}
+                  className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-[11px] font-semibold transition-all ${
+                    sortBy === "name"
+                      ? "bg-indigo-500 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <Bars3BottomLeftIcon className="h-3.5 w-3.5" />
+                  <span>Name</span>
+                </button>
+                <button
+                  onClick={() => setSortBy("rating")}
+                  className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-[11px] font-semibold transition-all ${
+                    sortBy === "rating"
+                      ? "bg-indigo-500 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <StarIcon className="h-3.5 w-3.5" />
+                  <span>Rating</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Places List */}
+            <div
+              className="places-list overflow-y-auto rounded-md bg-white/90 shadow-lg backdrop-blur"
+              style={{
+                maxHeight: "calc(100vh - 16rem)",
+              }}
             >
-              <Bars3BottomLeftIcon className="h-3.5 w-3.5" />
-              <span>Name</span>
-            </button>
-            <button
-              onClick={() => setSortBy("rating")}
-              className={`flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-[11px] font-semibold transition-all ${
-                sortBy === "rating"
-                  ? "bg-indigo-500 text-white shadow-sm"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              <StarIcon className="h-3.5 w-3.5" />
-              <span>Rating</span>
-            </button>
+              <div className="space-y-2 p-2">
+                {filteredPlaces.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-gray-500">
+                    {searchQuery ? "No places found" : "No places available"}
+                  </div>
+                ) : (
+                  filteredPlaces.map((feature) => {
+                    const props = feature.properties;
+                    if (!props) return null;
+
+                    return (
+                      <button
+                        key={props.id}
+                        onClick={() =>
+                          zoomToPlace(
+                            feature.geometry.coordinates as [number, number],
+                            props.id,
+                          )
+                        }
+                        className="flex w-full items-center gap-3 rounded-lg border-2 border-gray-200 bg-white p-3 transition-all hover:border-gray-300 hover:shadow-md"
+                      >
+                        {/* Place Thumbnail */}
+                        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white">
+                          <img
+                            src={props.image || "/placeholder.jpg"}
+                            alt={props.name || "Place"}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src =
+                                "https://via.placeholder.com/64x64?text=No+Image";
+                            }}
+                          />
+                        </div>
+
+                        {/* Place Info */}
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-semibold text-gray-900">
+                            {props.name}
+                          </div>
+                          <div className="truncate text-xs text-gray-600">
+                            {props.location}
+                          </div>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span
+                              className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium text-white ${
+                                props.type === "attraction"
+                                  ? "bg-purple-600"
+                                  : props.type === "event"
+                                    ? "bg-cyan-600"
+                                    : props.type === "food"
+                                      ? "bg-orange-600"
+                                      : "bg-gray-600"
+                              }`}
+                            >
+                              {props.type}
+                            </span>
+                            {props.rating && (
+                              <span className="flex items-center gap-0.5 text-xs text-yellow-600">
+                                <span>★</span>
+                                <span className="font-semibold">
+                                  {props.rating}
+                                </span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Places List */}
-        <div
-          className="places-list overflow-y-auto rounded-md bg-white/90 shadow-lg backdrop-blur"
-          style={{
-            maxHeight: "calc(100vh - 16rem)",
-          }}
-        >
-          <div className="space-y-2 p-2">
-            {filteredPlaces.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-500">
-                {searchQuery ? "No places found" : "No places available"}
-              </div>
-            ) : (
-              filteredPlaces.map((feature) => {
+        {/* Collapsed Thumbnails Strip - Visible when collapsed */}
+        {!sidebarExpanded && (
+          <div
+            className="thumbnail-strip absolute top-0 right-6 overflow-y-auto rounded-l-lg bg-white/90 shadow-lg backdrop-blur transition-all duration-300"
+            style={{
+              maxHeight: "calc(100vh - 12rem)",
+              width: "80px",
+            }}
+          >
+            <div className="flex flex-col items-center gap-2 p-2">
+              {filteredPlaces.slice(0, 20).map((feature) => {
                 const props = feature.properties;
                 if (!props) return null;
 
                 return (
                   <button
                     key={props.id}
-                    onClick={() =>
+                    onClick={() => {
                       zoomToPlace(
                         feature.geometry.coordinates as [number, number],
                         props.id,
-                      )
-                    }
-                    className="flex w-full items-center gap-3 rounded-lg border-2 border-gray-200 bg-white p-3 transition-all hover:border-gray-300 hover:shadow-md"
+                      );
+                      setSidebarExpanded(true);
+                    }}
+                    onMouseEnter={() => setHoveredPlace(props.name)}
+                    onMouseLeave={() => setHoveredPlace(null)}
+                    className="group relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border-2 border-gray-200 bg-white transition-all duration-200 hover:scale-110 hover:border-indigo-400 hover:shadow-lg"
+                    title={props.name}
                   >
-                    {/* Place Thumbnail */}
-                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white">
-                      <img
-                        src={props.image || "/placeholder.jpg"}
-                        alt={props.name || "Place"}
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src =
-                            "https://via.placeholder.com/64x64?text=No+Image";
-                        }}
-                      />
-                    </div>
-
-                    {/* Place Info */}
-                    <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold text-gray-900">
-                        {props.name}
-                      </div>
-                      <div className="truncate text-xs text-gray-600">
-                        {props.location}
-                      </div>
-                      <div className="mt-1 flex items-center gap-2">
-                        <span
-                          className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium text-white ${
-                            props.type === "attraction"
-                              ? "bg-purple-600"
-                              : props.type === "event"
-                                ? "bg-cyan-600"
-                                : props.type === "food"
-                                  ? "bg-orange-600"
-                                  : "bg-gray-600"
-                          }`}
-                        >
-                          {props.type}
-                        </span>
-                        {props.rating && (
-                          <span className="flex items-center gap-0.5 text-xs text-yellow-600">
-                            <span>★</span>
-                            <span className="font-semibold">
-                              {props.rating}
-                            </span>
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                    <img
+                      src={props.image || "/placeholder.jpg"}
+                      alt={props.name || "Place"}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "https://via.placeholder.com/56x56?text=No+Image";
+                      }}
+                    />
+                    {/* Type indicator dot */}
+                    <div
+                      className={`absolute right-1 bottom-1 h-2 w-2 rounded-full border border-white shadow-sm transition-transform duration-200 group-hover:scale-125 ${
+                        props.type === "attraction"
+                          ? "bg-purple-600"
+                          : props.type === "event"
+                            ? "bg-cyan-600"
+                            : props.type === "food"
+                              ? "bg-orange-600"
+                              : "bg-gray-600"
+                      }`}
+                    />
                   </button>
                 );
-              })
-            )}
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <style>{`
-        /* Minimalist scrollbar */
+        /* Minimalist scrollbar for places list */
         .places-list::-webkit-scrollbar {
           width: 6px;
         }
@@ -763,6 +872,26 @@ const ExplorePage: React.FC = () => {
         .places-list {
           scrollbar-width: thin;
           scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+        }
+
+        /* Minimalist scrollbar for thumbnail strip */
+        .thumbnail-strip::-webkit-scrollbar {
+          width: 4px;
+        }
+        .thumbnail-strip::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .thumbnail-strip::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.3);
+          border-radius: 2px;
+        }
+        .thumbnail-strip::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.5);
+        }
+        /* Firefox */
+        .thumbnail-strip {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
         }
       `}</style>
 
